@@ -1,0 +1,41 @@
+{
+  "name": "PureTCO Backend",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.csdevkit",
+        "kreezii.vscode-nuget",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.makefile-tools",
+        "humao.rest-client"
+      ],
+      "settings": {
+        "omnisharp.enableEditorConfigSupport": true,
+        "omnisharp.enableRoslynAnalyzers": true,
+        "omnisharp.organizeImportsOnFormat": true
+      }
+    }
+  },
+
+  "forwardPorts": [8080, 5432],
+  "portsAttributes": {
+    "8080": {
+      "label": "Application",
+      "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    }
+  },
+
+  "postCreateCommand": "dotnet restore",
+  "postStartCommand": "dotnet build",
+
+  "remoteUser": "root"
+}
