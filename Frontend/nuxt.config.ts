@@ -6,7 +6,8 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/image',
     '@nuxt/icon',
-    '@pinia/nuxt'
+    '@pinia/nuxt',
+    'nuxt-icons'
   ],
 
   plugins: [
