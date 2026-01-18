@@ -9,11 +9,20 @@ export default defineNuxtConfig({
     '@pinia/nuxt'
   ],
 
+  plugins: [
+    '~/plugins/fetch'
+  ],
+
   devtools: {
     enabled: true
   },
 
   css: ['~/assets/css/main.css'],
+  runtimeConfig: {
+    public: {
+      backendApiUri: process.env.BACKEND_API_URI || 'http://localhost:8000/api'
+    }
+  },
 
   routeRules: {
     '/': { prerender: true },

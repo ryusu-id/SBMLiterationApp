@@ -24,6 +24,11 @@ useSeoMeta({
 })
 
 const auth = useAuth()
+
+onMounted(() => {
+  auth.getToken()
+  auth.getRefreshToken()
+})
 </script>
 
 <template>
