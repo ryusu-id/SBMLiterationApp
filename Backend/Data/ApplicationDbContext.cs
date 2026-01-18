@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PureTCOWebApp.Features.Auth.Domain;
+using PureTCOWebApp.Features.TestModule;
 
 namespace PureTCOWebApp.Data
 {
@@ -13,10 +14,12 @@ namespace PureTCOWebApp.Data
         }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<TestItem> TestItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         }
     }

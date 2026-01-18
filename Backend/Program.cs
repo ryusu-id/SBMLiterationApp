@@ -17,6 +17,9 @@ builder.Services
     .AddIdentity<User, IdentityRole<int>>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+// Add UnitOfWork
+builder.Services.AddScoped<UnitOfWork>();
+
 // Add JWT Token Service
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
