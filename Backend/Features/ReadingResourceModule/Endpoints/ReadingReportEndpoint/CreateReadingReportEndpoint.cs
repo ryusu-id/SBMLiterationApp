@@ -7,10 +7,9 @@ using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.ReadingResourceModule.Domain;
 using PureTCOWebApp.Features.ReadingResourceModule.Domain.Entities;
 
-namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.ReadingReportEndpoint.cs;
+namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.ReadingReportEndpoint;
 
 public record CreateReadingReportRequest(
-    int UserId,
     int ReadingResourceId,
     int CurrentPage,
     string Insight);
@@ -19,10 +18,6 @@ public class CreateReadingReportValidator : AbstractValidator<CreateReadingRepor
 {
     public CreateReadingReportValidator()
     {
-        RuleFor(x => x.UserId)
-            .GreaterThan(0)
-            .WithMessage("User ID must be greater than 0.");
-
         RuleFor(x => x.ReadingResourceId)
             .GreaterThan(0)
             .WithMessage("Reading Resource ID must be greater than 0.");
@@ -51,8 +46,10 @@ public class CreateReadingReportEndpoint(ApplicationDbContext context)
 
     public override async Task HandleAsync(CreateReadingReportRequest req, CancellationToken ct)
     {
+        var userId = int.Parse(User.FindFirst("sub")!.Value);
+        
         var resourceExists = await context.Set<ReadingResourceBase>()
-            .AnyAsync(r => r.Id == req.ReadingResourceId, ct);
+            .AnyAsync(r => r.Id == req.ReadingResourceId && r.UserId == userId, ct);
 
         if (!resourceExists)
         {
@@ -62,7 +59,7 @@ public class CreateReadingReportEndpoint(ApplicationDbContext context)
         }
 
         var report = ReadingReport.Create(
-            req.UserId,
+            userId,
             req.ReadingResourceId,
             req.CurrentPage,
             req.Insight);

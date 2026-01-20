@@ -20,10 +20,18 @@ public class DeleteReadingResourceEndpoint(
 
     public override async Task HandleAsync(DeleteReadingResourceRequest req, CancellationToken ct)
     {
+        var userId = int.Parse(User.FindFirst("sub")!.Value);
+        
         // Try to find as Book first
         var book = await _dbContext.Books.FindAsync([req.Id], ct);
         if (book != null)
         {
+            if (book.UserId != userId)
+            {
+                await Send.ForbiddenAsync(ct);
+                return;
+            }
+            
             _dbContext.Remove(book);
             var result = await _unitOfWork.SaveChangesAsync(ct);
 
@@ -41,6 +49,12 @@ public class DeleteReadingResourceEndpoint(
         var journal = await _dbContext.JournalPapers.FindAsync([req.Id], ct);
         if (journal != null)
         {
+            if (journal.UserId != userId)
+            {
+                await Send.ForbiddenAsync(ct);
+                return;
+            }
+            
             _dbContext.Remove(journal);
             var result = await _unitOfWork.SaveChangesAsync(ct);
 

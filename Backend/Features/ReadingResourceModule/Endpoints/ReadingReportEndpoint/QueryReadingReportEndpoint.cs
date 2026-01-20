@@ -4,7 +4,7 @@ using PureTCOWebApp.Core.Paging;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.ReadingResourceModule.Domain.Entities;
 
-namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.ReadingReportEndpoint.cs;
+namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.ReadingReportEndpoint;
 
 public record QueryReadingReportRequest(
     int? ReadingResourceId = null
@@ -22,8 +22,12 @@ public class QueryReadingReportEndpoint(ApplicationDbContext context)
     public override async Task HandleAsync(QueryReadingReportRequest req, CancellationToken ct)
     {
         req = req with { SortBy = string.IsNullOrEmpty(req.SortBy) ? "Id" : req.SortBy };
+        var userId = int.Parse(User.FindFirst("sub")!.Value);
 
-        var query = context.ReadingReports.AsQueryable();
+        var query = context.ReadingReports
+            .Include(x => x.ReadingResource)
+            .Where(x => x.ReadingResource.UserId == userId);
+        
         var predicate = PredicateBuilder.True<ReadingReport>();
 
         if (req.ReadingResourceId.HasValue)

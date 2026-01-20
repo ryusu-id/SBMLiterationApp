@@ -15,6 +15,7 @@ public class ReadingResourceBase : AuditableEntity
     public string PublishYear { get; protected set; }
     public int Page { get; protected set; }
     public string? ResourceLink { get; protected set; }
+    public string? CoverImageUri { get; protected set; }
 
     [JsonIgnore]
     public virtual ICollection<ReadingReport> ReadingReports { get; set; } = [];
@@ -31,7 +32,8 @@ public class ReadingResourceBase : AuditableEntity
         string authors,
         string publishYear,
         int page,
-        string? resourceLink = null)
+        string? resourceLink = null,
+        string? coverImageUri = null)
     {
         return new ReadingResourceBase
         {
@@ -42,7 +44,8 @@ public class ReadingResourceBase : AuditableEntity
             Authors = authors,
             PublishYear = publishYear,
             Page = page,
-            ResourceLink = resourceLink
+            ResourceLink = resourceLink,
+            CoverImageUri = coverImageUri
         };
     }
 
@@ -53,7 +56,8 @@ public class ReadingResourceBase : AuditableEntity
         string authors,
         string publishYear,
         int page,
-        string? resourceLink = null)
+        string? resourceLink = null,
+        string? coverImageUri = null)
     {
         Title = title;
         ISBN = isbn;
@@ -62,5 +66,6 @@ public class ReadingResourceBase : AuditableEntity
         PublishYear = publishYear;
         Page = page;
         ResourceLink = resourceLink;
+        CoverImageUri = coverImageUri;
     }
 }

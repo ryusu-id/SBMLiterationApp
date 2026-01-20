@@ -6,15 +6,12 @@ using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.ReadingResourceModule.Domain;
 
-namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints;
+namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.BookEndpoints;
 
 public class CreateBookRequestValidator : AbstractValidator<CreateBookRequest>
 {
     public CreateBookRequestValidator()
     {
-        RuleFor(x => x.UserId)
-            .GreaterThan(0).WithMessage("UserId is required.");
-
         RuleFor(x => x.Title)
             .NotEmpty().WithMessage("Title is required.")
             .MaximumLength(200).WithMessage("Title must not exceed 200 characters.");
@@ -41,18 +38,22 @@ public class CreateBookRequestValidator : AbstractValidator<CreateBookRequest>
         RuleFor(x => x.ResourceLink)
             .MaximumLength(500).WithMessage("Resource Link must not exceed 500 characters.")
             .When(x => !string.IsNullOrEmpty(x.ResourceLink));
+
+        RuleFor(x => x.CoverImageUri)
+            .MaximumLength(500).WithMessage("Cover Image URI must not exceed 500 characters.")
+            .When(x => !string.IsNullOrEmpty(x.CoverImageUri));
     }
 }
 
 public record CreateBookRequest(
-    int UserId,
     string Title,
     string ISBN,
     string BookCategory,
     string Authors,
     string PublishYear,
     int Page,
-    string? ResourceLink
+    string? ResourceLink,
+    string? CoverImageUri
 );
 
 public record CreateBookResponse(
@@ -64,7 +65,8 @@ public record CreateBookResponse(
     string Authors,
     string PublishYear,
     int Page,
-    string? ResourceLink
+    string? ResourceLink,
+    string? CoverImageUri
 );
 
 public class CreateBookEndpoint(
@@ -80,6 +82,8 @@ public class CreateBookEndpoint(
 
     public override async Task HandleAsync(CreateBookRequest req, CancellationToken ct)
     {
+        var userId = int.Parse(User.FindFirst("sub")!.Value);
+        
         if (await _dbContext.Books.AnyAsync(x => x.ISBN == req.ISBN, ct))
         {
             await Send.ResultAsync(TypedResults.Conflict<ApiResponse>((Result)CrudDomainError.Duplicate("Book", "ISBN")));
@@ -87,14 +91,15 @@ public class CreateBookEndpoint(
         }
 
         var book = Book.Create(
-            req.UserId,
+            userId,
             req.Title,
             req.ISBN,
             req.BookCategory,
             req.Authors,
             req.PublishYear,
             req.Page,
-            req.ResourceLink
+            req.ResourceLink,
+            req.CoverImageUri
         );
 
         await _dbContext.AddAsync(book, ct);
@@ -116,7 +121,8 @@ public class CreateBookEndpoint(
                 book.Authors,
                 book.PublishYear,
                 book.Page,
-                book.ResourceLink
+                book.ResourceLink,
+                book.CoverImageUri
             )
         ), cancellation: ct);
     }

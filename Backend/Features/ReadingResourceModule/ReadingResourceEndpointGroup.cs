@@ -12,6 +12,7 @@ public class ReadingResourceEndpointGroup : Group
             ep.Group<GlobalApiEndpointGroup>();
             ep.Tags("Reading Resource Module");
             ep.Description(e => e.WithTags("Reading Resource Module"));
+            ep.AuthSchemes("Bearer");
         });
     }
 }

@@ -14,7 +14,8 @@ public class Book : ReadingResourceBase
         string authors,
         string publishYear,
         int page,
-        string? resourceLink = null)
+        string? resourceLink = null,
+        string? coverImageUri = null)
     {
         return new Book
         {
@@ -25,21 +26,21 @@ public class Book : ReadingResourceBase
             Authors = authors,
             PublishYear = publishYear,
             Page = page,
-            ResourceLink = resourceLink
+            ResourceLink = resourceLink,
+            CoverImageUri = coverImageUri
         };
     }
 
-    public void Update(
-        int userId,
+    public new void Update(
         string title,
         string isbn,
         string bookCategory,
         string authors,
         string publishYear,
         int page,
-        string? resourceLink = null)
+        string? resourceLink = null,
+        string? coverImageUri = null)
     {
-        UserId = userId;
         Title = title;
         ISBN = isbn;
         BookCategory = bookCategory;
@@ -47,5 +48,6 @@ public class Book : ReadingResourceBase
         PublishYear = publishYear;
         Page = page;
         ResourceLink = resourceLink;
+        CoverImageUri = coverImageUri;
     }
 }

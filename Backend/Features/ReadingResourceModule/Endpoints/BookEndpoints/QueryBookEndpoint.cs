@@ -1,9 +1,10 @@
 using FastEndpoints;
+using Microsoft.AspNetCore.Authorization;
 using PureTCOWebApp.Core.Paging;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.ReadingResourceModule.Domain;
 
-namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints;
+namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.BookEndpoints;
 
 public record QueryBookRequest(
     string? Title = null,
@@ -24,7 +25,9 @@ public class QueryBookEndpoint(ApplicationDbContext dbContext)
 
     public override async Task HandleAsync(QueryBookRequest req, CancellationToken ct)
     {
-        var query = dbContext.Books.AsQueryable();
+        var userId = int.Parse(User.FindFirst("sub")!.Value);
+        
+        var query = dbContext.Books.Where(x => x.UserId == userId);
 
         var predicate = PredicateBuilder.True<Book>();
 

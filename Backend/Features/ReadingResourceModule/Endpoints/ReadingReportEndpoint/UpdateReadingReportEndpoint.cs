@@ -5,7 +5,7 @@ using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
 
-namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.ReadingReportEndpoint.cs;
+namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.ReadingReportEndpoint;
 
 public record UpdateReadingReportRequest(
     int CurrentPage,
@@ -40,6 +40,7 @@ public class UpdateReadingReportEndpoint(ApplicationDbContext context)
     public override async Task HandleAsync(UpdateReadingReportRequest req, CancellationToken ct)
     {
         var id = Route<int>("id");
+        var userId = int.Parse(User.FindFirst("sub")!.Value);
         
         var report = await context.ReadingReports
             .FirstOrDefaultAsync(r => r.Id == id, ct);
@@ -48,6 +49,12 @@ public class UpdateReadingReportEndpoint(ApplicationDbContext context)
         {
             var error = CrudDomainError.NotFound("ReadingReport", id);
             await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>((Result)error));
+            return;
+        }
+        
+        if (report.UserId != userId)
+        {
+            await Send.ForbiddenAsync(ct);
             return;
         }
 

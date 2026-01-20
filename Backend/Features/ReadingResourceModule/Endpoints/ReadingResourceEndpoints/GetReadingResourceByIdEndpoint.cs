@@ -19,10 +19,11 @@ public class GetReadingResourceByIdEndpoint(ApplicationDbContext context)
     public override async Task HandleAsync(CancellationToken ct)
     {
         var id = Route<int>("id");
+        var userId = int.Parse(User.FindFirst("sub")!.Value);
         
         var resource = await context.Set<ReadingResourceBase>()
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == id, ct);
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, ct);
 
         if (resource is null)
         {

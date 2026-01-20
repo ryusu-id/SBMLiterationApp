@@ -65,6 +65,11 @@ public partial class ReadingResourceConfiguration : IEntityTypeConfiguration<Rea
             .IsUnicode(false)
             .HasColumnName("resource_link");
 
+        builder.Property(e => e.CoverImageUri)
+            .HasMaxLength(500)
+            .IsUnicode(false)
+            .HasColumnName("cover_image_uri");
+
         builder.Property<string>("resource_type")
             .HasMaxLength(20)
             .IsUnicode(false)

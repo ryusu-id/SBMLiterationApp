@@ -11,9 +11,6 @@ public class UpdateReadingResourceRequestValidator : AbstractValidator<UpdateRea
 {
     public UpdateReadingResourceRequestValidator()
     {
-        RuleFor(x => x.UserId)
-            .GreaterThan(0).WithMessage("UserId is required.");
-
         RuleFor(x => x.Title)
             .NotEmpty().WithMessage("Title is required.")
             .MaximumLength(200).WithMessage("Title must not exceed 200 characters.");
@@ -40,19 +37,23 @@ public class UpdateReadingResourceRequestValidator : AbstractValidator<UpdateRea
         RuleFor(x => x.ResourceLink)
             .MaximumLength(500).WithMessage("Resource Link must not exceed 500 characters.")
             .When(x => !string.IsNullOrEmpty(x.ResourceLink));
+
+        RuleFor(x => x.CoverImageUri)
+            .MaximumLength(500).WithMessage("Cover Image URI must not exceed 500 characters.")
+            .When(x => !string.IsNullOrEmpty(x.CoverImageUri));
     }
 }
 
 public record UpdateReadingResourceRequest(
     int Id,
-    int UserId,
     string Title,
     string ISBN,
     string BookCategory,
     string Authors,
     string PublishYear,
     int Page,
-    string? ResourceLink
+    string? ResourceLink,
+    string? CoverImageUri
 );
 
 public record UpdateReadingResourceResponse(
@@ -65,6 +66,7 @@ public record UpdateReadingResourceResponse(
     string PublishYear,
     int Page,
     string? ResourceLink,
+    string? CoverImageUri,
     string ResourceType
 );
 
@@ -81,11 +83,19 @@ public class UpdateReadingResourceEndpoint(
 
     public override async Task HandleAsync(UpdateReadingResourceRequest req, CancellationToken ct)
     {
+        var userId = int.Parse(User.FindFirst("sub")!.Value);
+        
         // Try to find as Book first
         var book = await dbContext.Books.FindAsync([req.Id], ct);
         if (book != null)
         {
-            book.Update(req.UserId, req.Title, req.ISBN, req.BookCategory, req.Authors, req.PublishYear, req.Page, req.ResourceLink);
+            if (book.UserId != userId)
+            {
+                await Send.ForbiddenAsync(ct);
+                return;
+            }
+            
+            book.Update(req.Title, req.ISBN, req.BookCategory, req.Authors, req.PublishYear, req.Page, req.ResourceLink, req.CoverImageUri);
             
             var result = await unitOfWork.SaveChangesAsync(ct);
             if (result.IsFailure)
@@ -96,7 +106,7 @@ public class UpdateReadingResourceEndpoint(
 
             var response = new UpdateReadingResourceResponse(
                 book.Id, book.UserId, book.Title, book.ISBN, book.BookCategory,
-                book.Authors, book.PublishYear, book.Page, book.ResourceLink, "BOOK"
+                book.Authors, book.PublishYear, book.Page, book.ResourceLink, book.CoverImageUri, "BOOK"
             );
             await Send.OkAsync(Result.Success(response), cancellation: ct);
             return;
@@ -106,7 +116,13 @@ public class UpdateReadingResourceEndpoint(
         var journal = await dbContext.JournalPapers.FindAsync([req.Id], ct);
         if (journal != null)
         {
-            journal.Update(req.UserId, req.Title, req.ISBN, req.BookCategory, req.Authors, req.PublishYear, req.Page, req.ResourceLink);
+            if (journal.UserId != userId)
+            {
+                await Send.ForbiddenAsync(ct);
+                return;
+            }
+            
+            journal.Update(req.Title, req.ISBN, req.BookCategory, req.Authors, req.PublishYear, req.Page, req.ResourceLink, req.CoverImageUri);
             
             var result = await unitOfWork.SaveChangesAsync(ct);
             if (result.IsFailure)
@@ -117,7 +133,7 @@ public class UpdateReadingResourceEndpoint(
 
             var response = new UpdateReadingResourceResponse(
                 journal.Id, journal.UserId, journal.Title, journal.ISBN, journal.BookCategory,
-                journal.Authors, journal.PublishYear, journal.Page, journal.ResourceLink, "JOURNAL"
+                journal.Authors, journal.PublishYear, journal.Page, journal.ResourceLink, journal.CoverImageUri, "JOURNAL"
             );
             await Send.OkAsync(Result.Success(response), cancellation: ct);
             return;

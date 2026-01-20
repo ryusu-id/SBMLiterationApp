@@ -3,7 +3,7 @@ using PureTCOWebApp.Core.Paging;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.ReadingResourceModule.Domain;
 
-namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints;
+namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.JournalPaperEndpoints;
 
 public record QueryJournalPaperRequest(
     string? Title = null,
@@ -24,7 +24,9 @@ public class QueryJournalPaperEndpoint(ApplicationDbContext dbContext)
 
     public override async Task HandleAsync(QueryJournalPaperRequest req, CancellationToken ct)
     {
-        var query = dbContext.JournalPapers.AsQueryable();
+        var userId = int.Parse(User.FindFirst("sub")!.Value);
+        
+        var query = dbContext.JournalPapers.Where(x => x.UserId == userId);
 
         var predicate = PredicateBuilder.True<JournalPaper>();
 

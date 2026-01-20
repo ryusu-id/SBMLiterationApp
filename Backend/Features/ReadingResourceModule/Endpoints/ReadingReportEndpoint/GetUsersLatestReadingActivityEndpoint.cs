@@ -4,7 +4,7 @@ using PureTCOWebApp.Core.Paging;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.ReadingResourceModule.Domain;
 
-namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.ReadingReportEndpoint.cs;
+namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.ReadingReportEndpoint;
 
 public record GetUsersLatestReadingActivityRequest(
     int UserId
@@ -17,7 +17,8 @@ public record UserLatestReadingActivity(
     string ResourceType,
     DateTime LastReportDate,
     int CurrentPage,
-    string LastInsight);
+    string LastInsight,
+    string? CoverImageUri);
 
 public class GetUsersLatestReadingActivityEndpoint(ApplicationDbContext context)
     : Endpoint<GetUsersLatestReadingActivityRequest, PagingResult<UserLatestReadingActivity>>
@@ -59,7 +60,8 @@ public class GetUsersLatestReadingActivityEndpoint(ApplicationDbContext context)
                         ResourceType = resource is Book ? "Book" : "JournalPaper",
                         report.ReportDate,
                         report.CurrentPage,
-                        report.Insight
+                        report.Insight,
+                        resource.CoverImageUri
                     };
 
         query = query.AsNoTracking();
@@ -71,7 +73,8 @@ public class GetUsersLatestReadingActivityEndpoint(ApplicationDbContext context)
             x.ResourceType,
             x.ReportDate,
             x.CurrentPage,
-            x.Insight
+            x.Insight,
+            x.CoverImageUri
         ));
 
         var result = await PagingService.PaginateQueryAsync(

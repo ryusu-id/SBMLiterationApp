@@ -6,15 +6,12 @@ using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.ReadingResourceModule.Domain;
 
-namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints;
+namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.JournalPaperEndpoints;
 
 public class CreateJournalPaperRequestValidator : AbstractValidator<CreateJournalPaperRequest>
 {
     public CreateJournalPaperRequestValidator()
     {
-        RuleFor(x => x.UserId)
-            .GreaterThan(0).WithMessage("UserId is required.");
-
         RuleFor(x => x.Title)
             .NotEmpty().WithMessage("Title is required.")
             .MaximumLength(200).WithMessage("Title must not exceed 200 characters.");
@@ -41,18 +38,22 @@ public class CreateJournalPaperRequestValidator : AbstractValidator<CreateJourna
         RuleFor(x => x.ResourceLink)
             .MaximumLength(500).WithMessage("Resource Link must not exceed 500 characters.")
             .When(x => !string.IsNullOrEmpty(x.ResourceLink));
+
+        RuleFor(x => x.CoverImageUri)
+            .MaximumLength(500).WithMessage("Cover Image URI must not exceed 500 characters.")
+            .When(x => !string.IsNullOrEmpty(x.CoverImageUri));
     }
 }
 
 public record CreateJournalPaperRequest(
-    int UserId,
     string Title,
     string ISBN,
     string BookCategory,
     string Authors,
     string PublishYear,
     int Page,
-    string? ResourceLink
+    string? ResourceLink,
+    string? CoverImageUri
 );
 
 public record CreateJournalPaperResponse(
@@ -64,7 +65,8 @@ public record CreateJournalPaperResponse(
     string Authors,
     string PublishYear,
     int Page,
-    string? ResourceLink
+    string? ResourceLink,
+    string? CoverImageUri
 );
 
 public class CreateJournalPaperEndpoint(
@@ -80,6 +82,8 @@ public class CreateJournalPaperEndpoint(
 
     public override async Task HandleAsync(CreateJournalPaperRequest req, CancellationToken ct)
     {
+        var userId = int.Parse(User.FindFirst("sub")!.Value);
+        
         if (await _dbContext.JournalPapers.AnyAsync(x => x.ISBN == req.ISBN, ct))
         {
             await Send.ResultAsync(TypedResults.Conflict<ApiResponse>((Result)CrudDomainError.Duplicate("JournalPaper", "ISBN")));
@@ -87,14 +91,15 @@ public class CreateJournalPaperEndpoint(
         }
 
         var journalPaper = JournalPaper.Create(
-            req.UserId,
+            userId,
             req.Title,
             req.ISBN,
             req.BookCategory,
             req.Authors,
             req.PublishYear,
             req.Page,
-            req.ResourceLink
+            req.ResourceLink,
+            req.CoverImageUri
         );
 
         await _dbContext.AddAsync(journalPaper, ct);
@@ -116,7 +121,8 @@ public class CreateJournalPaperEndpoint(
                 journalPaper.Authors,
                 journalPaper.PublishYear,
                 journalPaper.Page,
-                journalPaper.ResourceLink
+                journalPaper.ResourceLink,
+                journalPaper.CoverImageUri
             )
         ), cancellation: ct);
     }
