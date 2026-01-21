@@ -15,14 +15,16 @@
   --color-green-800: #016538;
   --color-green-900: #0a5331;
   --color-green-950: #052e16;
+
+  --color-base: #0b4c53;
+  --color-dark: #252432;
+  --color-fire: #fe483b;
+  --color-jose: #737373;
+  --font-poppins: "Poppins", sans-serif;
 }
 
 .nuxt-icon svg {
   margin-bottom: 0 !important;
-
-  --color-base: #0b4c53;
-
-  --font-poppins: "Poppins", sans-serif;
 }
 
 @layer base {
@@ -32,7 +34,7 @@
 }
 
 @layer utilities {
-  .sidepad {
+  /* .sidepad {
     @apply px-[40px] md:px-[100px];
-  }
+  } */
 }
