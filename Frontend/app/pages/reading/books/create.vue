@@ -2,24 +2,12 @@
 import { $authedFetch } from '~/apis/api'
 import ReadingResourceForm, { type ReadingResourceSchema } from '~/components/reading-passport/ReadingResourceForm.vue'
 
-const slug = useRoute().params.slug as string
-const formRef = useTemplateRef<typeof ReadingResourceForm>('formRef')
-
-// TODO-SSR-Fetch
-onMounted(async () => {
-  const response = await $authedFetch<Omit<ReadingResourceSchema, 'authors'> & { authors: string }>(`/reading-resources/${slug}`)
-  formRef.value?.setState({
-    ...response,
-    authors: response.authors.length > 0 ? response.authors.split(',') : ['']
-  })
-})
-
 const loading = ref(false)
 async function handleSubmit(data: Omit<ReadingResourceSchema, 'authors'> & { authors: string }) {
   try {
     loading.value = true
-    await $authedFetch(`/reading-resources/${slug}`, {
-      method: 'PUT',
+    await $authedFetch('/reading-resources/books', {
+      method: 'POST',
       body: {
         ...data,
         userId: 1
@@ -41,7 +29,7 @@ async function handleSubmit(data: Omit<ReadingResourceSchema, 'authors'> & { aut
       >
         <UPageHeader
           class="border-none"
-          title="Add book"
+          title="Add Book to Read"
         />
 
         <template #footer>
@@ -57,7 +45,6 @@ async function handleSubmit(data: Omit<ReadingResourceSchema, 'authors'> & { aut
         </template>
       </UCard>
       <ReadingResourceForm
-        ref="formRef"
         :loading
         @submit="handleSubmit"
       />

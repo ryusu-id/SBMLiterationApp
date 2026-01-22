@@ -2,18 +2,19 @@
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
-defineProps<{
+const props = defineProps<{
   loading?: boolean
+  journal?: boolean
 }>()
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
-  isbn: z.string().min(1, 'ISBN is required'),
+  isbn: props.journal ? z.string().optional() : z.string().min(1, 'ISBN is required'),
   authors: z.array(z.string().min(1, 'Author name is required')).min(1, 'At least one author is required'),
   publishYear: z.string().regex(/^\d{4}$/, 'Publish year must be a 4-digit year'),
   bookCategory: z.string().min(1, 'Book category is required'),
   page: z.coerce.number().min(1, 'Page count must be at least 1'),
-  resourceLink: z.string().url('Must be a valid URL')
+  resourceLink: z.url('Must be a valid URL').optional()
 })
 
 export type ReadingResourceSchema = z.output<typeof schema>
@@ -104,6 +105,7 @@ async function onSubmit(event: FormSubmitEvent<ReadingResourceSchema>) {
       <!-- ISBN and Publish Year - responsive grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <UFormField
+          v-if="!journal"
           label="ISBN"
           name="isbn"
           required
@@ -210,9 +212,8 @@ async function onSubmit(event: FormSubmitEvent<ReadingResourceSchema>) {
 
       <!-- Resource Link - full width -->
       <UFormField
-        label="Resource Link"
+        :label="journal ? 'DOI Link' : 'Google Books Link'"
         name="resourceLink"
-        required
       >
         <UInput
           v-model="state.resourceLink"
