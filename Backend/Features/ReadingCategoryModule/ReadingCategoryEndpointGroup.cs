@@ -10,6 +10,7 @@ public class ReadingCategoryEndpointGroup : Group
         {
             ep.Description(x => x.WithTags("Reading Categories"));
             ep.Tags("Reading Category Module");
+            ep.Group<GlobalApiEndpointGroup>();
         });
     }
 }
