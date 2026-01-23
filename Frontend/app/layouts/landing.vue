@@ -39,7 +39,7 @@ onMounted(() => {
       position: 'top-right'
     }"
   >
-    <UHeader>
+    <UHeader :toggle="false">
       <template #left>
         <NuxtLink to="/">
           <AppLogo class="w-auto h-6 shrink-0" />

@@ -139,3 +139,21 @@ export const useAuth = defineStore('auth', () => {
     getRoles
   }
 })
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function handleResponseError(error: any) {
+  const toast = useToast()
+  const statusCode = error?.response?.status || error?.statusCode
+  const description
+    = error?.response?._data?.message
+      || error?.response?._data?.error
+      || error?.message
+      || 'An unknown error occurred'
+
+  toast.add({
+    title: statusCode ? `Error ${statusCode}` : 'Error',
+    description,
+    color: 'error',
+    icon: 'i-lucide-triangle-alert'
+  })
+}
