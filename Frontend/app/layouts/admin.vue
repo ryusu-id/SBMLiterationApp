@@ -31,7 +31,8 @@ const items: NavigationMenuItem[] = [{
   to: '/admin/recommendation'
 }, {
   label: 'Users',
-  icon: 'i-lucide-users'
+  icon: 'i-lucide-users',
+  to: '/admin/users'
 }]
 </script>
 
