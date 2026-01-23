@@ -2,16 +2,16 @@
 // TODO: add discriminator for display for Dashboard (with image) and non Dashboard (without image)
 defineProps<{
   report: {
-    title: string;
-    imageUrl: string;
-    insight: string;
-    timeSpent: string;
-    readDate: string;
-    currentPage: number;
-    totalPage: number;
-  };
-  withImage?: boolean;
-}>();
+    title: string
+    imageUrl: string
+    insight: string
+    timeSpent: string
+    readDate: string
+    currentPage: number
+    totalPage: number
+  }
+  withImage?: boolean
+}>()
 </script>
 
 <template>
@@ -20,7 +20,7 @@ defineProps<{
     class=""
     :ui="{
       root: 'ring ring-[#EDEDED] bg-white rounded-[12px] max-w-3xl col-span-12 lg:col-span-6',
-      body: 'p-2 sm:p-2  ',
+      body: 'p-2 sm:p-2'
     }"
   >
     <div class="flex flex-row gap-x-4">
@@ -32,11 +32,14 @@ defineProps<{
           :src="report.imageUrl"
           alt="Book Cover"
           class="w-full h-full object-cover"
-        />
+        >
       </div>
 
       <div class="flex flex-col">
-        <div class="flex flex-row justify-between" v-if="withImage">
+        <div
+          v-if="withImage"
+          class="flex flex-row justify-between"
+        >
           <h1
             class="text-[13px] sm:text-[15px] tracking-tight font-bold line-clamp-1 text-dark"
           >
@@ -46,9 +49,12 @@ defineProps<{
           <nuxt-icon name="i-heroicons-chevron-down" />
         </div>
 
-        <UBadge class="w-fit rounded-full mb-1 text-[12px]" v-else
-          >Insight</UBadge
+        <UBadge
+          v-else
+          class="w-fit rounded-full mb-1 text-[12px]"
         >
+          Insight
+        </UBadge>
         <p
           class="mt-2 text-wrap text-dark line-clamp-2 font-medium tracking-tight text-[11px] sm:text-[13px]"
         >
@@ -58,7 +64,7 @@ defineProps<{
         <USeparator
           class="my-2"
           :ui="{
-            border: 'border-[#EDEDED]',
+            border: 'border-[#EDEDED]'
           }"
         />
         <div class="flex flex-row justify-between">
@@ -76,7 +82,7 @@ defineProps<{
             <USeparator
               orientation="vertical"
               :ui="{
-                border: 'border-[#EDEDED]',
+                border: 'border-[#EDEDED]'
               }"
             />
             <div class="flex flex-col tracking-tight">

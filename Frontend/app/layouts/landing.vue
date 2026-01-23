@@ -50,14 +50,6 @@ onMounted(() => {
         <UColorModeButton />
 
         <UButton
-          to="https://github.com/nuxt-ui-templates/starter"
-          target="_blank"
-          icon="i-simple-icons-github"
-          aria-label="GitHub"
-          color="neutral"
-          variant="ghost"
-        />
-        <UButton
           v-if="isAuthLoading"
           color="neutral"
           variant="ghost"

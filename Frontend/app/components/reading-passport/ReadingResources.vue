@@ -2,15 +2,19 @@
   <Swiper
     :modules="[EffectCards]"
     effect="cards"
-    grabCursor
+    grab-cursor
     class="w-full max-w-[300px] sm:max-w-[330px]"
   >
-    <SwiperSlide v-for="res in resources" :key="res.title" class="rounded-xl">
+    <SwiperSlide
+      v-for="res in resources"
+      :key="res.title"
+      class="rounded-xl"
+    >
       <UCard
         variant="unstyled"
         class="bg-[#3566CD] rounded-[21px]"
         :ui="{
-          root: '',
+          root: ''
         }"
       >
         <template #header>
@@ -18,7 +22,7 @@
             <UPageHeader
               :title="res.title"
               :ui="{
-                title: 'text-white max-h-[120px] line-clamp-3 ',
+                title: 'text-white max-h-[120px] line-clamp-3 '
               }"
               class="flex-1 border-0 p-0"
             />
@@ -46,7 +50,7 @@
             :src="res.imageUrl"
             alt="Resource Image"
             class="w-full h-full object-cover"
-          />
+          >
         </div>
 
         <template #footer>
@@ -65,10 +69,13 @@
       <div
         class="w-full min-h-[370px] border-5 border-[#3566CD] rounded-2xl bg-white flex flex-col items-center justify-center gap-4 text-[#3566CD]"
       >
-        <UIcon name="i-heroicons-plus" class="size-16" />
+        <UIcon
+          name="i-heroicons-plus"
+          class="size-16"
+        />
 
         <h1 class="text-center font-semibold text-xl leading-tight">
-          New<br />
+          New<br>
           Reading Source
         </h1>
       </div>
@@ -77,22 +84,22 @@
 </template>
 
 <script setup lang="ts">
-import { Swiper, SwiperSlide } from "swiper/vue";
+import { Swiper, SwiperSlide } from 'swiper/vue'
 
 // Swiper styles (WAJIB)
-import "swiper/css";
-import "swiper/css/effect-cards";
+import 'swiper/css'
+import 'swiper/css/effect-cards'
 
 // Swiper module
-import { EffectCards } from "swiper/modules";
+import { EffectCards } from 'swiper/modules'
 
 defineProps<{
   resources: {
-    title: string;
-    imageUrl: string;
-    totalPages: number;
-    totalReadPages: number;
-    type: "book" | "journal";
-  }[];
-}>();
+    title: string
+    imageUrl: string
+    totalPages: number
+    totalReadPages: number
+    type: 'book' | 'journal'
+  }[]
+}>()
 </script>

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PureTCOWebApp.Features.Auth.Domain;
@@ -39,5 +40,28 @@ public class RefreshTokenEntityConfiguration : IEntityTypeConfiguration<RefreshT
             .WithMany()
             .HasForeignKey(rt => rt.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+public class RoleSeeder : IEntityTypeConfiguration<IdentityRole<int>>
+{
+    public void Configure(EntityTypeBuilder<IdentityRole<int>> builder)
+    {
+        builder.HasData(
+            new IdentityRole<int>
+            {
+                Id = 1,
+                Name = "admin",
+                NormalizedName = "ADMIN",
+                ConcurrencyStamp = "1"
+            },
+            new IdentityRole<int>
+            {
+                Id = 2,
+                Name = "participant",
+                NormalizedName = "PARTICIPANT",
+                ConcurrencyStamp = "1"
+            }
+        );
     }
 }

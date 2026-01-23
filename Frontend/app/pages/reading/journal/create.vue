@@ -1,24 +1,24 @@
 <script lang="ts" setup>
-import { $authedFetch } from "~/apis/api";
+import { $authedFetch } from '~/apis/api'
 import ReadingResourceForm, {
-  type ReadingResourceSchema,
-} from "~/components/reading-passport/ReadingResourceForm.vue";
+  type ReadingResourceSchema
+} from '~/components/reading-passport/ReadingResourceForm.vue'
 
-const loading = ref(false);
+const loading = ref(false)
 async function handleSubmit(
-  data: Omit<ReadingResourceSchema, "authors"> & { authors: string },
+  data: Omit<ReadingResourceSchema, 'authors'> & { authors: string }
 ) {
   try {
-    loading.value = true;
-    await $authedFetch("/reading-resources/journals", {
-      method: "POST",
+    loading.value = true
+    await $authedFetch('/reading-resources/journals', {
+      method: 'POST',
       body: {
         ...data,
-        userId: 1,
-      },
-    });
+        userId: 1
+      }
+    })
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 </script>
@@ -32,13 +32,16 @@ async function handleSubmit(
         class="overflow-visible mb-[100px]"
         :ui="{
           header: ' border-0',
-          root: 'bg-[#265FC4] mx-[-16px] sm:mx-[-24px] lg:mx-[-32px] rounded-t-none rounded-b-3xl px-4 py-4',
+          root: 'bg-[#265FC4] mx-[-16px] sm:mx-[-24px] lg:mx-[-32px] rounded-t-none rounded-b-3xl px-4 py-4'
         }"
       >
         <template #header>
           <div class="flex items-start justify-between gap-2">
             <div class="text-white">
-              <UIcon name="i-heroicons-chevron-left" class="size-6" />
+              <UIcon
+                name="i-heroicons-chevron-left"
+                class="size-6"
+              />
             </div>
             <UPageHeader
               title="Add Journal"
@@ -46,13 +49,16 @@ async function handleSubmit(
                 root: 'py-0 border-0 pb-10',
                 wrapper: 'lg:justify-center',
                 title:
-                  'text-white text-center  line-clamp-1 text-[22px] lg:text-[24px] leading-tight font-medium',
+                  'text-white text-center  line-clamp-1 text-[22px] lg:text-[24px] leading-tight font-medium'
               }"
               class="flex-1 border-0"
             />
             <!-- This is just to make the title center -->
             <div class="text-transparent">
-              <UIcon name="i-heroicons-chevron-left" class="size-6" />
+              <UIcon
+                name="i-heroicons-chevron-left"
+                class="size-6"
+              />
             </div>
           </div>
         </template>
@@ -64,7 +70,10 @@ async function handleSubmit(
             <div
               class="h-48 md:h-60 aspect-2/3 rounded-2xl absolute -top-12 flex justify-center items-center text-[#3566CD] bg-[#F5F5F7]"
             >
-              <UIcon name="i-heroicons-book-open" class="size-14" />
+              <UIcon
+                name="i-heroicons-book-open"
+                class="size-14"
+              />
             </div>
 
             <h6
@@ -75,7 +84,11 @@ async function handleSubmit(
           </div>
         </template>
       </UCard>
-      <ReadingResourceForm journal :loading @submit="handleSubmit" />
+      <ReadingResourceForm
+        journal
+        :loading
+        @submit="handleSubmit"
+      />
     </UContainer>
   </div>
 </template>

@@ -111,6 +111,22 @@ export const useAuth = defineStore('auth', () => {
     }
   }
 
+  function parseJwt(token: string) {
+    const payload = token.split('.')[1]
+    if (payload === undefined) return null
+    const decodedPayload = atob(payload)
+    return JSON.parse(decodedPayload)
+  }
+
+  function getRoles() {
+    const jwtClaims = token.value ? parseJwt(token.value) : null
+
+    if ('role' in jwtClaims) {
+      return jwtClaims['role'] as string[]
+    }
+    return []
+  }
+
   return {
     getToken,
     getRefreshToken,
@@ -119,6 +135,7 @@ export const useAuth = defineStore('auth', () => {
     requestRefreshToken,
     setRefreshToken,
     refreshToken,
-    token
+    token,
+    getRoles
   }
 })
