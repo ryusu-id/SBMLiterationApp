@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
-using ReadingRecommendation = PureTCOWebApp.Features.ReadingRecommendationModule.Domain.ReadingRecommendation;
+using PureTCOWebApp.Features.ReadingRecommendationModule.Domain;
 
 namespace PureTCOWebApp.Features.ReadingRecommendationModule.Endpoints;
 
@@ -38,6 +38,10 @@ public class CreateReadingRecommendationRequestValidator : AbstractValidator<Cre
         RuleFor(x => x.ResourceLink)
             .MaximumLength(500).WithMessage("Resource Link must not exceed 500 characters.")
             .When(x => !string.IsNullOrWhiteSpace(x.ResourceLink));
+
+        RuleFor(x => x.CoverImageUri)
+            .MaximumLength(500).WithMessage("Cover Image URI must not exceed 500 characters.")
+            .When(x => !string.IsNullOrWhiteSpace(x.CoverImageUri));
     }
 }
 
@@ -48,7 +52,8 @@ public record CreateReadingRecommendationRequest(
     string Authors,
     string PublishYear,
     int Page,
-    string? ResourceLink = null
+    string? ResourceLink = null,
+    string? CoverImageUri = null
 );
 
 public record CreateReadingRecommendationResponse(
@@ -59,7 +64,8 @@ public record CreateReadingRecommendationResponse(
     string Authors,
     string PublishYear,
     int Page,
-    string? ResourceLink
+    string? ResourceLink,
+    string? CoverImageUri
 );
 
 public class CreateReadingRecommendationEndpoint(
@@ -88,7 +94,8 @@ public class CreateReadingRecommendationEndpoint(
             req.Authors,
             req.PublishYear,
             req.Page,
-            req.ResourceLink
+            req.ResourceLink,
+            req.CoverImageUri
         );
 
         await dbContext.AddAsync(recommendation, ct);
@@ -109,7 +116,8 @@ public class CreateReadingRecommendationEndpoint(
                 recommendation.Authors,
                 recommendation.PublishYear,
                 recommendation.Page,
-                recommendation.ResourceLink
+                recommendation.ResourceLink,
+                recommendation.CoverImageUri
             )
         ), ct);
     }

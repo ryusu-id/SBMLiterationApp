@@ -2,7 +2,6 @@ using FastEndpoints;
 using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
-using ReadingRecommendation = PureTCOWebApp.Features.ReadingRecommendationModule.Domain.ReadingRecommendation;
 
 namespace PureTCOWebApp.Features.ReadingRecommendationModule.Endpoints;
 
@@ -16,7 +15,8 @@ public record GetReadingRecommendationByIdResponse(
     string Authors,
     string PublishYear,
     int Page,
-    string? ResourceLink
+    string? ResourceLink,
+    string? CoverImageUri
 );
 
 public class GetReadingRecommendationByIdEndpoint(ApplicationDbContext dbContext)
@@ -48,7 +48,8 @@ public class GetReadingRecommendationByIdEndpoint(ApplicationDbContext dbContext
             recommendation.Authors,
             recommendation.PublishYear,
             recommendation.Page,
-            recommendation.ResourceLink
+            recommendation.ResourceLink,
+            recommendation.CoverImageUri
         );
 
         await Send.OkAsync(Result.Success(response), cancellation: ct);

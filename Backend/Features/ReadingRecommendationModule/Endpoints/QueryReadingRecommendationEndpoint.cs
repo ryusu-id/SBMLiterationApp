@@ -1,7 +1,7 @@
 using FastEndpoints;
 using PureTCOWebApp.Core.Paging;
 using PureTCOWebApp.Data;
-using ReadingRecommendation = PureTCOWebApp.Features.ReadingRecommendationModule.Domain.ReadingRecommendation;
+using PureTCOWebApp.Features.ReadingRecommendationModule.Domain;
 
 namespace PureTCOWebApp.Features.ReadingRecommendationModule.Endpoints;
 

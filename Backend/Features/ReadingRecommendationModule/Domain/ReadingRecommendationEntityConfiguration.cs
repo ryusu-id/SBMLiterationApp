@@ -57,6 +57,11 @@ public class ReadingRecommendationEntityConfiguration : IEntityTypeConfiguration
             .IsUnicode(false)
             .HasColumnName("resource_link");
 
+        builder.Property(e => e.CoverImageUri)
+            .HasMaxLength(500)
+            .IsUnicode(false)
+            .HasColumnName("cover_image_uri");
+
         builder.Property(e => e.Status)
             .HasDefaultValue(0)
             .HasColumnName("status");

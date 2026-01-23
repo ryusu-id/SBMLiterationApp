@@ -12,6 +12,7 @@ public class ReadingRecommendation : AuditableEntity
     public string PublishYear { get; protected set; }
     public int Page { get; protected set; }
     public string? ResourceLink { get; protected set; }
+    public string? CoverImageUri { get; protected set; }
 
 #pragma warning disable CS8618
     public ReadingRecommendation() { }
@@ -24,7 +25,8 @@ public class ReadingRecommendation : AuditableEntity
         string authors,
         string publishYear,
         int page,
-        string? resourceLink = null
+        string? resourceLink = null,
+        string? coverImageUri = null
     )
     {
         return new ReadingRecommendation
@@ -35,7 +37,8 @@ public class ReadingRecommendation : AuditableEntity
             Authors = authors,
             PublishYear = publishYear,
             Page = page,
-            ResourceLink = resourceLink
+            ResourceLink = resourceLink,
+            CoverImageUri = coverImageUri
         };
     }
 
@@ -46,7 +49,8 @@ public class ReadingRecommendation : AuditableEntity
         string authors,
         string publishYear,
         int page,
-        string? resourceLink = null
+        string? resourceLink = null,
+        string? coverImageUri = null
     )
     {
         Title = title;
@@ -56,5 +60,6 @@ public class ReadingRecommendation : AuditableEntity
         PublishYear = publishYear;
         Page = page;
         ResourceLink = resourceLink;
+        CoverImageUri = coverImageUri;
     }
 }
