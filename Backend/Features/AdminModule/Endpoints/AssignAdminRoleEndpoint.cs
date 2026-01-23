@@ -33,6 +33,6 @@ public class AssignAdminRoleEndpoint(UserManager<User> userManager)
             return;
         }
 
-        await Send.NoContentAsync();
+        await Send.NoContentAsync(ct);
     }
 }

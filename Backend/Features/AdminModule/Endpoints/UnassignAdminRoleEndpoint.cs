@@ -19,6 +19,14 @@ public class UnassignAdminRoleEndpoint(UserManager<User> userManager)
 
     public override async Task HandleAsync(UnassignAdminRoleRequest req, CancellationToken ct)
     {
+        var currentUserId = int.Parse(User.FindFirst("sub")!.Value);
+
+        if (currentUserId == req.UserId)
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(Result.Failure(new Error("UnassignAdminRole.SelfUnassign", "Cannot unassign admin role from yourself"))));
+            return;
+        }
+
         var user = await userManager.FindByIdAsync(req.UserId.ToString());
         if (user == null)
         {
