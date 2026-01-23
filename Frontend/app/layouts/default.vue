@@ -1,9 +1,5 @@
 <script lang="ts" setup>
-import { useScroll } from '@vueuse/core'
-
 const route = useRoute()
-const { y } = useScroll(window)
-const showBorder = computed(() => y.value > 0)
 </script>
 
 <template>
@@ -12,27 +8,6 @@ const showBorder = computed(() => y.value > 0)
       position: 'top-right'
     }"
   >
-    <UHeader :class="[showBorder ? '' : 'border-none', 'transition-all duration-300']">
-      <template #left>
-        <NuxtLink to="/">
-          <AppLogo class="w-auto h-6 shrink-0" />
-        </NuxtLink>
-      </template>
-
-      <template #right>
-        <UColorModeButton />
-
-        <UButton
-          to="https://github.com/nuxt-ui-templates/starter"
-          target="_blank"
-          icon="i-simple-icons-github"
-          aria-label="GitHub"
-          color="neutral"
-          variant="ghost"
-        />
-      </template>
-    </UHeader>
-
     <UMain
       class="min-h-[calc(100vh-147px)] pb-[97px]"
     >
