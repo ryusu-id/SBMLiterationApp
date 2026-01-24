@@ -30,6 +30,11 @@ export function $authedFetch<T>(
         if (triedRefresh && response.status === 401)
           reject(response)
 
+        if (response.status !== 401) {
+          reject(response)
+          return
+        }
+
         triedRefresh = true
         const refreshed = await authStore.requestRefreshToken()
         if (refreshed) {
@@ -160,16 +165,16 @@ export const useAuth = defineStore('auth', () => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function handleResponseError(error: any) {
+  console.log(error._data.errorDescription)
   const toast = useToast()
-  const statusCode = error?.response?.status || error?.statusCode
   const description
-    = error?.response?._data?.message
-      || error?.response?._data?.error
+    = error?._data?.errorDescription
+      || error?.response?._data?.errorDescription
       || error?.message
       || 'An unknown error occurred'
 
   toast.add({
-    title: statusCode ? `Error ${statusCode}` : 'Error',
+    title: 'Error',
     description,
     color: 'error',
     icon: 'i-lucide-triangle-alert'
