@@ -10,6 +10,8 @@ public record QueryUsersRequest(
     string? UserName = null,
     string? Nim = null,
     string? ProgramStudy = null,
+    string? Faculty = null,
+    int? GenerationYear = null,
     List<string>? Roles = null
 ) : PagingQuery;
 
@@ -19,6 +21,8 @@ public record QueryUsersResponse(
     string? Email,
     string? Nim,
     string? ProgramStudy,
+    string? Faculty,
+    int? GenerationYear,
     List<string> Roles
 );
 
@@ -47,6 +51,12 @@ public class QueryUsersEndpoint(UserManager<User> userManager)
         if (!string.IsNullOrWhiteSpace(req.ProgramStudy))
             query = query.Where(u => u.ProgramStudy.Contains(req.ProgramStudy));
 
+        if (!string.IsNullOrWhiteSpace(req.Faculty))
+            query = query.Where(u => u.Faculty.Contains(req.Faculty));
+
+        if (req.GenerationYear.HasValue)
+            query = query.Where(u => u.GenerationYear == req.GenerationYear);
+
         if (req.Roles != null && req.Roles.Count > 0)
         {
             var userIds = new List<int>();
@@ -67,6 +77,8 @@ public class QueryUsersEndpoint(UserManager<User> userManager)
                 user.Email,
                 user.Nim,
                 user.ProgramStudy,
+                user.Faculty,
+                user.GenerationYear,
                 [.. roles]
             );
         }, ct);
