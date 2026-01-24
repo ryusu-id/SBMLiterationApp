@@ -1,22 +1,56 @@
 <script lang="ts" setup>
-import { $authedFetch } from '~/apis/api'
+import { $authedFetch, type ApiResponse } from '~/apis/api'
 import ReadingResourceForm, {
   type ReadingResourceSchema
 } from '~/components/reading-passport/ReadingResourceForm.vue'
 
+definePageMeta({
+  name: 'UpdateReadingJournal'
+})
+
+const slug = useRoute().params.slug as string
+const formRef = useTemplateRef<typeof ReadingResourceForm>('formRef')
+
+// TODO-SSR-Fetch
+onMounted(async () => {
+  const response = await $authedFetch<
+    { data: Omit<ReadingResourceSchema, 'authors'> & { authors: string } }
+  >(`/reading-resources/${slug}`)
+  formRef.value?.setState({
+    ...response.data,
+    authors: response.data.authors?.length > 0 ? response.data.authors.split(',') : ['']
+  })
+})
+
 const loading = ref(false)
+const toast = useToast()
 async function handleSubmit(
   data: Omit<ReadingResourceSchema, 'authors'> & { authors: string }
 ) {
   try {
     loading.value = true
-    await $authedFetch('/reading-resources/journals', {
-      method: 'POST',
+    const response = await $authedFetch<ApiResponse>(`/reading-resources/${slug}`, {
+      method: 'PUT',
       body: {
-        ...data,
-        userId: 1
+        ...data
       }
     })
+
+    if (response.errorCode || response.errorDescription)
+      toast.add({
+        title: 'Error',
+        description: response.errorDescription || 'An error occurred while updating the journal.',
+        color: 'error'
+      })
+    else {
+      toast.add({
+        title: 'Journal Updated',
+        description: 'The reading journal has been updated successfully.',
+        color: 'success'
+      })
+
+      useRouter().back()
+    }
   } finally {
     loading.value = false
   }
@@ -29,7 +63,7 @@ async function handleSubmit(
     <UContainer class="flex flex-col gap-y-4">
       <!-- TODO: Style below card to follow figma design -->
       <UCard
-        class="overflow-visible mb-[100px]"
+        class="overflow-visible"
         :ui="{
           header: ' border-0',
           root: 'bg-[#265FC4] mx-[-16px] sm:mx-[-24px] lg:mx-[-32px] rounded-t-none rounded-b-3xl px-4 py-4'
@@ -44,7 +78,7 @@ async function handleSubmit(
               />
             </div>
             <UPageHeader
-              title="Add Journal"
+              title="Update Journal"
               :ui="{
                 root: 'py-0 border-0 pb-10',
                 wrapper: 'lg:justify-center',
@@ -64,28 +98,20 @@ async function handleSubmit(
         </template>
 
         <template #footer>
-          <div
-            class="flex flex-row justify-center relative overflow-visible border-0 ring-0 text-white mb-12 md:mb-29"
-          >
-            <div
-              class="h-48 md:h-60 aspect-2/3 rounded-2xl absolute -top-12 flex justify-center items-center text-[#3566CD] bg-[#F5F5F7]"
-            >
-              <UIcon
-                name="i-heroicons-book-open"
-                class="size-14"
-              />
-            </div>
-
-            <h6
-              class="absolute bottom-[-175px] md:bottom-[-225px] left-1/2 -translate-x-1/2 text-[#737373] dark:text-white text-[14px]"
-            >
-              Cover
-            </h6>
+          <div class="flex flex-row justify-between relative overflow-visible">
+            <!-- TODO: Change this to the book cover icon
+              <img
+                :src="readingResource.imageUrl"
+                :alt="`${readingResource.title} Cover`"
+                class="h-48 aspect-2/3 rounded-md absolute -top-12"
+              >
+            -->
           </div>
         </template>
       </UCard>
+
       <ReadingResourceForm
-        journal
+        ref="formRef"
         :loading
         @submit="handleSubmit"
       />

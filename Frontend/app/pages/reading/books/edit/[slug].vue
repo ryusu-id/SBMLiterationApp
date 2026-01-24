@@ -1,8 +1,12 @@
 <script lang="ts" setup>
-import { $authedFetch } from '~/apis/api'
+import { $authedFetch, type ApiResponse } from '~/apis/api'
 import ReadingResourceForm, {
   type ReadingResourceSchema
 } from '~/components/reading-passport/ReadingResourceForm.vue'
+
+definePageMeta({
+  name: 'UpdateReadingBook'
+})
 
 const slug = useRoute().params.slug as string
 const formRef = useTemplateRef<typeof ReadingResourceForm>('formRef')
@@ -10,27 +14,43 @@ const formRef = useTemplateRef<typeof ReadingResourceForm>('formRef')
 // TODO-SSR-Fetch
 onMounted(async () => {
   const response = await $authedFetch<
-    Omit<ReadingResourceSchema, 'authors'> & { authors: string }
+    { data: Omit<ReadingResourceSchema, 'authors'> & { authors: string } }
   >(`/reading-resources/${slug}`)
   formRef.value?.setState({
-    ...response,
-    authors: response.authors.length > 0 ? response.authors.split(',') : ['']
+    ...response.data,
+    authors: response.data.authors?.length > 0 ? response.data.authors.split(',') : ['']
   })
 })
 
 const loading = ref(false)
+const toast = useToast()
 async function handleSubmit(
   data: Omit<ReadingResourceSchema, 'authors'> & { authors: string }
 ) {
   try {
     loading.value = true
-    await $authedFetch(`/reading-resources/${slug}`, {
+    const response = await $authedFetch<ApiResponse>(`/reading-resources/${slug}`, {
       method: 'PUT',
       body: {
-        ...data,
-        userId: 1
+        ...data
       }
     })
+
+    if (response.errorCode || response.errorDescription)
+      toast.add({
+        title: 'Error',
+        description: response.errorDescription || 'An error occurred while updating the journal.',
+        color: 'error'
+      })
+    else {
+      toast.add({
+        title: 'Journal Updated',
+        description: 'The reading journal has been updated successfully.',
+        color: 'success'
+      })
+
+      useRouter().back()
+    }
   } finally {
     loading.value = false
   }

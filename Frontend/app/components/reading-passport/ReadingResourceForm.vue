@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
+import { $authedFetch, handleResponseError } from '~/apis/api'
 
 const props = defineProps<{
   loading?: boolean
@@ -18,9 +19,10 @@ const schema = z.object({
   publishYear: z
     .string()
     .regex(/^\d{4}$/, 'Publish year must be a 4-digit year'),
-  bookCategory: z.string().min(1, 'Book category is required'),
+  readingCategory: z.string().min(1, 'Category is required'),
   page: z.coerce.number().min(1, 'Page count must be at least 1'),
-  resourceLink: z.url('Must be a valid URL').optional()
+  resourceLink: z.url('Must be a valid URL').optional().or(z.literal('')),
+  coverImageUri: z.url().optional().or(z.literal(''))
 })
 
 export type ReadingResourceSchema = z.output<typeof schema>
@@ -30,10 +32,14 @@ const state = reactive({
   isbn: '',
   authors: [''],
   publishYear: '',
-  bookCategory: '',
+  readingCategory: '',
   page: NaN,
-  resourceLink: ''
+  resourceLink: '',
+  coverImageUri: ''
 })
+
+const uploading = ref(false)
+const toast = useToast()
 
 const emit = defineEmits<{
   (
@@ -58,9 +64,10 @@ function setState(data: Partial<ReadingResourceSchema>) {
   if (data.authors !== undefined)
     state.authors = data.authors.length > 0 ? data.authors : ['']
   if (data.publishYear !== undefined) state.publishYear = data.publishYear
-  if (data.bookCategory !== undefined) state.bookCategory = data.bookCategory
+  if (data.readingCategory !== undefined) state.readingCategory = data.readingCategory
   if (data.page !== undefined) state.page = data.page
   if (data.resourceLink !== undefined) state.resourceLink = data.resourceLink
+  if (data.coverImageUri !== undefined) state.coverImageUri = data.coverImageUri
 }
 
 function resetState() {
@@ -68,9 +75,49 @@ function resetState() {
   state.isbn = ''
   state.authors = ['']
   state.publishYear = ''
-  state.bookCategory = ''
+  state.readingCategory = ''
   state.page = NaN
   state.resourceLink = ''
+  state.coverImageUri = ''
+}
+
+async function handleFileUpload(files: File[]) {
+  if (!files || !files[0] || files.length === 0) return
+
+  const file = files[0]
+  const formData = new FormData()
+  formData.append('file', file)
+
+  try {
+    uploading.value = true
+    const response = await $authedFetch<{
+      message: string
+      data: {
+        url: string
+        fileName: string
+        fileSize: number
+        contentType: string
+      }
+      errorCode?: string
+      errorDescription?: string
+      errors?: string[]
+    }>('/files/upload', {
+      method: 'POST',
+      body: formData
+    })
+
+    if (response.data?.url) {
+      state.coverImageUri = response.data.url
+      toast.add({
+        title: 'Image uploaded successfully',
+        color: 'success'
+      })
+    }
+  } catch (error) {
+    handleResponseError(error)
+  } finally {
+    uploading.value = false
+  }
 }
 
 defineExpose({
@@ -210,7 +257,7 @@ async function onSubmit(event: FormSubmitEvent<ReadingResourceSchema>) {
           required
         >
           <UInput
-            v-model="state.bookCategory"
+            v-model="state.readingCategory"
             placeholder="Enter book category"
             size="lg"
             class="w-full"
@@ -244,6 +291,72 @@ async function onSubmit(event: FormSubmitEvent<ReadingResourceSchema>) {
           size="lg"
           class="w-full"
         />
+      </UFormField>
+
+      <!-- Cover Image - full width -->
+      <UFormField
+        label="Cover Image"
+        name="coverImageUri"
+      >
+        <div class="space-y-3">
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-200">
+              Upload Image
+            </label>
+            <UInput
+              type="file"
+              accept="image/*"
+              size="lg"
+              @change="(e) => handleFileUpload(Array.from((e.target as HTMLInputElement).files || []))"
+            />
+            <div
+              v-if="uploading"
+              class="text-sm text-gray-500"
+            >
+              Uploading...
+            </div>
+          </div>
+
+          <div class="relative flex items-center gap-3">
+            <div class="flex-1 border-t border-gray-200 dark:border-gray-700" />
+            <span class="text-xs text-gray-500 uppercase">or</span>
+            <div class="flex-1 border-t border-gray-200 dark:border-gray-700" />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-200">
+              Enter Image URL
+            </label>
+            <UInput
+              v-model="state.coverImageUri"
+              type="url"
+              placeholder="https://example.com/image.jpg"
+              size="lg"
+              class="w-full"
+            />
+          </div>
+
+          <div
+            v-if="state.coverImageUri"
+            class="space-y-2 pt-2"
+          >
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-200">
+              Preview
+            </label>
+            <div class="flex items-start gap-3">
+              <img
+                :src="state.coverImageUri"
+                alt="Book cover preview"
+                class="w-32 aspect-[2/3] object-cover rounded border shadow-sm"
+              >
+              <div class="flex-1 min-w-0">
+                <p class="text-xs text-gray-500 dark:text-gray-400 break-all font-mono bg-gray-50 dark:bg-gray-800 p-2 rounded">
+                  {{ state.coverImageUri }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </UFormField>
 
       <!-- Submit button -->

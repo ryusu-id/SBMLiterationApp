@@ -1,105 +1,110 @@
+<script setup lang="ts">
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import type { Swiper as SwiperType } from 'swiper'
+
+// Swiper styles (WAJIB)
+import 'swiper/css'
+import 'swiper/css/effect-cards'
+
+// Swiper module
+import { EffectCards, Mousewheel } from 'swiper/modules'
+import { $authedFetch, handleResponseError } from '~/apis/api'
+import ReadingResourceCard from './ReadingResourceCard.vue'
+
+const props = defineProps<{
+  journal?: boolean
+}>()
+
+export interface ReadingResource {
+  id: number
+  title: string
+  isbn: string
+  readingCategory: string
+  authors: string
+  publishYear: string
+  page: number
+  resourceLink: string
+  coverImageUri: string
+  cssClass: string
+}
+
+const rows = ref<ReadingResource[]>([])
+const swiperInstance = ref<SwiperType>()
+
+const onSwiper = (swiper: SwiperType) => {
+  swiperInstance.value = swiper
+}
+
+async function fetch() {
+  const type = props.journal ? 'journals' : 'books'
+  try {
+    const data = await $authedFetch<{
+      rows: ReadingResource[]
+    }>(`/reading-resources/${type}`)
+    if (data.rows) {
+      rows.value = data.rows
+    } else {
+      handleResponseError(data)
+    }
+  } catch (error) {
+    handleResponseError(error)
+  }
+}
+
+onMounted(async () => {
+  await fetch()
+
+  if (rows.value.length > 0)
+    swiperInstance.value?.slideNext()
+})
+
+function onRefresh() {
+  fetch()
+}
+
+function onCreate() {
+  useRouter().push(props.journal ? { name: 'CreateReadingBook' } : { name: 'CreateReadingJournal' })
+}
+</script>
+
 <template>
   <Swiper
-    :modules="[EffectCards]"
+    :modules="[EffectCards, Mousewheel]"
     effect="cards"
     grab-cursor
+    mousewheel
     class="w-full max-w-[300px] sm:max-w-[330px]"
+    @swiper="onSwiper"
   >
-    <SwiperSlide
-      v-for="res in resources"
-      :key="res.title"
-      class="rounded-[36px] overflow-hidden"
-    >
-      <UCard
-        variant="unstyled"
-        class="bg-[#3566CD] rounded-[36px] aspect-[2/3] py-4 px-3 flex flex-col justify-between"
-        :ui="{
-          root: '',
-        }"
-      >
-        <template #header>
-          <div class="flex items-start justify-between gap-2">
-            <UPageHeader
-              :title="res.title"
-              :ui="{
-                title: 'text-white max-h-[120px]   line-clamp-3 ',
-              }"
-              class="flex-1 border-0 p-0"
-            />
-
-            <UPopover class="">
-              <UButton
-                color="white"
-                variant="ghost"
-                size="lg"
-                icon="i-heroicons-ellipsis-vertical"
-                class="text-white hover:bg-white/10"
-              />
-
-              <template #content>
-                <Placeholder class="size-48 m-4 inline-flex" />
-              </template>
-            </UPopover>
-          </div>
-        </template>
-
-        <div
-          class="w-full max-w-[150px] aspect-[3/4] overflow-hidden rounded-[12px]"
-        >
-          <img
-            :src="res.imageUrl"
-            alt="Resource Image"
-            class="w-full h-full object-cover"
-          />
-        </div>
-
-        <template #footer>
-          <div class="flex flex-row justify-between text-white font-semibold">
-            <div>
-              {{ res.type === "book" ? "Book" : "Journal" }}
-            </div>
-            <div class="text-[17px]">
-              {{ res.totalReadPages }}/{{ res.totalPages }}
-            </div>
-          </div>
-        </template>
-      </UCard>
-    </SwiperSlide>
     <SwiperSlide class="aspect-[2/3] rounded-[36px] overflow-hidden">
       <div
         class="w-full h-full border-5 border-[#3566CD] rounded-[36px] bg-white flex flex-col items-center justify-center gap-4 text-[#3566CD]"
+        @click="onCreate"
       >
-        <UIcon name="i-heroicons-plus" class="size-16" />
+        <UIcon
+          name="i-heroicons-plus"
+          class="size-16"
+        />
 
         <h1 class="text-center font-semibold text-xl leading-tight">
-          New<br />
+          New<br>
           Reading Source
         </h1>
       </div>
     </SwiperSlide>
+    <SwiperSlide
+      v-for="res in rows"
+      :key="res.isbn"
+      class="rounded-[36px] overflow-hidden"
+    >
+      <ReadingResourceCard
+        :journal
+        :resource="res"
+        @refresh="onRefresh"
+      />
+    </SwiperSlide>
   </Swiper>
 </template>
-
-<script setup lang="ts">
-import { Swiper, SwiperSlide } from "swiper/vue";
-
-// Swiper styles (WAJIB)
-import "swiper/css";
-import "swiper/css/effect-cards";
-
-// Swiper module
-import { EffectCards } from "swiper/modules";
-
-defineProps<{
-  resources: {
-    title: string;
-    imageUrl: string;
-    totalPages: number;
-    totalReadPages: number;
-    type: "book" | "journal";
-  }[];
-}>();
-</script>
 
 <style>
 .swiper-slide-shadow-cards {

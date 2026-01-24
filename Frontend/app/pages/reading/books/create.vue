@@ -1,22 +1,42 @@
 <script lang="ts" setup>
-import { $authedFetch } from '~/apis/api'
+import { $authedFetch, type ApiResponse } from '~/apis/api'
 import ReadingResourceForm, {
   type ReadingResourceSchema
 } from '~/components/reading-passport/ReadingResourceForm.vue'
 
+definePageMeta({
+  name: 'CreateReadingBook'
+})
+
 const loading = ref(false)
+const toast = useToast()
 async function handleSubmit(
   data: Omit<ReadingResourceSchema, 'authors'> & { authors: string }
 ) {
   try {
     loading.value = true
-    await $authedFetch('/reading-resources/books', {
+    const response = await $authedFetch<ApiResponse>('/reading-resources/books', {
       method: 'POST',
       body: {
-        ...data,
-        userId: 1
+        ...data
       }
     })
+
+    if (response.errorCode || response.errorDescription)
+      toast.add({
+        title: 'Error',
+        description: response.errorDescription || 'An error occurred while creating the book.',
+        color: 'error'
+      })
+    else {
+      toast.add({
+        title: 'Book Created',
+        description: 'The reading book has been created successfully.',
+        color: 'success'
+      })
+
+      useRouter().back()
+    }
   } finally {
     loading.value = false
   }
