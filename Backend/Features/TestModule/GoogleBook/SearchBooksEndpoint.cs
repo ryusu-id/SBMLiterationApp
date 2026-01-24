@@ -17,9 +17,8 @@ public class SearchBooksEndpoint : Endpoint<SearchBooksRequest, PagingResult<Boo
     public override void Configure()
     {
         Get("/google-books/search");
-        Group<TestModuleEndpointGroup>();
-        AllowAnonymous();
         Summary(s => s.Summary = "Search books using Google Books API with pagination");
+        Group<GlobalApiEndpointGroup>();
     }
 
     public override async Task HandleAsync(SearchBooksRequest req, CancellationToken ct)
