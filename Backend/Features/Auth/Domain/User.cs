@@ -10,5 +10,9 @@ public class User : IdentityUser<int>
     }
     #pragma warning restore
     public string Nim { get; set; }
+    public string Fullname { get; set; }
     public string ProgramStudy { get; set; }
+    public string Faculty { get; set; }
+    public string GenerationYear { get; set; }
+    public string? PictureUrl { get; set; }
 }

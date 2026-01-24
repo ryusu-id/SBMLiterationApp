@@ -17,7 +17,8 @@ public class ReadingReportCreatedEventHandler : IDomainEventHandler<ReadingRepor
     public async Task Handle(ReadingReportCreatedEvent domainEvent, CancellationToken cancellationToken)
     {
         var userId = domainEvent.Report.UserId;
-        var streakDate = DateOnly.FromDateTime(domainEvent.Report.CreateTime);
+        var localTime = domainEvent.Report.CreateTime.AddHours(8); // Convert UTC to UTC+8 Jakarta
+        var streakDate = DateOnly.FromDateTime(localTime);
 
         var exists = await _dbContext.StreakLogs
             .AnyAsync(s => s.UserId == userId && s.StreakDate == streakDate, cancellationToken);

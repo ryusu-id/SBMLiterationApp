@@ -7,7 +7,7 @@ defineProps<{
 }>()
 
 const schema = z.object({
-  fullName: z.string().min(1, 'Full name is required'),
+  fullname: z.string().min(1, 'Full name is required'),
   nim: z.string().min(1, 'NIM is required').max(50, 'NIM must be at most 50 characters').regex(/^[a-zA-Z0-9]+$/, 'NIM must be alphanumeric'),
   programStudy: z.string().min(1, 'Program study is required').max(100, 'Program study must be at most 100 characters'),
   faculty: z.string().min(1, 'Faculty is required').max(100, 'Faculty must be at most 100 characters'),
@@ -19,7 +19,7 @@ export type ProfileFormSchema = z.output<typeof schema>
 const isOpen = ref(false)
 
 const state = reactive({
-  fullName: '',
+  fullname: '',
   nim: '',
   programStudy: '',
   faculty: '',
@@ -31,7 +31,7 @@ const emit = defineEmits<{
 }>()
 
 function setState(data: Partial<ProfileFormSchema>) {
-  if (data.fullName !== undefined) state.fullName = data.fullName
+  if (data.fullname !== undefined) state.fullname = data.fullname
   if (data.nim !== undefined) state.nim = data.nim
   if (data.programStudy !== undefined) state.programStudy = data.programStudy
   if (data.faculty !== undefined) state.faculty = data.faculty
@@ -39,7 +39,7 @@ function setState(data: Partial<ProfileFormSchema>) {
 }
 
 function resetState() {
-  state.fullName = ''
+  state.fullname = ''
   state.nim = ''
   state.programStudy = ''
   state.faculty = ''
@@ -89,7 +89,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileFormSchema>) {
           required
         >
           <UInput
-            v-model="state.fullName"
+            v-model="state.fullname"
             placeholder="Enter your full name"
             size="lg"
             class="w-full"

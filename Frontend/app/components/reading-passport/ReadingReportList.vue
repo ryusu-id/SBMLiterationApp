@@ -13,6 +13,7 @@ export interface ReadingReportData {
   reportDate: string
   currentPage: number
   insight: string
+  timeSpent: number
 }
 
 const props = defineProps<{
@@ -20,6 +21,7 @@ const props = defineProps<{
   resourceTitle?: string
   resourceImageUrl?: string
   totalPage?: number
+  dashboard?: boolean
 }>()
 
 // Map backend reports to display format
@@ -30,7 +32,8 @@ const mappedReports = computed(() => {
     insight: report.insight,
     readDate: new Date(report.reportDate).toISOString().split('T')[0],
     currentPage: report.currentPage,
-    totalPage: props.totalPage || 0
+    totalPage: props.totalPage || 0,
+    timeSpent: report.timeSpent
   }))
 })
 </script>
@@ -63,6 +66,7 @@ const mappedReports = computed(() => {
     <ReadingReport
       v-for="(report, index) in mappedReports"
       :key="`${report.readDate}-${index}`"
+      :with-image="dashboard"
       :report="report"
     />
   </div>

@@ -7,7 +7,7 @@ using PureTCOWebApp.Data;
 namespace PureTCOWebApp.Features.StreakModule.Endpoints;
 
 public record DayStreakStatus(
-    string Day,
+    string Date,
     bool? HasStreak);
 
 public record GetUserStreakResponse(
@@ -27,11 +27,12 @@ public class GetUserStreakEndpoint(ApplicationDbContext context)
     public override async Task HandleAsync(CancellationToken ct)
     {
         var userId = int.Parse(User.FindFirst("sub")!.Value);
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.AddHours(8));
 
-        // Get streak logs for current week
-        var startOfWeek = today.AddDays(-(int)today.DayOfWeek); // Sunday
-        var endOfWeek = startOfWeek.AddDays(6); // Saturday
+        // Get streak logs for current week (Monday to Sunday)
+        var daysSinceMonday = ((int)today.DayOfWeek - 1 + 7) % 7;
+        var startOfWeek = today.AddDays(-daysSinceMonday); // Monday
+        var endOfWeek = startOfWeek.AddDays(6); // Sunday
 
         var streakLogs = await context.StreakLogs
             .Where(s => s.UserId == userId && 
@@ -40,15 +41,14 @@ public class GetUserStreakEndpoint(ApplicationDbContext context)
             .Select(s => s.StreakDate)
             .ToListAsync(ct);
 
-        // Build weekly status (Sunday to Saturday)
+        // Build weekly status (Monday to Sunday)
         var weeklyStatus = new List<DayStreakStatus>();
-        var dayNames = new[] { "S", "M", "T", "W", "T", "F", "S" };
         
         for (int i = 0; i < 7; i++)
         {
             var date = startOfWeek.AddDays(i);
             bool? hasStreak = date > today ? null : streakLogs.Contains(date);
-            weeklyStatus.Add(new DayStreakStatus(dayNames[i], hasStreak));
+            weeklyStatus.Add(new DayStreakStatus(date.ToString("yyyy-MM-dd"), hasStreak));
         }
 
         // Calculate current streak

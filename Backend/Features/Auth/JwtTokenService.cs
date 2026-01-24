@@ -54,6 +54,7 @@ public class JwtTokenService : IJwtTokenService
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
             new(JwtRegisteredClaimNames.Jti, jti),
+            new(JwtRegisteredClaimNames.GivenName, user.Fullname),
         };
 
         // Add roles as claims

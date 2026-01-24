@@ -1,15 +1,17 @@
 <script lang="ts" setup>
-import { $authedFetch, handleResponseError, type ApiResponse } from '~/apis/api'
+import type { ButtonProps } from '@nuxt/ui'
+import { $authedFetch, handleResponseError, useAuth, type ApiResponse } from '~/apis/api'
 import ProfileForm from '~/components/profile/ProfileForm.vue'
 import type { ProfileFormSchema } from '~/components/profile/ProfileForm.vue'
 
 export interface UserProfile {
   id: number
-  fullName: string
+  fullname: string
   nim: string
   programStudy: string
   faculty: string
   generationYear: string
+  pictureUrl?: string
 }
 
 const profile = ref<UserProfile | null>(null)
@@ -21,7 +23,7 @@ const toast = useToast()
 async function fetchProfile() {
   try {
     pending.value = true
-    const response = await $authedFetch<ApiResponse<UserProfile>>('/users/profile')
+    const response = await $authedFetch<ApiResponse<UserProfile>>('/auth/site')
     if (response.data) {
       profile.value = response.data
     } else {
@@ -37,7 +39,7 @@ async function fetchProfile() {
 function openEditForm() {
   if (profile.value) {
     form.value?.setState({
-      fullName: profile.value.fullName,
+      fullname: profile.value.fullname,
       nim: profile.value.nim,
       programStudy: profile.value.programStudy,
       faculty: profile.value.faculty,
@@ -50,10 +52,15 @@ function openEditForm() {
 async function onSubmit(data: ProfileFormSchema) {
   try {
     formLoading.value = true
-    await $authedFetch('/users/profile', {
+    const response = await $authedFetch<ApiResponse>('/auth/site', {
       method: 'PUT',
       body: data
     })
+
+    if (response.errorDescription || response.errorCode) {
+      handleResponseError(response)
+      return
+    }
 
     toast.add({
       title: 'Profile updated successfully',
@@ -72,6 +79,33 @@ async function onSubmit(data: ProfileFormSchema) {
 onMounted(() => {
   fetchProfile()
 })
+
+const dialog = useDialog()
+const auth = useAuth()
+const router = useRouter()
+const color = useColorMode()
+
+const links = ref<ButtonProps[]>([
+  {
+    variant: 'soft',
+    color: 'error',
+    icon: 'i-heroicons-arrow-right-on-rectangle',
+    onClick: async () => {
+      dialog.confirm({
+        title: 'Logout',
+        subTitle: 'You will need to re-login with Google',
+        message: 'Are you sure you want to logout?',
+        onOk: () => {
+          auth.clearToken()
+          router.push('/')
+        }
+      })
+    }
+  }])
+
+function toggleColorMode() {
+  color.preference = color.value === 'dark' ? 'light' : 'dark'
+}
 </script>
 
 <template>
@@ -81,9 +115,33 @@ onMounted(() => {
     <UContainer>
       <div class="flex flex-col space-y-6">
         <UPageHeader
+          class="flex-1"
+          :ui="{
+            wrapper: 'flex flex-row justify-between'
+          }"
           title="Profile"
           description="Manage your personal information"
-        />
+        >
+          <template #links>
+            <ClientOnly>
+              <UButton
+                variant="soft"
+                color="neutral"
+                :icon="color.value === 'dark' ? 'i-heroicons-moon' : 'i-heroicons-sun'"
+                @click="toggleColorMode"
+              />
+            </ClientOnly>
+            <UButton
+              v-for="(link, index) in links"
+              :key="index"
+              v-bind="link"
+            />
+            <UAvatar
+              :src="profile?.pictureUrl"
+              size="2xl"
+            />
+          </template>
+        </UPageHeader>
 
         <div
           v-if="pending"
@@ -111,52 +169,52 @@ onMounted(() => {
               variant="soft"
               @click="openEditForm"
             >
-              Edit Profile
+              Edit
             </UButton>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-2">
-              <p class="text-sm font-medium text-gray-500">
+              <p class="text-sm font-medium">
                 Full Name
               </p>
-              <p class="text-base font-semibold">
-                {{ profile.fullName }}
+              <p class="font-semibold">
+                {{ profile.fullname }}
               </p>
             </div>
 
             <div class="space-y-2">
-              <p class="text-sm font-medium text-gray-500">
+              <p class="text-sm font-medium">
                 NIM (Student ID)
               </p>
-              <p class="text-base font-semibold">
+              <p class="font-semibold">
                 {{ profile.nim }}
               </p>
             </div>
 
             <div class="space-y-2">
-              <p class="text-sm font-medium text-gray-500">
+              <p class="text-sm font-medium">
                 Program Study
               </p>
-              <p class="text-base font-semibold">
+              <p class="font-semibold">
                 {{ profile.programStudy }}
               </p>
             </div>
 
             <div class="space-y-2">
-              <p class="text-sm font-medium text-gray-500">
+              <p class="text-sm font-medium">
                 Faculty
               </p>
-              <p class="text-base font-semibold">
+              <p class="font-semibold">
                 {{ profile.faculty }}
               </p>
             </div>
 
             <div class="space-y-2">
-              <p class="text-sm font-medium text-gray-500">
+              <p class="text-sm font-medium">
                 Generation Year
               </p>
-              <p class="text-base font-semibold">
+              <p class="font-semibold">
                 {{ profile.generationYear }}
               </p>
             </div>

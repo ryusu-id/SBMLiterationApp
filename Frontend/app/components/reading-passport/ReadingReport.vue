@@ -5,7 +5,7 @@ defineProps<{
     title: string
     imageUrl: string
     insight: string
-    timeSpent?: string
+    timeSpent?: number
     readDate?: string
     currentPage: number
     totalPage: number
@@ -17,16 +17,16 @@ defineProps<{
 <template>
   <!-- TODO: Style and space all of below component to match -->
   <UCard
-    class=""
+    variant="soft"
     :ui="{
-      root: 'ring ring-[#EDEDED] bg-white rounded-[20px] max-w-3xl col-span-12 lg:col-span-6',
+      root: 'rounded-[20px] max-w-xl col-span-12 lg:col-span-6 bg-slate-100 dark:bg-slate-800',
       body: 'p-2 sm:p-2  '
     }"
   >
     <div class="flex flex-row gap-x-4">
       <div
         v-if="withImage"
-        class="w-[80px] sm:w-[110px] aspect-[3/4] shrink-0 overflow-hidden rounded-[12px]"
+        class="w-[80px] aspect-[3/4] shrink-0 overflow-hidden rounded-[12px]"
       >
         <img
           v-if="report.imageUrl"
@@ -45,13 +45,13 @@ defineProps<{
         </div>
       </div>
 
-      <div class="flex flex-col">
+      <div class="flex flex-col w-full justify-between">
         <div
           v-if="withImage"
           class="flex flex-row justify-between"
         >
           <h1
-            class="text-[13px] sm:text-[15px] tracking-tight font-bold line-clamp-1 text-dark"
+            class="text-[13px] sm:text-[15px] tracking-tight font-bold line-clamp-1"
           >
             {{ report.title }}
           </h1>
@@ -66,40 +66,34 @@ defineProps<{
           Insight
         </UBadge>
         <p
-          class="mt-2 text-wrap text-dark line-clamp-2 font-medium tracking-tight text-[11px] sm:text-[13px]"
+          class="mt-2 text-wrap line-clamp-2 font-medium tracking-tight text-[11px] sm:text-[13px]"
         >
           {{ report.insight }}
         </p>
 
         <USeparator
           class="my-2"
-          :ui="{
-            border: 'border-[#EDEDED]'
-          }"
         />
-        <div class="flex flex-row justify-between">
+        <div class="flex flex-row justify-between w-full">
           <div class="flex flex-row gap-x-2 items-center">
             <div
               class="flex flex-col tracking-tight"
             >
               <p
-                class="text-[#363030] font-medium text-[10px] sm:text-[12px] leading-none"
+                class="font-medium text-[10px] sm:text-[12px] leading-none"
               >
-                Total Spent
+                Time Spent
               </p>
               <p class="font-semibold text-primary text-[11px] sm:text-[13px] text-primary">
-                {{ report.timeSpent }}
+                {{ report.timeSpent }}m
               </p>
             </div>
             <USeparator
               orientation="vertical"
-              :ui="{
-                border: 'border-[#EDEDED]'
-              }"
             />
             <div class="flex flex-col tracking-tight">
               <p
-                class="text-[#363030] font-medium text-[10px] sm:text-[12px] leading-none"
+                class="font-medium text-[10px] sm:text-[12px] leading-none"
               >
                 Read Date
               </p>
@@ -109,15 +103,15 @@ defineProps<{
             </div>
           </div>
           <div
-            class="flex items-center gap-x-2 tracking-tight pl-3 pr-2 py-1 bg-[#EBEBEB] rounded-full"
+            class="flex items-center gap-x-2 tracking-tight pl-3 pr-1 py-[1px] bg-slate-200 dark:bg-slate-700 rounded-full"
           >
-            <p class="text-[#363030] font-medium text-[10px] sm:text-[12px]">
+            <p class="font-medium text-[10px] sm:text-[12px]">
               Page Progress
             </p>
             <p
-              class="font-semibold  py-1 px-2 sm:px-3 sm:py-1 bg-primary rounded-full text-[10px] sm:text-[12px]"
+              class="font-semibold py-0.5 px-2 sm:px-3 bg-primary text-dark rounded-full text-[10px] sm:text-[12px]"
             >
-              {{ report.currentPage }}/{{ report.totalPage }}
+              {{ report.currentPage }}{{ report.totalPage ? '/' + report.totalPage : '' }}
             </p>
           </div>
         </div>

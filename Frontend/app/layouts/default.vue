@@ -9,7 +9,7 @@ const route = useRoute()
     }"
   >
     <UMain
-      class="min-h-[calc(100vh-147px)] pb-[97px]"
+      class="min-h-[calc(100vh-147px)] pb-[113px]"
     >
       <slot />
       <UCard

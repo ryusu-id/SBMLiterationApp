@@ -59,7 +59,7 @@ async function handleSubmit(
 
 <template>
   <!-- TODO: Adjust spacing on the page -->
-  <div class="flex flex-col items-center justify-center gap-4 p-4 h-full">
+  <div class="flex flex-col items-center justify-center gap-4 h-full">
     <UContainer class="flex flex-col gap-y-4">
       <!-- TODO: Style below card to follow figma design -->
       <UCard

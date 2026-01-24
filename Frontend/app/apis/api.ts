@@ -59,6 +59,16 @@ export function $authedFetch<T>(
   })
 }
 
+export function useBackendFetch<T>(
+  request: Parameters<typeof $fetch<T>>[0],
+  opts?: Parameters<typeof $fetch<T>>[1]
+) {
+  return useFetch(request, {
+    ...opts,
+    $fetch: useNuxtApp().$backendApi as typeof $fetch
+  })
+}
+
 export const useAuth = defineStore('auth', () => {
   const token = ref<string | null>(null)
   const refreshToken = ref<string | null>(null)
@@ -141,6 +151,17 @@ export const useAuth = defineStore('auth', () => {
     return JSON.parse(decodedPayload)
   }
 
+  function getFullname() {
+    const jwtClaims = token.value ? parseJwt(token.value) : null
+
+    if (jwtClaims === null) return null
+
+    if ('given_name' in jwtClaims) {
+      return jwtClaims['given_name'] as string
+    }
+    return null
+  }
+
   function getRoles() {
     const jwtClaims = token.value ? parseJwt(token.value) : null
 
@@ -159,7 +180,8 @@ export const useAuth = defineStore('auth', () => {
     setRefreshToken,
     refreshToken,
     token,
-    getRoles
+    getRoles,
+    getFullname
   }
 })
 

@@ -61,6 +61,7 @@ async function handleSubmit(
               <UIcon
                 name="i-heroicons-chevron-left"
                 class="size-6"
+                @click="useRouter().back()"
               />
             </div>
             <UPageHeader

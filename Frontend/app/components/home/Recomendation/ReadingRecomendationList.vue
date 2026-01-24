@@ -8,7 +8,7 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/pagination'
 
-import { Pagination } from 'swiper/modules'
+import { Mousewheel, Pagination } from 'swiper/modules'
 
 export interface ReadingRecommendation {
   id: number
@@ -52,7 +52,7 @@ onMounted(() => {
   fetchRecommendations()
 })
 
-const modules = [Pagination]
+const modules = [Pagination, Mousewheel]
 
 const emit = defineEmits<{
   (e: 'refresh'): void
@@ -90,25 +90,14 @@ function refresh() {
       :space-between="12"
       :pagination="{ clickable: true }"
       :modules="modules"
-      :breakpoints="{
-        0: {
-          slidesPerView: 2
-        },
-        640: {
-          slidesPerView: 3
-        },
-        768: {
-          slidesPerView: 3
-        },
-        1024: {
-          slidesPerView: 4
-        }
-      }"
+      :slides-per-view="'auto'"
+      mousewheel
       class="mb-8"
     >
       <swiper-slide
         v-for="book in books"
         :key="book.id"
+        class="min-w-fit"
       >
         <ReadingRecomendation
           :book="{

@@ -80,8 +80,12 @@ public class GoogleAuthCallbackEndpoint : Endpoint<GoogleAuthCallbackRequest, Go
                     UserName = userInfo.Email,
                     Email = userInfo.Email,
                     EmailConfirmed = true,
+                    Fullname = userInfo.Name,
                     Nim = "", // Set default or from additional data
-                    ProgramStudy = "" // Set default or from additional data
+                    ProgramStudy = "", // Set default or from additional data
+                    Faculty = "", // Set default or from additional data
+                    GenerationYear = "", // Set default or from additional data
+                    PictureUrl = userInfo.Picture,
                 };
 
                 var createResult = await _userManager.CreateAsync(user);
@@ -109,6 +113,7 @@ public class GoogleAuthCallbackEndpoint : Endpoint<GoogleAuthCallbackRequest, Go
                 // Check if Google login is already associated
                 var logins = await _userManager.GetLoginsAsync(user);
                 var googleLogin = logins.FirstOrDefault(l => l.LoginProvider == "Google");
+                user.PictureUrl = userInfo.Picture;
                 
                 if (googleLogin == null)
                 {

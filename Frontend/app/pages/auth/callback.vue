@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAuth } from '~/apis/api'
+import { useAuth, useBackendFetch } from '~/apis/api'
 
 definePageMeta({
   layout: 'landing'
@@ -23,7 +23,7 @@ if (!code || !state) {
 
 try {
   // Send the authorization code and state to backend
-  const { data, status } = await useFetch<{ accessToken: string, refreshToken: string }>('/api/v1/auth/google/callback', {
+  const { data, status } = await useBackendFetch<{ accessToken: string, refreshToken: string }>('auth/google/callback', {
     method: 'POST',
     body: {
       code,

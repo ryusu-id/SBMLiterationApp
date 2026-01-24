@@ -62,10 +62,10 @@ async function addToReadList(book: { id: number }) {
 <template>
   <!-- TODO: Style and space all of below component to match -->
   <UCard
-    class=""
+    variant="soft"
     :ui="{
-      root: 'ring ring-0 border border-[#D1D1D1] bg-white rounded-[22px] w-fit',
-      body: 'p-2 sm:p-2  '
+      root: 'rounded-[22px] w-fit bg-slate-100 dark:bg-slate-800',
+      body: 'p-3 sm:p-3'
     }"
   >
     <div class="flex flex-col gap-x-4">
@@ -88,12 +88,12 @@ async function addToReadList(book: { id: number }) {
       <div class="flex flex-col mt-[15px]">
         <div class="flex flex-col justify-between mb-[10px]">
           <h1
-            class="text-[13px] sm:text-[15px] tracking-tight font-bold line-clamp-1 leading-none text-dark text-left"
+            class="text-[13px] sm:text-[15px] tracking-tight font-bold line-clamp-1 leading-none text-left max-w-[178px] sm:max-w-[240px]"
           >
             {{ book.title }}
           </h1>
           <h2
-            class="text-[11px] sm:text-[13px] tracking-tight text-primary font-semibold line-clamp-1 text-primary leading-tight text-left"
+            class="text-[11px] sm:text-[13px] tracking-tight text-primary font-semibold line-clamp-1 leading-tight text-left"
           >
             {{ book.category }}
           </h2>
@@ -104,23 +104,23 @@ async function addToReadList(book: { id: number }) {
         >
           <div class="flex flex-col tracking-tight justify-start items-start">
             <p
-              class="text-[#363030] font-medium text-[10px] sm:text-[12px] leading-none "
+              class="font-medium text-[10px] sm:text-[12px] leading-none "
             >
               Author
             </p>
             <p
-              class="font-semibold text-[11px] sm:text-[13px] line-clamp-1 text-dark max-w-[150px] text-left"
+              class="font-semibold text-[11px] sm:text-[13px] line-clamp-1 max-w-[150px] text-left"
             >
               {{ book.author }}
             </p>
           </div>
           <div class="flex flex-col tracking-tight text-right min-w-[50px]">
             <p
-              class="text-[#363030] font-medium text-[10px] sm:text-[12px] leading-none"
+              class="font-medium text-[10px] sm:text-[12px] leading-none"
             >
               Total Page
             </p>
-            <p class="font-semibold text-[11px] sm:text-[13px] text-dark">
+            <p class="font-semibold text-[11px] sm:text-[13px]">
               {{ book.totalPage }}
             </p>
           </div>

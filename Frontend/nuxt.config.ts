@@ -20,15 +20,13 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
     public: {
-      backendApiUri: process.env.BACKEND_API_URI || 'http://ryusu.macbook:8000/api'
+      //backendApiUri: 'https://api.staging.ryusu.id/api'
+      backendApiUri: 'http://localhost:8000/api'
     }
   },
 
   routeRules: {
-    '/': { prerender: true },
-    '/api/v1/**': {
-      proxy: 'http://localhost:8000/api/**'
-    }
+    '/': { prerender: true }
   },
 
   compatibilityDate: '2025-01-15',

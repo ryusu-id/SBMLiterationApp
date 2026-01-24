@@ -231,6 +231,18 @@ namespace PureTCOWebApp.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Faculty")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Fullname")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("GenerationYear")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
 
@@ -258,6 +270,9 @@ namespace PureTCOWebApp.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("PictureUrl")
+                        .HasColumnType("text");
 
                     b.Property<string>("ProgramStudy")
                         .IsRequired()

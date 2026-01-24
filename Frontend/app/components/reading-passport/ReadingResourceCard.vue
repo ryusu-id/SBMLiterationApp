@@ -103,7 +103,10 @@ function goToReportPage() {
           class="flex-1 border-0 p-0"
         /> -->
 
-        <div class="text-white max-h-[90px] text-[23px] font-bold  line-clamp-3 tracking-tight leading-tight">
+        <div
+          class="text-white max-h-[90px] text-[23px] font-bold  line-clamp-3 tracking-tight leading-tight"
+          @click="goToReportPage()"
+        >
           <h1>{{ resource.title }}</h1>
         </div>
 

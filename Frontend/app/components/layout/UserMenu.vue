@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
-import { useAuth } from '~/apis/api'
+import { useAuth, $authedFetch, handleResponseError, type ApiResponse } from '~/apis/api'
+import type { UserProfile } from '~/pages/profile.vue'
 
 defineProps<{
   collapsed?: boolean
@@ -10,11 +11,32 @@ const auth = useAuth()
 const router = useRouter()
 
 const user = ref({
-  name: 'Benjamin Canac',
+  name: auth.getFullname() || 'User',
   avatar: {
     src: 'https://github.com/benjamincanac.png',
-    alt: 'Benjamin Canac'
+    alt: auth.getFullname() || 'User'
   }
+})
+
+async function fetchProfile() {
+  try {
+    const response = await $authedFetch<ApiResponse<UserProfile>>('/auth/site')
+    if (response.data) {
+      if (response.data.pictureUrl) {
+        user.value.avatar.src = response.data.pictureUrl
+      }
+      user.value.name = response.data.fullname
+      user.value.avatar.alt = response.data.fullname
+    } else {
+      handleResponseError(response)
+    }
+  } catch (err) {
+    handleResponseError(err)
+  }
+}
+
+onMounted(() => {
+  fetchProfile()
 })
 
 const items = computed<DropdownMenuItem[][]>(() => ([[{
