@@ -21,32 +21,40 @@ const emit = defineEmits<{
 const loading = ref(false)
 const toast = useToast()
 
+const dialog = useDialog()
 async function addToReadList(book: { id: number }) {
-  try {
-    loading.value = true
-    const result = await $authedFetch<ApiResponse>('/reading-resources/from-recommendation', {
-      method: 'POST',
-      body: {
-        recommendationId: book.id
+  dialog.confirm({
+    title: 'Add to Read List',
+    subTitle: 'Bonus exp is aqcuired upon completion!',
+    message: 'Are you sure you want to add this book to your reading list?',
+    onOk: async () => {
+      try {
+        loading.value = true
+        const result = await $authedFetch<ApiResponse>('/reading-resources/from-recommendation', {
+          method: 'POST',
+          body: {
+            recommendationId: book.id
+          }
+        })
+
+        if (result.errorCode || result.errorDescription) {
+          handleResponseError(result)
+          return
+        }
+
+        toast.add({
+          title: 'Book added to your reading list!',
+          color: 'success'
+        })
+
+        emit('refresh')
+      } catch (error) {
+        handleResponseError(error)
+      } finally {
+        loading.value = false
       }
-    })
-
-    if (result.errorCode || result.errorDescription) {
-      handleResponseError(result)
-      return
     }
-
-    toast.add({
-      title: 'Book added to your reading list!',
-      color: 'success'
-    })
-
-    emit('refresh')
-  } catch (error) {
-    handleResponseError(error)
-  } finally {
-    loading.value = false
-  }
+  })
 }
 </script>
 
@@ -63,11 +71,11 @@ async function addToReadList(book: { id: number }) {
       <div
         class="w-[178px] sm:w-[240px] aspect-[3/4] shrink-0 overflow-hidden rounded-[12px] relative"
       >
-        <div
-          class="absolute right-3 top-3 bg-primary w-fit h-fit tracking-tight font-semibold px-2 py-1 rounded-lg text-[12px]"
+        <UBadge
+          class="absolute right-3 top-3 tracking-tight font-semibold rounded-lg text-[12px] shadow-sm"
         >
-          {{ book.xp }}xp
-        </div>
+          +{{ book.xp }}xp
+        </UBadge>
         <img
           :src="book.imageUrl"
           alt="Book Cover"

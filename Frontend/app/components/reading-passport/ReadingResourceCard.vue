@@ -75,6 +75,13 @@ const items: DropdownMenuItem[][] = [
     }
   ]
 ]
+
+function goToReportPage() {
+  useRouter().push({
+    name: 'ReadingReport',
+    params: { slug: props.resource.id }
+  })
+}
 </script>
 
 <template>
@@ -118,15 +125,20 @@ const items: DropdownMenuItem[][] = [
     </template>
 
     <div
-      v-if="resource.coverImageUri"
-      class="w-full max-w-[150px] aspect-[3/4] overflow-hidden rounded-[12px]"
+      class="w-full"
+      @click="goToReportPage()"
     >
-      <img
-        :src="resource.coverImageUri"
-        alt="Resource Image"
-        class="w-full h-full object-cover"
-        @error="handleImageError"
+      <div
+        v-if="resource.coverImageUri"
+        class="w-full max-w-[150px] aspect-[3/4] overflow-hidden rounded-[12px]"
       >
+        <img
+          :src="resource.coverImageUri"
+          alt="Resource Image"
+          class="w-full h-full object-cover"
+          @error="handleImageError"
+        >
+      </div>
     </div>
 
     <template #footer>

@@ -44,6 +44,10 @@ async function fetchRecommendations() {
   }
 }
 
+defineExpose({
+  fetch: fetchRecommendations
+})
+
 onMounted(() => {
   fetchRecommendations()
 })

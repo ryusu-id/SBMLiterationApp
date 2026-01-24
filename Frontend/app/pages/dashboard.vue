@@ -44,6 +44,7 @@ const weekDates = ref<
 
 const booksRef = useTemplateRef<typeof ReadingResources>('books')
 const journalsRef = useTemplateRef<typeof ReadingResources>('journals')
+const recommendation = useTemplateRef<typeof ReadingRecomendationList>('recommendation')
 
 const readingReports = ref<ReadingReportData[]>([])
 const reportPending = ref(false)
@@ -69,6 +70,10 @@ async function fetchReport() {
 function fetchReadingResources() {
   booksRef.value?.fetch()
   journalsRef.value?.fetch()
+}
+
+function fetchRecommendation() {
+  recommendation.value?.fetch()
 }
 
 onMounted(async () => {
@@ -137,18 +142,23 @@ const tabs = [
             class="max-w-[300px] mt-[20px] mb-[30px] mx-auto md:mx-0 md:mr-auto"
           >
             <template #books>
-              <ReadingResources ref="books" />
+              <ReadingResources
+                ref="books"
+                @refresh="fetchRecommendation"
+              />
             </template>
             <template #journal-paper>
               <ReadingResources
                 ref="journals"
                 journal
+                @refresh="fetchRecommendation"
               />
             </template>
           </UTabs>
         </div>
 
         <ReadingRecomendationList
+          ref="recommendation"
           @refresh="fetchReadingResources"
         />
 

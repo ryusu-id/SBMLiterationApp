@@ -59,24 +59,21 @@ onMounted(async () => {
   await fetch()
 
   if (rows.value.length > 0)
-    swiperInstance.value?.slideNext()
+    setTimeout(() => swiperInstance.value?.slideNext(), 10)
 })
 
+const emit = defineEmits<{
+  (e: 'refresh'): void
+}>()
 function onRefresh() {
   fetch()
+  emit('refresh')
 }
 
 function onCreate() {
   useRouter().push(props.journal
     ? { name: 'CreateReadingJournal' }
     : { name: 'CreateReadingBook' })
-}
-
-function goToReportPage(id: number) {
-  useRouter().push({
-    name: 'ReadingReport',
-    params: { slug: id }
-  })
 }
 </script>
 
@@ -113,7 +110,6 @@ function goToReportPage(id: number) {
       <ReadingResourceCard
         :journal
         :resource="res"
-        @click="goToReportPage(res.id)"
         @refresh="onRefresh"
       />
     </SwiperSlide>
