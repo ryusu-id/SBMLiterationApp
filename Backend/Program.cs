@@ -9,6 +9,7 @@ using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.Auth;
 using PureTCOWebApp.Features.Auth.Domain;
 using PureTCOWebApp.Features.FileSystem;
+using PureTCOWebApp.Core.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -126,6 +127,14 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Event bus and domain events dispatcher
+builder.Services
+    .Scan(scan => scan.FromAssembliesOf(typeof(Program))
+    .AddClasses(classes => classes.AssignableTo(typeof(IDomainEventHandler<>)), publicOnly: false)
+    .AsImplementedInterfaces()
+    .WithScopedLifetime());
+
+builder.Services.AddTransient<DomainEventsDispatcher>();
 
 var app = builder.Build();
 
@@ -140,8 +149,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseCors();
 }
-
-app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();

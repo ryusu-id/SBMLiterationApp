@@ -14,8 +14,6 @@ public partial class ReadingResourceConfiguration : IEntityTypeConfiguration<Rea
         builder.HasKey(e => e.Id)
             .HasName("pk_mt_reading_resource");
 
-        builder.HasIndex(e => e.ISBN, "ix_mt_reading_resource_isbn");
-
         builder.Property(e => e.Id)
             .HasColumnName("id");
 
@@ -71,9 +69,9 @@ public partial class ReadingResourceConfiguration : IEntityTypeConfiguration<Rea
             .HasColumnName("cover_image_uri");
 
         builder.Property(e => e.CssClass)
-            .IsRequired()
             .HasMaxLength(100)
             .IsUnicode(false)
+            .IsRequired(false)
             .HasColumnName("css_class");
 
         builder.Property<string>("resource_type")

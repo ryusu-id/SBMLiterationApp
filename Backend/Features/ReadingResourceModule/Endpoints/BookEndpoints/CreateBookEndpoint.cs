@@ -89,12 +89,6 @@ public class CreateBookEndpoint(
     public override async Task HandleAsync(CreateBookRequest req, CancellationToken ct)
     {
         var userId = int.Parse(User.FindFirst("sub")!.Value);
-        
-        if (await _dbContext.Books.AnyAsync(x => x.ISBN == req.ISBN, ct))
-        {
-            await Send.ResultAsync(TypedResults.Conflict<ApiResponse>((Result)CrudDomainError.Duplicate("Book", "ISBN")));
-            return;
-        }
 
         var book = Book.Create(
             userId,

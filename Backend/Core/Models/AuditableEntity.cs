@@ -1,4 +1,6 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using PureTCOWebApp.Core.Events;
 using PureTCOWebApp.Core.JsonConverter;
 
 namespace PureTCOWebApp.Core.Models;
@@ -30,4 +32,19 @@ public abstract class AuditableEntity : IAuditableEntity
     public string? CreateByStr { get; set; }
     [JsonPropertyName("updateBy")]
     public string? UpdateByStr { get; set; }
+
+
+    [NotMapped]
+    private List<IDomainEvent> _domainEvents = new();
+    [JsonIgnore]
+    [NotMapped]
+    public List<IDomainEvent> DomainEvents => [.._domainEvents];
+    public void Raise(IDomainEvent domainEvent)
+    {
+        _domainEvents.Add(domainEvent);
+    }
+    public void ClearDomainEvents()
+    {
+        _domainEvents.Clear();
+    }
 }

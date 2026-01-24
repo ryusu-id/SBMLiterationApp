@@ -1,3 +1,5 @@
+using PureTCOWebApp.Features.ReadingResourceModule.Domain.Events;
+
 namespace PureTCOWebApp.Features.ReadingResourceModule.Domain;
 
 public class Book : ReadingResourceBase
@@ -19,7 +21,7 @@ public class Book : ReadingResourceBase
         string? coverImageUri = null
     )
     {
-        return new Book
+        var entity = new Book
         {
             UserId = userId,
             Title = title,
@@ -32,6 +34,10 @@ public class Book : ReadingResourceBase
             ResourceLink = resourceLink,
             CoverImageUri = coverImageUri
         };
+
+        entity.Raise(new ReadingBookCreatedEvent(entity));
+
+        return entity;
     }
 
     public new void Update(
