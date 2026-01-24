@@ -44,7 +44,7 @@ defineProps<{
             {{ book.title }}
           </h1>
           <h2
-            class="text-[11px] sm:text-[13px] tracking-tight font-semibold line-clamp-1 text-fire leading-tight"
+            class="text-[11px] sm:text-[13px] tracking-tight text-primary font-semibold line-clamp-1 text-primary leading-tight"
           >
             {{ book.category }}
           </h2>
