@@ -1,3 +1,10 @@
+export interface ApiResponse<T = never> {
+  errorCode?: string
+  errorDescription?: string
+  data?: T
+  message: string
+}
+
 export function $authedFetch<T>(
   request: Parameters<typeof $fetch<T>>[0],
   opts?: Parameters<typeof $fetch<T>>[1]
@@ -25,6 +32,7 @@ export function $authedFetch<T>(
 
         triedRefresh = true
         const refreshed = await authStore.requestRefreshToken()
+        console.log(refreshed)
         if (refreshed) {
           await api<T>(request, {
             ...opts,
@@ -40,6 +48,7 @@ export function $authedFetch<T>(
           })
         } else {
           authStore.clearToken()
+          useRouter().push('/')
         }
       }
     })
@@ -86,20 +95,24 @@ export const useAuth = defineStore('auth', () => {
 
   async function requestRefreshToken() {
     const $api = useNuxtApp().$backendApi as typeof $fetch
-    const result = await $api<{ accessToken: string, refreshToken: string }>('/auth/refresh', {
-      method: 'POST',
-      body: {
-        accessToken: getToken(),
-        refreshToken: getRefreshToken()
-      }
-    })
+    try {
+      const result = await $api<{ accessToken: string, refreshToken: string }>('/auth/refresh', {
+        method: 'POST',
+        body: {
+          accessToken: getToken(),
+          refreshToken: getRefreshToken()
+        }
+      })
 
-    if (result.accessToken && result.refreshToken) {
-      setToken(result.accessToken)
-      setRefreshToken(result.refreshToken)
-      return true
+      if (result.accessToken && result.refreshToken) {
+        setToken(result.accessToken)
+        setRefreshToken(result.refreshToken)
+        return true
+      }
+      return false
+    } catch {
+      return false
     }
-    return false
   }
 
   function clearToken() {
