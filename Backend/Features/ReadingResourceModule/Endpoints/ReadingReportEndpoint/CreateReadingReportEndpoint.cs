@@ -67,6 +67,6 @@ public class CreateReadingReportEndpoint(ApplicationDbContext context)
         context.ReadingReports.Add(report);
         await context.SaveChangesAsync(ct);
 
-        await Send.OkAsync(Result.Success(), ct);
+        await Send.OkAsync(Result.Success(), cancellation: ct);
     }
 }

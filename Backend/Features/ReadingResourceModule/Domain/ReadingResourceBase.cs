@@ -10,15 +10,19 @@ public class ReadingResourceBase : AuditableEntity
     public int UserId { get; protected set; }
     public string Title { get; protected set; }
     public string ISBN { get; protected set; }
-    public string BookCategory { get; protected set; }
+    public string ReadingCategory { get; protected set; }
     public string Authors { get; protected set; }
     public string PublishYear { get; protected set; }
     public int Page { get; protected set; }
     public string? ResourceLink { get; protected set; }
     public string? CoverImageUri { get; protected set; }
+    public string CssClass { get; protected set; }
 
     [JsonIgnore]
     public virtual ICollection<ReadingReport> ReadingReports { get; set; } = [];
+
+    [JsonIgnore]
+    public virtual ICollection<StreakExp> StreakExps { get; set; } = [];
 
 #pragma warning disable CS8618
     public ReadingResourceBase() { }
@@ -28,22 +32,25 @@ public class ReadingResourceBase : AuditableEntity
         int userId,
         string title,
         string isbn,
-        string bookCategory,
+        string readingCategory,
         string authors,
         string publishYear,
         int page,
+        string cssClass,
         string? resourceLink = null,
-        string? coverImageUri = null)
+        string? coverImageUri = null
+    )
     {
         return new ReadingResourceBase
         {
             UserId = userId,
             Title = title,
             ISBN = isbn,
-            BookCategory = bookCategory,
+            ReadingCategory = readingCategory,
             Authors = authors,
             PublishYear = publishYear,
             Page = page,
+            CssClass = cssClass,
             ResourceLink = resourceLink,
             CoverImageUri = coverImageUri
         };
@@ -52,19 +59,22 @@ public class ReadingResourceBase : AuditableEntity
     public void Update(
         string title,
         string isbn,
-        string bookCategory,
+        string readingCategory,
         string authors,
         string publishYear,
         int page,
+        string cssClass,
         string? resourceLink = null,
-        string? coverImageUri = null)
+        string? coverImageUri = null
+    )
     {
         Title = title;
         ISBN = isbn;
-        BookCategory = bookCategory;
+        ReadingCategory = readingCategory;
         Authors = authors;
         PublishYear = publishYear;
         Page = page;
+        CssClass = cssClass;
         ResourceLink = resourceLink;
         CoverImageUri = coverImageUri;
     }

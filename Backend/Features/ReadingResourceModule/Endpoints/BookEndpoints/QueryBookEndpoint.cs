@@ -9,7 +9,7 @@ namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.BookEndpoints;
 public record QueryBookRequest(
     string? Title = null,
     string? ISBN = null,
-    string? BookCategory = null,
+    string? ReadingCategory = null,
     string? Authors = null,
     string? PublishYear = null
 ) : PagingQuery;
@@ -41,9 +41,9 @@ public class QueryBookEndpoint(ApplicationDbContext dbContext)
             predicate = predicate.And(x => x.ISBN.Contains(req.ISBN));
         }
 
-        if (!string.IsNullOrWhiteSpace(req.BookCategory))
+        if (!string.IsNullOrWhiteSpace(req.ReadingCategory))
         {
-            predicate = predicate.And(x => x.BookCategory.Contains(req.BookCategory));
+            predicate = predicate.And(x => x.ReadingCategory.Contains(req.ReadingCategory));
         }
 
         if (!string.IsNullOrWhiteSpace(req.Authors))

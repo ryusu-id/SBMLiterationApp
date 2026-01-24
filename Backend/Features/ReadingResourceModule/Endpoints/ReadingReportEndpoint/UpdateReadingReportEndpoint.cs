@@ -61,6 +61,6 @@ public class UpdateReadingReportEndpoint(ApplicationDbContext context)
         report.Update(req.CurrentPage, req.Insight);
         await context.SaveChangesAsync(ct);
 
-        await Send.OkAsync(Result.Success(), ct);
+        await Send.OkAsync(Result.Success(), cancellation: ct);
     }
 }

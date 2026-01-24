@@ -20,9 +20,13 @@ public class CreateJournalPaperRequestValidator : AbstractValidator<CreateJourna
             .NotEmpty().WithMessage("ISBN is required.")
             .MaximumLength(50).WithMessage("ISBN must not exceed 50 characters.");
 
-        RuleFor(x => x.BookCategory)
-            .NotEmpty().WithMessage("Book Category is required.")
-            .MaximumLength(100).WithMessage("Book Category must not exceed 100 characters.");
+        RuleFor(x => x.ReadingCategory)
+            .NotEmpty().WithMessage("Reading Category is required.")
+            .MaximumLength(100).WithMessage("Reading Category must not exceed 100 characters.");
+
+        RuleFor(x => x.CssClass)
+            .NotEmpty().WithMessage("CSS Class is required.")
+            .MaximumLength(100).WithMessage("CSS Class must not exceed 100 characters.");
 
         RuleFor(x => x.Authors)
             .NotEmpty().WithMessage("Authors is required.")
@@ -48,10 +52,11 @@ public class CreateJournalPaperRequestValidator : AbstractValidator<CreateJourna
 public record CreateJournalPaperRequest(
     string Title,
     string ISBN,
-    string BookCategory,
+    string ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,
+    string CssClass,
     string? ResourceLink,
     string? CoverImageUri
 );
@@ -61,10 +66,11 @@ public record CreateJournalPaperResponse(
     int UserId,
     string Title,
     string ISBN,
-    string BookCategory,
+    string ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,
+    string CssClass,
     string? ResourceLink,
     string? CoverImageUri
 );
@@ -94,10 +100,11 @@ public class CreateJournalPaperEndpoint(
             userId,
             req.Title,
             req.ISBN,
-            req.BookCategory,
+            req.ReadingCategory,
             req.Authors,
             req.PublishYear,
             req.Page,
+            req.CssClass,
             req.ResourceLink,
             req.CoverImageUri
         );
@@ -117,10 +124,11 @@ public class CreateJournalPaperEndpoint(
                 journalPaper.UserId,
                 journalPaper.Title,
                 journalPaper.ISBN,
-                journalPaper.BookCategory,
+                journalPaper.ReadingCategory,
                 journalPaper.Authors,
                 journalPaper.PublishYear,
                 journalPaper.Page,
+                journalPaper.CssClass,
                 journalPaper.ResourceLink,
                 journalPaper.CoverImageUri
             )

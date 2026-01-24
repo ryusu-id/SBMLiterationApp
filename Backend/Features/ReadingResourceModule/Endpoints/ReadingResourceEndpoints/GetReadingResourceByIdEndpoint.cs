@@ -8,7 +8,7 @@ using PureTCOWebApp.Features.ReadingResourceModule.Domain;
 namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.ReadingResourceEndpoints;
 
 public class GetReadingResourceByIdEndpoint(ApplicationDbContext context)
-    : EndpointWithoutRequest<ReadingResourceBase>
+    : EndpointWithoutRequest<ApiResponse<ReadingResourceBase>>
 {
     public override void Configure()
     {
@@ -32,6 +32,6 @@ public class GetReadingResourceByIdEndpoint(ApplicationDbContext context)
             return;
         }
 
-        await Send.OkAsync(resource, ct);
+        await Send.OkAsync(Result.Success(resource), cancellation: ct);
     }
 }

@@ -40,6 +40,6 @@ public class DeleteReadingReportEndpoint(ApplicationDbContext context)
         context.Remove(report);
         await context.SaveChangesAsync(ct);
 
-        await Send.OkAsync(Result.Success(), ct);
+        await Send.OkAsync(Result.Success(), cancellation: ct);
     }
 }

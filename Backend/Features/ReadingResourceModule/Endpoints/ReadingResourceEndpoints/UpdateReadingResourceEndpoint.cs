@@ -19,9 +19,13 @@ public class UpdateReadingResourceRequestValidator : AbstractValidator<UpdateRea
             .NotEmpty().WithMessage("ISBN is required.")
             .MaximumLength(50).WithMessage("ISBN must not exceed 50 characters.");
 
-        RuleFor(x => x.BookCategory)
-            .NotEmpty().WithMessage("Book Category is required.")
-            .MaximumLength(100).WithMessage("Book Category must not exceed 100 characters.");
+        RuleFor(x => x.ReadingCategory)
+            .NotEmpty().WithMessage("Reading Category is required.")
+            .MaximumLength(100).WithMessage("Reading Category must not exceed 100 characters.");
+
+        RuleFor(x => x.CssClass)
+            .NotEmpty().WithMessage("CSS Class is required.")
+            .MaximumLength(100).WithMessage("CSS Class must not exceed 100 characters.");
 
         RuleFor(x => x.Authors)
             .NotEmpty().WithMessage("Authors is required.")
@@ -48,10 +52,11 @@ public record UpdateReadingResourceRequest(
     int Id,
     string Title,
     string ISBN,
-    string BookCategory,
+    string ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,
+    string CssClass,
     string? ResourceLink,
     string? CoverImageUri
 );
@@ -61,10 +66,11 @@ public record UpdateReadingResourceResponse(
     int UserId,
     string Title,
     string ISBN,
-    string BookCategory,
+    string ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,
+    string CssClass,
     string? ResourceLink,
     string? CoverImageUri,
     string ResourceType
@@ -87,7 +93,7 @@ public class UpdateReadingResourceEndpoint(
         
         // Try to find as Book first
         var book = await dbContext.Books.FindAsync([req.Id], ct);
-        if (book != null)
+        if (book is not null)
         {
             if (book.UserId != userId)
             {
@@ -95,7 +101,7 @@ public class UpdateReadingResourceEndpoint(
                 return;
             }
             
-            book.Update(req.Title, req.ISBN, req.BookCategory, req.Authors, req.PublishYear, req.Page, req.ResourceLink, req.CoverImageUri);
+            book.Update(req.Title, req.ISBN, req.ReadingCategory, req.Authors, req.PublishYear, req.Page, req.CssClass, req.ResourceLink, req.CoverImageUri);
             
             var result = await unitOfWork.SaveChangesAsync(ct);
             if (result.IsFailure)
@@ -105,8 +111,8 @@ public class UpdateReadingResourceEndpoint(
             }
 
             var response = new UpdateReadingResourceResponse(
-                book.Id, book.UserId, book.Title, book.ISBN, book.BookCategory,
-                book.Authors, book.PublishYear, book.Page, book.ResourceLink, book.CoverImageUri, "BOOK"
+                book.Id, book.UserId, book.Title, book.ISBN, book.ReadingCategory,
+                book.Authors, book.PublishYear, book.Page, book.CssClass, book.ResourceLink, book.CoverImageUri, "BOOK"
             );
             await Send.OkAsync(Result.Success(response), cancellation: ct);
             return;
@@ -114,7 +120,7 @@ public class UpdateReadingResourceEndpoint(
 
         // Try to find as JournalPaper
         var journal = await dbContext.JournalPapers.FindAsync([req.Id], ct);
-        if (journal != null)
+        if (journal is not null)
         {
             if (journal.UserId != userId)
             {
@@ -122,7 +128,7 @@ public class UpdateReadingResourceEndpoint(
                 return;
             }
             
-            journal.Update(req.Title, req.ISBN, req.BookCategory, req.Authors, req.PublishYear, req.Page, req.ResourceLink, req.CoverImageUri);
+            journal.Update(req.Title, req.ISBN, req.ReadingCategory, req.Authors, req.PublishYear, req.Page, req.CssClass, req.ResourceLink, req.CoverImageUri);
             
             var result = await unitOfWork.SaveChangesAsync(ct);
             if (result.IsFailure)
@@ -132,8 +138,8 @@ public class UpdateReadingResourceEndpoint(
             }
 
             var response = new UpdateReadingResourceResponse(
-                journal.Id, journal.UserId, journal.Title, journal.ISBN, journal.BookCategory,
-                journal.Authors, journal.PublishYear, journal.Page, journal.ResourceLink, journal.CoverImageUri, "JOURNAL"
+                journal.Id, journal.UserId, journal.Title, journal.ISBN, journal.ReadingCategory,
+                journal.Authors, journal.PublishYear, journal.Page, journal.CssClass, journal.ResourceLink, journal.CoverImageUri, "JOURNAL"
             );
             await Send.OkAsync(Result.Success(response), cancellation: ct);
             return;

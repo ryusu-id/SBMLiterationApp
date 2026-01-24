@@ -4,9 +4,11 @@ using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Minio;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.Auth;
 using PureTCOWebApp.Features.Auth.Domain;
+using PureTCOWebApp.Features.FileSystem;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,8 +42,42 @@ builder.Services.AddScoped<UnitOfWork>();
 // Add JWT Token Service
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
+// Configure MinIO
+builder.Services.Configure<MinIOSettings>(builder.Configuration.GetSection("MinIO"));
+var minioSettings = builder.Configuration.GetSection("MinIO").Get<MinIOSettings>();
+if (minioSettings != null)
+{
+    builder.Services.AddSingleton<IMinioClient>(sp =>
+    {
+        var client = new MinioClient()
+            .WithEndpoint(minioSettings.Endpoint)
+            .WithCredentials(minioSettings.AccessKey, minioSettings.SecretKey);
+
+        if (minioSettings.UseSSL)
+        {
+            client = client.WithSSL();
+        }
+
+        return client.Build();
+    });
+
+    builder.Services.AddScoped<IMinIOService, MinIOService>();
+}
+
 // Add HttpClient factory for OAuth
 builder.Services.AddHttpClient();
+
+// Add Google Books Service
+builder.Services.AddHttpClient<PureTCOWebApp.Features.TestModule.GoogleBook.GoogleBooksService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["GoogleBooks:BaseUrl"] ?? "https://www.googleapis.com/books/v1/");
+});
+
+// Add CrossRef Service
+builder.Services.AddHttpClient<PureTCOWebApp.Features.TestModule.JournalDoi.CrossRefService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["CrossRef:BaseUrl"] ?? "https://api.crossref.org/");
+});
 
 // Add session support for OAuth state management
 builder.Services.AddDistributedMemoryCache();
@@ -120,5 +156,9 @@ if (app.Environment.IsDevelopment())
     await using var scope = app.Services.CreateAsyncScope();
     await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
 }
+
+// Health check endpoint for Kubernetes liveness/readiness probes
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }))
+    .AllowAnonymous();
 
 app.Run();

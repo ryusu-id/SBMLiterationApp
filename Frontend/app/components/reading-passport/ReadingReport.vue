@@ -36,7 +36,7 @@ defineProps<{
       </div>
 
       <div class="flex flex-col">
-        <div class="flex flex-row justify-between" v-if="withImage">
+        <div v-if="withImage" class="flex flex-row justify-between">
           <h1
             class="text-[13px] sm:text-[15px] tracking-tight font-bold line-clamp-1 text-dark"
           >
@@ -46,9 +46,9 @@ defineProps<{
           <nuxt-icon name="i-heroicons-chevron-down" />
         </div>
 
-        <UBadge class="w-fit rounded-full mb-1 text-[12px]" v-else
-          >Insight</UBadge
-        >
+        <UBadge v-else class="w-fit rounded-full mb-1 text-[12px]">
+          Insight
+        </UBadge>
         <p
           class="mt-2 text-wrap text-dark line-clamp-2 font-medium tracking-tight text-[11px] sm:text-[13px]"
         >

@@ -10,22 +10,25 @@ public class Book : ReadingResourceBase
         int userId,
         string title,
         string isbn,
-        string bookCategory,
+        string readingCategory,
         string authors,
         string publishYear,
         int page,
+        string cssClass,
         string? resourceLink = null,
-        string? coverImageUri = null)
+        string? coverImageUri = null
+    )
     {
         return new Book
         {
             UserId = userId,
             Title = title,
             ISBN = isbn,
-            BookCategory = bookCategory,
+            ReadingCategory = readingCategory,
             Authors = authors,
             PublishYear = publishYear,
             Page = page,
+            CssClass = cssClass,
             ResourceLink = resourceLink,
             CoverImageUri = coverImageUri
         };
@@ -34,19 +37,22 @@ public class Book : ReadingResourceBase
     public new void Update(
         string title,
         string isbn,
-        string bookCategory,
+        string readingCategory,
         string authors,
         string publishYear,
         int page,
+        string cssClass,
         string? resourceLink = null,
-        string? coverImageUri = null)
+        string? coverImageUri = null
+    )
     {
         Title = title;
         ISBN = isbn;
-        BookCategory = bookCategory;
+        ReadingCategory = readingCategory;
         Authors = authors;
         PublishYear = publishYear;
         Page = page;
+        CssClass = cssClass;
         ResourceLink = resourceLink;
         CoverImageUri = coverImageUri;
     }

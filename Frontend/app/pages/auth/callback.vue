@@ -37,7 +37,11 @@ try {
     if (status.value === 'success') {
       authStore.setToken(data.value!.accessToken)
       authStore.setRefreshToken(data.value!.refreshToken)
-      router.push('/dashboard')
+
+      if (authStore.getRoles().includes('admin'))
+        router.push('/admin')
+      else
+        router.push('/dashboard')
     } else
       error.value = 'Authorization failed, please try again.'
   })

@@ -38,11 +38,11 @@ public partial class ReadingResourceConfiguration : IEntityTypeConfiguration<Rea
             .IsUnicode(false)
             .HasColumnName("isbn");
 
-        builder.Property(e => e.BookCategory)
+        builder.Property(e => e.ReadingCategory)
             .IsRequired()
             .HasMaxLength(100)
             .IsUnicode(false)
-            .HasColumnName("book_category");
+            .HasColumnName("reading_category");
 
         builder.Property(e => e.Authors)
             .IsRequired()
@@ -69,6 +69,12 @@ public partial class ReadingResourceConfiguration : IEntityTypeConfiguration<Rea
             .HasMaxLength(500)
             .IsUnicode(false)
             .HasColumnName("cover_image_uri");
+
+        builder.Property(e => e.CssClass)
+            .IsRequired()
+            .HasMaxLength(100)
+            .IsUnicode(false)
+            .HasColumnName("css_class");
 
         builder.Property<string>("resource_type")
             .HasMaxLength(20)
@@ -99,6 +105,11 @@ public partial class ReadingResourceConfiguration : IEntityTypeConfiguration<Rea
         builder.HasMany(e => e.ReadingReports)
             .WithOne(d => d.ReadingResource)
             .HasForeignKey(d => d.ReadingResourceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(e => e.StreakExps)
+            .WithOne(d => d.ReadingResource)
+            .HasForeignKey("reading_resource_id")
             .OnDelete(DeleteBehavior.Cascade);
 
         OnConfigurePartial(builder);
@@ -171,3 +182,59 @@ public partial class ReadingReportConfiguration : IEntityTypeConfiguration<Readi
 
     partial void OnConfigurePartial(EntityTypeBuilder<ReadingReport> builder);
 }
+
+public partial class StreakExpConfiguration : IEntityTypeConfiguration<StreakExp>
+{
+    public void Configure(EntityTypeBuilder<StreakExp> builder)
+    {
+        builder.ToTable("mt_streak_exp");
+
+        builder.HasKey(e => e.Id)
+            .HasName("pk_mt_streak_exp");
+
+        builder.Property(e => e.Id)
+            .HasColumnName("id");
+
+        builder.Ignore(e => e.CreateByStr);
+        builder.Ignore(e => e.UpdateByStr);
+
+        builder.Property(e => e.UserId)
+            .IsRequired()
+            .HasColumnName("user_id");
+
+        builder.Property(e => e.StreakDateFrom)
+            .IsRequired()
+            .HasColumnName("streak_date_from");
+
+        builder.Property(e => e.Duration)
+            .IsRequired()
+            .HasColumnName("duration");
+
+        builder.Property(e => e.Exp)
+            .IsRequired()
+            .HasColumnName("exp");
+
+        builder.Property(e => e.Status)
+            .HasDefaultValue(0)
+            .HasColumnName("status");
+
+        builder.Property(e => e.CreateBy).HasColumnName("create_by");
+        builder.Property(e => e.CreateTime)
+            .HasDefaultValueSql("(now())")
+            .HasColumnType("timestamp with time zone")
+            .HasColumnName("create_time");
+
+        builder.Property(e => e.UpdateBy).HasColumnName("update_by");
+        builder.Property(e => e.UpdateTime)
+            .HasColumnType("timestamp with time zone")
+            .HasColumnName("update_time");
+
+        builder.HasIndex(e => e.UserId)
+            .HasDatabaseName("ix_streak_exp_user_id");
+
+        OnConfigurePartial(builder);
+    }
+
+    partial void OnConfigurePartial(EntityTypeBuilder<StreakExp> builder);
+}
+

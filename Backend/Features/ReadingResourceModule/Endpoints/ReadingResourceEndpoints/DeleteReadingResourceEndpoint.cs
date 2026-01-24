@@ -24,7 +24,7 @@ public class DeleteReadingResourceEndpoint(
         
         // Try to find as Book first
         var book = await _dbContext.Books.FindAsync([req.Id], ct);
-        if (book != null)
+        if (book is not null)
         {
             if (book.UserId != userId)
             {
@@ -47,7 +47,7 @@ public class DeleteReadingResourceEndpoint(
 
         // Try to find as JournalPaper
         var journal = await _dbContext.JournalPapers.FindAsync([req.Id], ct);
-        if (journal != null)
+        if (journal is not null)
         {
             if (journal.UserId != userId)
             {

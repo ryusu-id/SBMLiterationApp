@@ -2,7 +2,7 @@
   <Swiper
     :modules="[EffectCards]"
     effect="cards"
-    grabCursor
+    grab-cursor
     class="w-full max-w-[300px] sm:max-w-[330px]"
   >
     <SwiperSlide

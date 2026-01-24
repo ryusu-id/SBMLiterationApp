@@ -8,7 +8,7 @@ namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.JournalPaperEnd
 public record QueryJournalPaperRequest(
     string? Title = null,
     string? ISBN = null,
-    string? BookCategory = null,
+    string? ReadingCategory = null,
     string? Authors = null,
     string? PublishYear = null
 ) : PagingQuery;
@@ -40,9 +40,9 @@ public class QueryJournalPaperEndpoint(ApplicationDbContext dbContext)
             predicate = predicate.And(x => x.ISBN.Contains(req.ISBN));
         }
 
-        if (!string.IsNullOrWhiteSpace(req.BookCategory))
+        if (!string.IsNullOrWhiteSpace(req.ReadingCategory))
         {
-            predicate = predicate.And(x => x.BookCategory.Contains(req.BookCategory));
+            predicate = predicate.And(x => x.ReadingCategory.Contains(req.ReadingCategory));
         }
 
         if (!string.IsNullOrWhiteSpace(req.Authors))

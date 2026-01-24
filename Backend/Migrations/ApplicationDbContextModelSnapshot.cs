@@ -49,6 +49,22 @@ namespace PureTCOWebApp.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ConcurrencyStamp = "1",
+                            Name = "admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ConcurrencyStamp = "1",
+                            Name = "participant",
+                            NormalizedName = "PARTICIPANT"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -270,6 +286,139 @@ namespace PureTCOWebApp.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("PureTCOWebApp.Features.ReadingCategoryModule.Domain.ReadingCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CategoryName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("category_name");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time")
+                        .HasDefaultValueSql("(now())");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_mt_reading_category");
+
+                    b.ToTable("mt_reading_category", (string)null);
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.ReadingRecommendationModule.Domain.ReadingRecommendation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Authors")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("authors");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time")
+                        .HasDefaultValueSql("(now())");
+
+                    b.Property<string>("ISBN")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("isbn");
+
+                    b.Property<int>("Page")
+                        .HasColumnType("integer")
+                        .HasColumnName("page");
+
+                    b.Property<string>("PublishYear")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("publish_year");
+
+                    b.Property<string>("ReadingCategory")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("reading_category");
+
+                    b.Property<string>("ResourceLink")
+                        .HasMaxLength(500)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("resource_link");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_mt_reading_recommendation");
+
+                    b.HasIndex("ISBN")
+                        .HasDatabaseName("ix_reading_recommendation_isbn");
+
+                    b.ToTable("mt_reading_recommendation", (string)null);
+                });
+
             modelBuilder.Entity("PureTCOWebApp.Features.ReadingResourceModule.Domain.Entities.ReadingReport", b =>
                 {
                     b.Property<int>("Id")
@@ -338,6 +487,69 @@ namespace PureTCOWebApp.Migrations
                     b.ToTable("mt_reading_report", (string)null);
                 });
 
+            modelBuilder.Entity("PureTCOWebApp.Features.ReadingResourceModule.Domain.Entities.StreakExp", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time")
+                        .HasDefaultValueSql("(now())");
+
+                    b.Property<int>("Duration")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration");
+
+                    b.Property<int>("Exp")
+                        .HasColumnType("integer")
+                        .HasColumnName("exp");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
+                    b.Property<DateOnly>("StreakDateFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("streak_date_from");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<int>("reading_resource_id")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id")
+                        .HasName("pk_mt_streak_exp");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_streak_exp_user_id");
+
+                    b.HasIndex("reading_resource_id");
+
+                    b.ToTable("mt_streak_exp", (string)null);
+                });
+
             modelBuilder.Entity("PureTCOWebApp.Features.ReadingResourceModule.Domain.ReadingResourceBase", b =>
                 {
                     b.Property<int>("Id")
@@ -354,13 +566,6 @@ namespace PureTCOWebApp.Migrations
                         .HasColumnType("character varying(300)")
                         .HasColumnName("authors");
 
-                    b.Property<string>("BookCategory")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("book_category");
-
                     b.Property<string>("CoverImageUri")
                         .HasMaxLength(500)
                         .IsUnicode(false)
@@ -376,6 +581,13 @@ namespace PureTCOWebApp.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("create_time")
                         .HasDefaultValueSql("(now())");
+
+                    b.Property<string>("CssClass")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("css_class");
 
                     b.Property<string>("ISBN")
                         .IsRequired()
@@ -394,6 +606,13 @@ namespace PureTCOWebApp.Migrations
                         .IsUnicode(false)
                         .HasColumnType("character varying(10)")
                         .HasColumnName("publish_year");
+
+                    b.Property<string>("ReadingCategory")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("reading_category");
 
                     b.Property<string>("ResourceLink")
                         .HasMaxLength(500)
@@ -595,9 +814,22 @@ namespace PureTCOWebApp.Migrations
                     b.Navigation("ReadingResource");
                 });
 
+            modelBuilder.Entity("PureTCOWebApp.Features.ReadingResourceModule.Domain.Entities.StreakExp", b =>
+                {
+                    b.HasOne("PureTCOWebApp.Features.ReadingResourceModule.Domain.ReadingResourceBase", "ReadingResource")
+                        .WithMany("StreakExps")
+                        .HasForeignKey("reading_resource_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ReadingResource");
+                });
+
             modelBuilder.Entity("PureTCOWebApp.Features.ReadingResourceModule.Domain.ReadingResourceBase", b =>
                 {
                     b.Navigation("ReadingReports");
+
+                    b.Navigation("StreakExps");
                 });
 #pragma warning restore 612, 618
         }

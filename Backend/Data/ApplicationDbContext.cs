@@ -5,6 +5,8 @@ using PureTCOWebApp.Features.Auth.Domain;
 using PureTCOWebApp.Features.TestModule;
 using PureTCOWebApp.Features.ReadingResourceModule.Domain;
 using PureTCOWebApp.Features.ReadingResourceModule.Domain.Entities;
+using PureTCOWebApp.Features.ReadingCategoryModule.Domain;
+using PureTCOWebApp.Features.ReadingRecommendationModule.Domain;
 
 namespace PureTCOWebApp.Data
 {
@@ -20,6 +22,9 @@ namespace PureTCOWebApp.Data
         public DbSet<Book> Books { get; set; }
         public DbSet<JournalPaper> JournalPapers { get; set; }
         public DbSet<ReadingReport> ReadingReports { get; set; }
+        public DbSet<StreakExp> StreakExps { get; set; }
+        public DbSet<ReadingCategory> ReadingCategories { get; set; }
+        public DbSet<ReadingRecommendation> ReadingRecommendations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

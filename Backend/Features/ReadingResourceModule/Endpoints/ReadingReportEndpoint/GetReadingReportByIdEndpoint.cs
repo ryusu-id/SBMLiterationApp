@@ -8,7 +8,7 @@ using PureTCOWebApp.Features.ReadingResourceModule.Domain.Entities;
 namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.ReadingReportEndpoint;
 
 public class GetReadingReportByIdEndpoint(ApplicationDbContext context)
-    : EndpointWithoutRequest<ReadingReport>
+    : EndpointWithoutRequest<ApiResponse<ReadingReport>>
 {
     public override void Configure()
     {
@@ -38,6 +38,6 @@ public class GetReadingReportByIdEndpoint(ApplicationDbContext context)
             return;
         }
 
-        await Send.OkAsync(report, ct);
+        await Send.OkAsync(new ApiResponse<ReadingReport>("Success", report, null, null), ct);
     }
 }

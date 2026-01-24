@@ -23,7 +23,8 @@ public class ReadingReport : AuditableEntity
         int userId,
         int readingResourceId,
         int currentPage,
-        string insight)
+        string insight
+    )
     {
         return new ReadingReport
         {
