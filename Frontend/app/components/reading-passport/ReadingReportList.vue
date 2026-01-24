@@ -1,38 +1,38 @@
 <script setup lang="ts">
 import ReadingReport from './ReadingReport.vue'
 
-const reports = ref([
-  {
-    title: 'Domain Driven Design',
-    imageUrl: 'https://picsum.photos/seed/report1/400/600',
-    insight:
-      'Explored the symbolism of the green light and its representation of Gatsby\'s dreams and aspirations. The narrative technique creates a compelling mystery.',
-    timeSpent: '45 min',
-    readDate: '2026-01-18',
-    currentPage: 89,
-    totalPage: 180
-  },
-  {
-    title: 'Deep dive into machine learning algorithms',
-    imageUrl: 'https://picsum.photos/seed/report2/400/600',
-    insight:
-      'Deep dive into machine learning algorithms, particularly focusing on neural networks and their practical applications in modern AI systems.',
-    timeSpent: '1h 20min',
-    readDate: '2026-01-17',
-    currentPage: 32,
-    totalPage: 45
-  },
-  {
-    title: '1984',
-    imageUrl: 'https://picsum.photos/seed/report3/400/600',
-    insight:
-      'The dystopian themes in 1984 remain eerily relevant today. Orwell\'s portrayal of surveillance and totalitarianism provides important lessons.',
-    timeSpent: '55 min',
-    readDate: '2026-01-16',
-    currentPage: 125,
-    totalPage: 328
-  }
-])
+export interface ReadingReportData {
+  status: number
+  createTime: string
+  updateTime: string
+  createBy: string
+  updateBy: string
+  id: number
+  userId: number
+  readingResourceId: number
+  reportDate: string
+  currentPage: number
+  insight: string
+}
+
+const props = defineProps<{
+  reports: ReadingReportData[]
+  resourceTitle?: string
+  resourceImageUrl?: string
+  totalPage?: number
+}>()
+
+// Map backend reports to display format
+const mappedReports = computed(() => {
+  return props.reports.map(report => ({
+    title: props.resourceTitle || 'Reading Resource',
+    imageUrl: props.resourceImageUrl || '',
+    insight: report.insight,
+    readDate: new Date(report.reportDate).toISOString().split('T')[0],
+    currentPage: report.currentPage,
+    totalPage: props.totalPage || 0
+  }))
+})
 </script>
 
 <template>
@@ -41,11 +41,28 @@ const reports = ref([
       Your Reading Journey 🔥
     </h1>
   </div>
-  <div class="grid grid-cols-12 gap-4">
+
+  <div
+    v-if="mappedReports.length === 0"
+    class="flex flex-col items-center justify-center py-12 px-4"
+  >
+    <UIcon
+      name="i-heroicons-book-open"
+      class="size-16 text-gray-300 mb-4"
+    />
+    <p class="text-gray-500 text-center text-lg font-medium">
+      You haven't read yet! Let's report your progress! 📚
+    </p>
+  </div>
+
+  <div
+    v-else
+    class="grid grid-cols-12 gap-4"
+  >
     <!-- use With Image to show cover -->
     <ReadingReport
-      v-for="(report, index) in reports"
-      :key="index"
+      v-for="(report, index) in mappedReports"
+      :key="`${report.readDate}-${index}`"
       :report="report"
     />
   </div>

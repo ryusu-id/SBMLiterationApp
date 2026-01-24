@@ -32,7 +32,6 @@ export function $authedFetch<T>(
 
         triedRefresh = true
         const refreshed = await authStore.requestRefreshToken()
-        console.log(refreshed)
         if (refreshed) {
           await api<T>(request, {
             ...opts,

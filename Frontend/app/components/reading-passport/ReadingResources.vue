@@ -65,6 +65,13 @@ function onRefresh() {
 function onCreate() {
   useRouter().push(props.journal ? { name: 'CreateReadingBook' } : { name: 'CreateReadingJournal' })
 }
+
+function goToReportPage(id: number) {
+  useRouter().push({
+    name: 'ReadingReport',
+    params: { slug: id }
+  })
+}
 </script>
 
 <template>
@@ -100,6 +107,7 @@ function onCreate() {
       <ReadingResourceCard
         :journal
         :resource="res"
+        @click="goToReportPage(res.id)"
         @refresh="onRefresh"
       />
     </SwiperSlide>
