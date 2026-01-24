@@ -62,9 +62,14 @@ public class UnitOfWork
             await PublishDomainEventsAsync();
             
             // Save changes made by event handlers
-            if (_dbContext.ChangeTracker.HasChanges())
+            var hasChanges = _dbContext.ChangeTracker.Entries()
+                .Any(e => e.State == EntityState.Added || 
+                         e.State == EntityState.Modified || 
+                         e.State == EntityState.Deleted);
+            
+            if (hasChanges)
             {
-                await _dbContext.SaveChangesAsync(cancellationToken);
+                await SaveChangesAsync(cancellationToken);
             }
             
             await CommitTransactionAsync(cancellationToken);
