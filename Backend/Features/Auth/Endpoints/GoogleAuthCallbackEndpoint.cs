@@ -80,8 +80,10 @@ public class GoogleAuthCallbackEndpoint : Endpoint<GoogleAuthCallbackRequest, Go
                     UserName = userInfo.Email,
                     Email = userInfo.Email,
                     EmailConfirmed = true,
-                    Nim = "", // Set default or from additional data
-                    ProgramStudy = "" // Set default or from additional data
+                    Nim = "",
+                    ProgramStudy = "",
+                    Faculty = "",
+                    GenerationYear = null
                 };
 
                 var createResult = await _userManager.CreateAsync(user);

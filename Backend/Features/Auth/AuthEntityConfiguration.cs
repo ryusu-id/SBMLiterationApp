@@ -14,6 +14,12 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.ProgramStudy)
             .HasMaxLength(100);
+
+        builder.Property(u => u.Faculty)
+            .HasMaxLength(100);
+
+        builder.Property(u => u.GenerationYear)
+            .IsRequired(false);
     }
 }
 
