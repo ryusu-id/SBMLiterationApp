@@ -1,10 +1,10 @@
 <template>
-  <section class="bg-base py-[40px] md:py-[120px]"><UContainer >
+  <section class="bg-base dark:bg-transparent py-[40px] md:py-[120px]"><UContainer >
     <div class="grid grid-cols-12 gap-8">
       <!-- LEFT CONTENT -->
       <div class="col-span-12 lg:col-span-7">
         <div
-          class="text-[48px] md:text-[70px] tracking-tight leading-tight mb-4 text-white dark:text-yellow-200"
+          class="text-[48px] md:text-[70px] tracking-tight leading-tight mb-4 text-white dark:text-white"
         >
           <h1>Compete</h1>
           <h1>Track Your Progress</h1>

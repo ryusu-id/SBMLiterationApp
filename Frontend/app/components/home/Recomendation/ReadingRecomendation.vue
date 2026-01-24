@@ -88,12 +88,12 @@ async function addToReadList(book: { id: number }) {
       <div class="flex flex-col mt-[15px]">
         <div class="flex flex-col justify-between mb-[10px]">
           <h1
-            class="text-[13px] sm:text-[15px] tracking-tight font-bold line-clamp-1 leading-none text-dark"
+            class="text-[13px] sm:text-[15px] tracking-tight font-bold line-clamp-1 leading-none text-dark text-left"
           >
             {{ book.title }}
           </h1>
           <h2
-            class="text-[11px] sm:text-[13px] tracking-tight text-primary font-semibold line-clamp-1 text-primary leading-tight"
+            class="text-[11px] sm:text-[13px] tracking-tight text-primary font-semibold line-clamp-1 text-primary leading-tight text-left"
           >
             {{ book.category }}
           </h2>
@@ -104,12 +104,12 @@ async function addToReadList(book: { id: number }) {
         >
           <div class="flex flex-col tracking-tight justify-start items-start">
             <p
-              class="text-[#363030] font-medium text-[10px] sm:text-[12px] leading-none"
+              class="text-[#363030] font-medium text-[10px] sm:text-[12px] leading-none "
             >
               Author
             </p>
             <p
-              class="font-semibold text-[11px] sm:text-[13px] line-clamp-1 text-dark max-w-[150px]"
+              class="font-semibold text-[11px] sm:text-[13px] line-clamp-1 text-dark max-w-[150px] text-left"
             >
               {{ book.author }}
             </p>

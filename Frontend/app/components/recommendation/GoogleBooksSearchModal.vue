@@ -180,7 +180,7 @@ function mapToRecommendationCard(book: GoogleBookVolume) {
               v-for="book in results"
               :key="book.id"
               type="button"
-              class="transition-transform focus:outline-none focus:ring-2 focus:ring-primary rounded-[22px]"
+              class="transition-transform focus:outline-none focus:ring-2 focus:ring-primary rounded-[22px] max-w-60"
               @click="selectBook(book)"
             >
               <ReadingRecomendation

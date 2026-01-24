@@ -4,7 +4,10 @@
       description="Track your progress, conquer daily challenges, and see how you rank against readers worldwide. Turn every book you read into a victory."
       headline="SuperApp"
       :ui="{
-        root: 'bg-base'
+        root: 'bg-base dark:bg-transparent text-white',
+        title: 'text-white  ',
+        description: 'text-gray-300'
+
       }"
       :links="links"
     />

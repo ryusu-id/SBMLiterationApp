@@ -1,20 +1,20 @@
 <template>
-  <section class="bg-white px-4 py-16"> <UContainer>
+  <section class="bg-white dark:bg-transparent px-4 py-16"> <UContainer>
     <div class="grid grid-cols-12">
 
       <!-- LEFT -->
       <div class="col-span-12 lg:col-span-4 p-4 flex flex-col justify-between">
-        <div class="font-poppins tracking-tight text-[37px] font-[400] mb-5 text-dark">
+        <div class="font-poppins tracking-tight text-[37px] font-[400] mb-5 text-dark dark:text-white">
           <h1 class="leading-tight">Join Our Community</h1>
           <h1 class="leading-tight">And Start Your</h1>
           <h1 class="leading-tight">Journey</h1>
         </div>
 
-        <h1 class="underline text-dark">LET'S GO</h1>
+        <h1 class="underline text-dark dark:text-white">LET'S GO</h1>
       </div>
 
       <!-- MIDDLE -->
-      <div class="col-span-12 lg:col-span-4 p-4 flex flex-col justify-between text-dark">
+      <div class="col-span-12 lg:col-span-4 p-4 flex flex-col justify-between text-dark dark:text-white">
         <h1 class="text-[40px]">900+</h1>
 
         <p class="tracking-tight text-[13px] font-[300]">
@@ -24,7 +24,7 @@
       </div>
 
       <!-- RIGHT -->
-      <div class="col-span-12 lg:col-span-4 p-8 flex flex-col justify-between bg-[#0b4c53] text-white">
+      <div class="col-span-12 lg:col-span-4 p-8 flex flex-col justify-between bg-[#0b4c53] dark:bg-white text-white dark:text-dark">
         <!-- Rating -->
         <div class="flex items-start justify-between ">
           <div class="flex items-start space-x-2 flex-1 mb-8 ">
