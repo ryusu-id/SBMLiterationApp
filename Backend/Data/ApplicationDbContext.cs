@@ -28,6 +28,7 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     public DbSet<JournalPaper> JournalPapers { get; set; }
     public DbSet<ReadingReport> ReadingReports { get; set; }
     public DbSet<StreakExp> StreakExps { get; set; }
+    public DbSet<StreakLog> StreakLogs { get; set; }
     public DbSet<ReadingCategory> ReadingCategories { get; set; }
     public DbSet<ReadingRecommendation> ReadingRecommendations { get; set; }
 

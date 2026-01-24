@@ -21,9 +21,6 @@ public class ReadingResourceBase : AuditableEntity
     [JsonIgnore]
     public virtual ICollection<ReadingReport> ReadingReports { get; set; } = [];
 
-    [JsonIgnore]
-    public virtual ICollection<StreakExp> StreakExps { get; set; } = [];
-
 #pragma warning disable CS8618
     public ReadingResourceBase() { }
 #pragma warning restore CS8618

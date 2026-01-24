@@ -34,7 +34,7 @@ public class CreateReadingReportValidator : AbstractValidator<CreateReadingRepor
     }
 }
 
-public class CreateReadingReportEndpoint(ApplicationDbContext context)
+public class CreateReadingReportEndpoint(ApplicationDbContext context, UnitOfWork unitOfWork)
     : Endpoint<CreateReadingReportRequest, ApiResponse>
 {
     public override void Configure()
@@ -65,7 +65,13 @@ public class CreateReadingReportEndpoint(ApplicationDbContext context)
             req.Insight);
 
         context.ReadingReports.Add(report);
-        await context.SaveChangesAsync(ct);
+        var result = await unitOfWork.SaveChangesAsync(ct);
+
+        if (result.IsFailure)
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(result));
+            return;
+        }
 
         await Send.OkAsync(Result.Success(), cancellation: ct);
     }

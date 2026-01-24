@@ -105,11 +105,6 @@ public partial class ReadingResourceConfiguration : IEntityTypeConfiguration<Rea
             .HasForeignKey(d => d.ReadingResourceId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(e => e.StreakExps)
-            .WithOne(d => d.ReadingResource)
-            .HasForeignKey("reading_resource_id")
-            .OnDelete(DeleteBehavior.Cascade);
-
         OnConfigurePartial(builder);
     }
 
@@ -234,5 +229,35 @@ public partial class StreakExpConfiguration : IEntityTypeConfiguration<StreakExp
     }
 
     partial void OnConfigurePartial(EntityTypeBuilder<StreakExp> builder);
+}
+
+public partial class StreakLogConfiguration : IEntityTypeConfiguration<StreakLog>
+{
+    public void Configure(EntityTypeBuilder<StreakLog> builder)
+    {
+        builder.ToTable("mt_streak_log");
+
+        builder.HasKey(e => e.Id)
+            .HasName("pk_mt_streak_log");
+
+        builder.Property(e => e.Id)
+            .HasColumnName("id");
+
+        builder.Property(e => e.UserId)
+            .IsRequired()
+            .HasColumnName("user_id");
+
+        builder.Property(e => e.StreakDate)
+            .IsRequired()
+            .HasColumnName("streak_date");
+
+        builder.HasIndex(e => new { e.UserId, e.StreakDate })
+            .IsUnique()
+            .HasDatabaseName("ix_streak_log_user_date_unique");
+
+        OnConfigurePartial(builder);
+    }
+
+    partial void OnConfigurePartial(EntityTypeBuilder<StreakLog> builder);
 }
 

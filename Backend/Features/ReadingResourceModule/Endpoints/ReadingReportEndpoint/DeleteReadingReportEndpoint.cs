@@ -7,7 +7,7 @@ using PureTCOWebApp.Features.ReadingResourceModule.Domain.Entities;
 
 namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.ReadingReportEndpoint;
 
-public class DeleteReadingReportEndpoint(ApplicationDbContext context)
+public class DeleteReadingReportEndpoint(ApplicationDbContext context, UnitOfWork unitOfWork)
     : EndpointWithoutRequest<ApiResponse>
 {
     public override void Configure()
@@ -38,7 +38,13 @@ public class DeleteReadingReportEndpoint(ApplicationDbContext context)
         }
 
         context.Remove(report);
-        await context.SaveChangesAsync(ct);
+        var result = await unitOfWork.SaveChangesAsync(ct);
+
+        if (result.IsFailure)
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(result));
+            return;
+        }
 
         await Send.OkAsync(Result.Success(), cancellation: ct);
     }

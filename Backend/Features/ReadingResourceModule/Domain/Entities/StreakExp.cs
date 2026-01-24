@@ -11,9 +11,6 @@ public class StreakExp : AuditableEntity
     public int Duration { get; protected set; }
     public int Exp { get; protected set; }
 
-    [JsonIgnore]
-    public ReadingResourceBase ReadingResource { get; protected set; }
-
 #pragma warning disable CS8618
     public StreakExp() { }
 #pragma warning restore CS8618
