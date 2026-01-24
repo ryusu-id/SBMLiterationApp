@@ -101,48 +101,48 @@ const tabs = [
 </script>
 
 <template>
-  <div
-    class="max-w-[1200px] mx-auto flex flex-col items-center justify-center gap-4 p-4 h-full"
+  <UContainer
+    class="max-w-[950px]"
   >
-    <UContainer>
-      <div class="flex flex-col space-y-[32px]">
-        <div class="flex flex-col md:flex-row">
-          <UPageHeader
-            class="border-none"
-            :ui="{
-              root: 'w-full'
-            }"
-          >
-            <template #title>
-              <div class="flex flex-col md:flex-row md:space-x-2">
-                <h1 class="text-[36px] font-extrabold tracking-tighter">
-                  Welcome,
-                </h1>
-                <h1
-                  class="text-[36px] font-extrabold tracking-tighter leading-none"
-                >
-                  Budi
-                </h1>
-              </div>
-            </template>
+    <div class="flex flex-col space-y-[32px]">
+      <div class="flex flex-col md:flex-row mb-0">
+        <UPageHeader
+          class="border-none"
+          :ui="{
+            root: 'w-full'
+          }"
+        >
+          <template #title>
+            <div class="flex flex-col md:flex-row md:space-x-2">
+              <h1 class="text-[36px] font-extrabold tracking-tighter">
+                Welcome,
+              </h1>
+              <h1
+                class="text-[36px] font-extrabold tracking-tighter leading-none"
+              >
+                Budi
+              </h1>
+            </div>
+          </template>
 
-            <template #description>
-              <p class="tracking-tight text-[20px]">
-                Start your reading journey now
-              </p>
-            </template>
-          </UPageHeader>
+          <template #description>
+            <p class="tracking-tight text-[20px]">
+              Start your reading journey now
+            </p>
+          </template>
+        </UPageHeader>
 
-          <Streak :week-dates="weekDates" />
-        </div>
+        <Streak :week-dates="weekDates" />
+      </div>
 
-        <div class="grid grid-cols-12">
-         <div class="col-span-12 sm:col-span-6"> <UTabs
+      <div class="grid grid-cols-12">
+        <div class="col-span-12 md:col-span-6">
+          <UTabs
             :items="tabs"
             :ui="{
-              root: 'mb-[30px]'
+              list: 'mb-2'
             }"
-            class="max-w-[300px] mt-[20px] mb-[30px] mx-auto md:mx-0 md:mr-auto"
+            class="max-w-[300px] mt-3 mb-2 mx-auto md:mx-0 md:mr-auto"
           >
             <template #books>
               <ReadingResources
@@ -159,31 +159,33 @@ const tabs = [
             </template>
           </UTabs>
         </div>
-         <div class="hidden md:block sm:col-span-6 flex justify-center items-center">
-          <img src="/home/Dashboard-GIrl.svg" class="w-full h-full" alt=""/>
-         </div>
-        </div>
-
-        <ReadingRecomendationList
-          ref="recommendation"
-          @refresh="fetchReadingResources"
-        />
-
-        <div
-          v-if="reportPending"
-          class="flex items-center justify-center py-12"
-        >
-          <UIcon
-            name="i-heroicons-arrow-path"
-            class="animate-spin text-4xl"
+        <div class="hidden md:flex sm:col-span-6 flex-row justify-center items-center">
+          <nuxt-img
+            src="/book-hero.png"
+            class="max-h-[450px]"
           />
         </div>
+      </div>
 
-        <ReadingReportList
-          v-else
-          :reports="readingReports"
+      <ReadingRecomendationList
+        ref="recommendation"
+        @refresh="fetchReadingResources"
+      />
+
+      <div
+        v-if="reportPending"
+        class="flex items-center justify-center py-12"
+      >
+        <UIcon
+          name="i-heroicons-arrow-path"
+          class="animate-spin text-4xl"
         />
       </div>
-    </UContainer>
-  </div>
+
+      <ReadingReportList
+        v-else
+        :reports="readingReports"
+      />
+    </div>
+  </UContainer>
 </template>
