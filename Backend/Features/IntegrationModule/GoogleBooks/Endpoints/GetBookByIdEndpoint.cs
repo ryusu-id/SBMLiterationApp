@@ -1,7 +1,7 @@
 using FastEndpoints;
 using PureTCOWebApp.Core;
 
-namespace PureTCOWebApp.Features.TestModule.GoogleBook;
+namespace PureTCOWebApp.Features.IntegrationModule.GoogleBooks.Endpoints;
 
 public class GetBookByIdRequest
 {
@@ -20,8 +20,7 @@ public class GetBookByIdEndpoint : Endpoint<GetBookByIdRequest, ApiResponse<Book
     public override void Configure()
     {
         Get("/google-books/{VolumeId}");
-        Group<TestModuleEndpointGroup>();
-        AllowAnonymous();
+        Group<GlobalApiEndpointGroup>();
         Summary(s => s.Summary = "Get book details by volume ID");
     }
 

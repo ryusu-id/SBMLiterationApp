@@ -1,4 +1,4 @@
-namespace PureTCOWebApp.Features.TestModule.GoogleBook;
+namespace PureTCOWebApp.Features.IntegrationModule.GoogleBooks;
 
 public record GoogleBooksResponse(string Kind, int TotalItems, List<BookItem>? Items);
 
