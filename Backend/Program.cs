@@ -10,6 +10,7 @@ using PureTCOWebApp.Features.Auth;
 using PureTCOWebApp.Features.Auth.Domain;
 using PureTCOWebApp.Features.FileSystem;
 using PureTCOWebApp.Core.Events;
+using PureTCOWebApp.Core.JsonConverter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,13 +70,13 @@ if (minioSettings != null)
 builder.Services.AddHttpClient();
 
 // Add Google Books Service
-builder.Services.AddHttpClient<PureTCOWebApp.Features.TestModule.GoogleBook.GoogleBooksService>(client =>
+builder.Services.AddHttpClient<PureTCOWebApp.Features.IntegrationModule.GoogleBooks.GoogleBooksService>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["GoogleBooks:BaseUrl"] ?? "https://www.googleapis.com/books/v1/");
 });
 
 // Add CrossRef Service
-builder.Services.AddHttpClient<PureTCOWebApp.Features.TestModule.JournalDoi.CrossRefService>(client =>
+builder.Services.AddHttpClient<PureTCOWebApp.Features.IntegrationModule.CrossRef.CrossRefService>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["CrossRef:BaseUrl"] ?? "https://api.crossref.org/");
 });
@@ -94,7 +95,12 @@ builder.Services.AddOpenApi();
 builder.Services
     .AddAuthenticationJwtBearer(s => s.SigningKey = builder.Configuration["Jwt:SecretKey"])
     .AddFastEndpoints()
-    .SwaggerDocument();
+    .SwaggerDocument()
+    .ConfigureHttpJsonOptions(o =>
+    {
+        o.SerializerOptions.Converters.Add(new NumberJsonConverter());
+        o.SerializerOptions.Converters.Add(new TrimmingStringJsonConverter());
+    });
 
 builder.Services.AddAuthorization();
 
