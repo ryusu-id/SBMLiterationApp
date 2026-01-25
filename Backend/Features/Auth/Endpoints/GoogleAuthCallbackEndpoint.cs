@@ -128,6 +128,18 @@ public class GoogleAuthCallbackEndpoint : Endpoint<GoogleAuthCallbackRequest, Go
             // Get user roles
             var roles = await _userManager.GetRolesAsync(user);
 
+            // Check if user is locked or disabled
+            if (await _userManager.IsLockedOutAsync(user))
+            {
+                await Send.ResultAsync(
+                    TypedResults.BadRequest(new GoogleAuthCallbackResponse
+                    {
+                        Success = false,
+                        Message = "Account is locked or disabled. Please contact administrator."
+                    }));
+                return;
+            }
+
             // Generate JWT tokens
             var (accessToken, refreshToken) = await _jwtTokenService.GenerateTokensAsync(user, roles);
 
