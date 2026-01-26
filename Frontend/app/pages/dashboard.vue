@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { $authedFetch, handleResponseError, useAuth } from '~/apis/api'
+import type { TabsItem } from '@nuxt/ui'
+import { handleResponseError, useAuth } from '~/apis/api'
 import type { PagingResult } from '~/apis/paging'
 import ReadingRecomendationList from '~/components/home/Recomendation/ReadingRecomendationList.vue'
 import ReadingReportList from '~/components/reading-passport/ReadingReportList.vue'
@@ -12,61 +13,46 @@ definePageMeta({
   middleware: ['auth', 'participant-only']
 })
 
-const booksRef = useTemplateRef<typeof ReadingResources>('books')
-const journalsRef = useTemplateRef<typeof ReadingResources>('journals')
+const readingResource = useTemplateRef<typeof ReadingResources>('readingResource')
 const recommendation = useTemplateRef<typeof ReadingRecomendationList>('recommendation')
 const auth = useAuth()
+const useAuthedFetch = useNuxtApp().$useAuthedFetch
 
-const readingReports = ref<ReadingReportData[]>([])
-const reportPending = ref(false)
-async function fetchReport() {
-  try {
-    reportPending.value = true
-    const response = await $authedFetch<PagingResult<ReadingReportData>>('/reading-resources/reports', {
-      query: {
-        page: 1,
-        pageSize: 100
-      }
-    })
-    if (response.rows) {
-      readingReports.value = response.rows
-    }
-  } catch (err) {
-    handleResponseError(err)
-  } finally {
-    reportPending.value = false
+const { data: readingReports, pending: reportPending, error } = await useAuthedFetch<PagingResult<ReadingReportData>>('/reading-resources/reports', {
+  query: {
+    page: 1,
+    pageSize: 5
   }
-}
+})
+
+watch(error, (err) => {
+  if (err) handleResponseError(err)
+})
 
 function fetchReadingResources() {
-  booksRef.value?.fetch()
-  journalsRef.value?.fetch()
+  readingResource.value?.fetch()
 }
 
 function fetchRecommendation() {
   recommendation.value?.fetch()
 }
 
-onMounted(async () => {
-  await fetchReport()
-})
-
-onUpdated(async () => {
-  await fetchReport()
-})
-
-const tabs = [
+const tabs = ref<TabsItem[]>([
   {
     label: 'Books',
     icon: 'i-lucide-book',
-    slot: 'books'
+    slot: 'books',
+    value: 0
   },
   {
     label: 'Research Article',
     icon: 'i-lucide-form',
-    slot: 'journal-paper'
+    slot: 'journal-paper',
+    value: 1
   }
-]
+])
+
+const tab = ref(0)
 </script>
 
 <template>
@@ -104,26 +90,18 @@ const tabs = [
       <div class="grid grid-cols-12">
         <div class="col-span-12 md:col-span-6">
           <UTabs
+            v-model="tab"
             :items="tabs"
             :ui="{
               list: 'mb-2'
             }"
             class="max-w-[300px] mt-3 mb-2 mx-auto md:mx-0 md:mr-auto"
-          >
-            <template #books>
-              <ReadingResources
-                ref="books"
-                @refresh="fetchRecommendation"
-              />
-            </template>
-            <template #journal-paper>
-              <ReadingResources
-                ref="journals"
-                journal
-                @refresh="fetchRecommendation"
-              />
-            </template>
-          </UTabs>
+          />
+          <ReadingResources
+            ref="readingResource"
+            :journal="!!tab"
+            @refresh="fetchRecommendation"
+          />
         </div>
         <div class="hidden md:flex sm:col-span-6 flex-row justify-center items-center">
           <nuxt-img
@@ -151,7 +129,7 @@ const tabs = [
       <ReadingReportList
         v-else
         dashboard
-        :reports="readingReports"
+        :reports="readingReports?.rows || []"
       />
     </div>
   </UContainer>

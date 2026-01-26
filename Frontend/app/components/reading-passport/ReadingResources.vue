@@ -8,7 +8,7 @@ import 'swiper/css/effect-cards'
 
 // Swiper module
 import { EffectCards, Mousewheel } from 'swiper/modules'
-import { $authedFetch, handleResponseError } from '~/apis/api'
+import { handleResponseError } from '~/apis/api'
 import ReadingResourceCard from './ReadingResourceCard.vue'
 
 const props = defineProps<{
@@ -28,45 +28,61 @@ export interface ReadingResource {
   cssClass: string
 }
 
-const rows = ref<ReadingResource[]>([])
 const swiperInstance = ref<SwiperType>()
 
 const onSwiper = (swiper: SwiperType) => {
   swiperInstance.value = swiper
 }
 
-async function fetch() {
-  const type = props.journal ? 'journals' : 'books'
-  try {
-    const data = await $authedFetch<{
-      rows: ReadingResource[]
-    }>(`/reading-resources/${type}`)
-    if (data.rows) {
-      rows.value = data.rows
-    } else {
-      handleResponseError(data)
-    }
-  } catch (error) {
-    handleResponseError(error)
-  }
-}
+const type = computed(() => props.journal ? 'journals' : 'books')
+const apiUri = computed(() => `/reading-resources/${type.value}`)
+const useAuthedFetch = useNuxtApp().$useAuthedFetch
+
+const refreshCallback = ref<() => void>()
 
 defineExpose({
-  fetch
+  fetch: refreshCallback.value
 })
 
-onMounted(async () => {
-  await fetch()
+const { data, error, refresh } = await useAuthedFetch<{
+  rows: ReadingResource[]
+}>(() => apiUri.value, {
+  lazy: true,
+  immediate: false,
+  query: {
+    page: 1,
+    pageSize: 100
+  }
+})
 
-  if (rows.value.length > 0)
+refreshCallback.value = refresh
+
+if (error.value) {
+  handleResponseError(error.value)
+}
+
+const rows = computed(() => data.value?.rows || [])
+
+onMounted(async () => {
+  await refresh()
+
+  if (rows.value.length > 0 && swiperInstance.value?.activeIndex === 0)
+    setTimeout(() => swiperInstance.value?.slideNext(), 10)
+})
+
+watch(() => props.journal, async () => {
+  await refresh()
+
+  if (rows.value.length > 0 && swiperInstance.value?.activeIndex === 0)
     setTimeout(() => swiperInstance.value?.slideNext(), 10)
 })
 
 const emit = defineEmits<{
   (e: 'refresh'): void
 }>()
+
 function onRefresh() {
-  fetch()
+  refresh()
   emit('refresh')
 }
 

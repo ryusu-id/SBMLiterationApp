@@ -60,8 +60,8 @@ export function $authedFetch<T>(
 }
 
 export function useBackendFetch<T>(
-  request: Parameters<typeof $fetch<T>>[0],
-  opts?: Parameters<typeof $fetch<T>>[1]
+  request: Parameters<typeof useFetch<T>>[0],
+  opts?: Parameters<typeof useFetch<T>>[1]
 ) {
   return useFetch(request, {
     ...opts,
@@ -186,7 +186,6 @@ export const useAuth = defineStore('auth', () => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function handleResponseError(error: any) {
-  console.log(error._data.errorDescription)
   const toast = useToast()
   const description
     = error?._data?.errorDescription

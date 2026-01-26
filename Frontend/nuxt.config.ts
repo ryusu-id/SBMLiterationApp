@@ -19,9 +19,11 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
   runtimeConfig: {
+    // backendApiUri: 'http://puretco-app-service/api'
+    backendApiUri: 'http://localhost:8000/api',
     public: {
-      //backendApiUri: 'https://api.staging.ryusu.id/api'
       backendApiUri: 'http://localhost:8000/api'
+      // backendApiUri: 'https://api.staging.ryusu.id/api'
     }
   },
 

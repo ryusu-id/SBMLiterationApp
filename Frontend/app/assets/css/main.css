@@ -25,6 +25,10 @@
   --font-poppins: "Poppins", sans-serif;
 }
 
+.swiper-pagination-bullets {
+  display: none;
+}
+
 .nuxt-icon svg {
   margin-bottom: 0 !important;
 }

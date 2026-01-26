@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { $authedFetch, handleResponseError } from '~/apis/api'
+import { handleResponseError } from '~/apis/api'
 import type { PagingResult } from '~/apis/paging'
 import ReadingRecomendation from './ReadingRecomendation.vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
@@ -22,43 +22,35 @@ export interface ReadingRecommendation {
   coverImageUri: string
 }
 
-const books = ref<ReadingRecommendation[]>([])
-const loading = ref(false)
-
-async function fetchRecommendations() {
-  try {
-    loading.value = true
-    const response = await $authedFetch<PagingResult<ReadingRecommendation>>('/reading-recommendations/participant', {
-      query: {
-        page: 1,
-        pageSize: 20
-      }
-    })
-    if (response.rows) {
-      books.value = response.rows
-    }
-  } catch (err) {
-    handleResponseError(err)
-  } finally {
-    loading.value = false
-  }
-}
+const { $useAuthedFetch } = useNuxtApp()
+const refreshCallback = ref<() => void>()
 
 defineExpose({
-  fetch: fetchRecommendations
+  fetch: refreshCallback
 })
 
-onMounted(() => {
-  fetchRecommendations()
+const { data: response, pending: loading, error, refresh } = await $useAuthedFetch<PagingResult<ReadingRecommendation>>('/reading-recommendations/participant', {
+  query: {
+    page: 1,
+    pageSize: 20
+  }
 })
+
+refreshCallback.value = refresh
+
+watch(error, (err) => {
+  if (err) handleResponseError(err)
+})
+
+const books = computed(() => response.value?.rows || [])
 
 const modules = [Pagination, Mousewheel]
 
 const emit = defineEmits<{
   (e: 'refresh'): void
 }>()
-function refresh() {
-  fetchRecommendations()
+function handleRefresh() {
+  refresh()
   emit('refresh')
 }
 </script>
@@ -109,7 +101,7 @@ function refresh() {
             totalPage: book.page,
             xp: 30
           }"
-          @refresh="refresh"
+          @refresh="handleRefresh"
         />
       </swiper-slide>
     </swiper>
