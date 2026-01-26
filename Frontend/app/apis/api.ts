@@ -70,41 +70,42 @@ export function useBackendFetch<T>(
 }
 
 export const useAuth = defineStore('auth', () => {
-  const token = ref<string | null>(null)
-  const refreshToken = ref<string | null>(null)
+  const tokenCookie = useCookie('auth_token', {
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+    sameSite: 'lax',
+    secure: import.meta.env.PROD
+  })
+  const refreshTokenCookie = useCookie('refresh_token', {
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+    sameSite: 'lax',
+    secure: import.meta.env.PROD
+  })
 
-  // Load token from localStorage on initialization
-  if (import.meta.client) {
-    token.value = localStorage.getItem('auth_token')
-    refreshToken.value = localStorage.getItem('refresh_token')
-  }
+  const token = ref<string | null>(tokenCookie.value || null)
+  const refreshToken = ref<string | null>(refreshTokenCookie.value || null)
 
   function getToken() {
-    if (!token.value && import.meta.client) {
-      token.value = localStorage.getItem('auth_token')
+    if (!token.value) {
+      token.value = tokenCookie.value || null
     }
     return token.value
   }
 
   function getRefreshToken() {
-    if (!refreshToken.value && import.meta.client) {
-      refreshToken.value = localStorage.getItem('refresh_token')
+    if (!refreshToken.value) {
+      refreshToken.value = refreshTokenCookie.value || null
     }
     return refreshToken.value
   }
 
   function setToken(newToken: string) {
     token.value = newToken
-    if (import.meta.client) {
-      localStorage.setItem('auth_token', newToken)
-    }
+    tokenCookie.value = newToken
   }
 
   function setRefreshToken(newRefreshToken: string) {
     refreshToken.value = newRefreshToken
-    if (import.meta.client) {
-      localStorage.setItem('refresh_token', newRefreshToken)
-    }
+    refreshTokenCookie.value = newRefreshToken
   }
 
   let currentRefreshPromise: Promise<{ accessToken: string, refreshToken: string }> | null = null
@@ -138,10 +139,8 @@ export const useAuth = defineStore('auth', () => {
   function clearToken() {
     token.value = null
     refreshToken.value = null
-    if (import.meta.client) {
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('refresh_token')
-    }
+    tokenCookie.value = null
+    refreshTokenCookie.value = null
   }
 
   function parseJwt(token: string) {

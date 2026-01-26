@@ -7,12 +7,9 @@ import type { ReadingReportData } from '~/components/reading-passport/ReadingRep
 import ReadingResources from '~/components/reading-passport/ReadingResources.vue'
 import Streak from '~/components/reading-passport/Streak.vue'
 
-// definePageMeta({
-//   middleware: 'auth'
-// })
-
 definePageMeta({
-  keepalive: true
+  keepalive: true,
+  middleware: ['auth', 'participant-only']
 })
 
 const booksRef = useTemplateRef<typeof ReadingResources>('books')

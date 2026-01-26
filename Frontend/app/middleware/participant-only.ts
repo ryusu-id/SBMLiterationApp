@@ -2,9 +2,10 @@ import { useAuth } from '~/apis/api'
 
 export default defineNuxtRouteMiddleware(() => {
   const auth = useAuth()
-  const token = auth.getToken()
 
-  if (!token) {
-    return navigateTo('/')
+  if (!auth.getRoles().includes('admin')) {
+    return
   }
+
+  return navigateTo('/admin')
 })

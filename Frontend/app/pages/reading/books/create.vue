@@ -5,7 +5,8 @@ import ReadingResourceForm, {
 } from '~/components/reading-passport/ReadingResourceForm.vue'
 
 definePageMeta({
-  name: 'CreateReadingBook'
+  name: 'CreateReadingBook',
+  middleware: ['auth', 'participant-only']
 })
 
 const loading = ref(false)

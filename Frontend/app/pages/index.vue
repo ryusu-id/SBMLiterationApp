@@ -7,7 +7,8 @@ import HighlightHero from '~/components/home/HighlightHero.vue'
 import HomeHero from '~/components/home/HomeHero.vue'
 
 definePageMeta({
-  layout: 'landing'
+  layout: 'landing',
+  name: 'LandingPage'
 })
 </script>
 

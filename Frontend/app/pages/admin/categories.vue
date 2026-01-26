@@ -5,7 +5,8 @@ import ReadingCategoryForm from '~/components/categories/ReadingCategoryForm.vue
 import DashboardNavbar from '~/components/layout/DashboardNavbar.vue'
 
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: ['auth', 'admin-only']
 })
 
 export interface ReadingCategory {

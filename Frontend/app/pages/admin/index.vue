@@ -2,7 +2,8 @@
 import DashboardNavbar from '~/components/layout/DashboardNavbar.vue'
 
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: ['auth', 'admin-only']
 })
 </script>
 

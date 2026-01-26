@@ -7,7 +7,8 @@ import type { ReadingReportData } from '~/components/reading-passport/ReadingRep
 import type { PagingResult } from '~/apis/paging'
 
 definePageMeta({
-  name: 'ReadingReport'
+  name: 'ReadingReport',
+  middleware: ['auth', 'participant-only']
 })
 
 const route = useRoute()

@@ -5,7 +5,8 @@ import ReadingResourceForm, {
 } from '~/components/reading-passport/ReadingResourceForm.vue'
 
 definePageMeta({
-  name: 'UpdateReadingJournal'
+  name: 'UpdateReadingJournal',
+  middleware: ['auth', 'participant-only']
 })
 
 const slug = useRoute().params.slug as string

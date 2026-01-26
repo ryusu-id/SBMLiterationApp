@@ -15,8 +15,25 @@
 </template>
 
 <script setup lang="ts">
+import { useAuth } from '~/apis/api'
+
 definePageMeta({
-  layout: 'landing'
+  layout: 'landing',
+  middleware: [
+    function () {
+      if (import.meta.client)
+        return
+
+      const auth = useAuth()
+      if (!auth.getToken())
+        return
+      if (auth.getRoles() && auth.getRoles().includes('admin')) {
+        return '/admin'
+      } else if (auth.getRoles()) {
+        return '/dashboard'
+      }
+    }
+  ]
 })
 
 const loading = ref(false)

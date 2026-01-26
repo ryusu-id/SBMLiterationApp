@@ -5,7 +5,8 @@ import ReadingRecommendationForm from '~/components/recommendation/ReadingRecomm
 import DashboardNavbar from '~/components/layout/DashboardNavbar.vue'
 
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: ['auth', 'admin-only']
 })
 
 export interface ReadingRecommendation {

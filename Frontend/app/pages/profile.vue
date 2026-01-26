@@ -4,6 +4,10 @@ import { $authedFetch, handleResponseError, useAuth, type ApiResponse } from '~/
 import ProfileForm from '~/components/profile/ProfileForm.vue'
 import type { ProfileFormSchema } from '~/components/profile/ProfileForm.vue'
 
+definePageMeta({
+  middleware: ['auth', 'participant-only']
+})
+
 export interface UserProfile {
   id: number
   fullname: string

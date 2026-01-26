@@ -4,7 +4,8 @@ import UsersTable from '~/components/users/UsersTable.vue'
 import DashboardNavbar from '~/components/layout/DashboardNavbar.vue'
 
 definePageMeta({
-  layout: 'admin'
+  layout: 'admin',
+  middleware: ['auth', 'admin-only']
 })
 
 export interface User {
