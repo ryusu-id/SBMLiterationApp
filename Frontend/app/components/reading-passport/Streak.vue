@@ -20,9 +20,7 @@ interface WeekDateDisplay {
 
 const useAuthedFetch = useNuxtApp().$useAuthedFetch
 
-const { data: response, pending, error } = useAuthedFetch<ApiResponse<StreakData>>('/streaks/me', {
-  lazy: true
-})
+const { data: response, pending, error } = await useAuthedFetch<ApiResponse<StreakData>>('/streaks/me')
 
 watch(error, (err) => {
   if (err) handleResponseError(err)
@@ -31,7 +29,7 @@ watch(error, (err) => {
 const streakData = computed(() => response.value?.data || null)
 
 const weekDates = computed<WeekDateDisplay[]>(() => {
-  if (!streakData.value?.weeklyStatus) return []
+  if (!streakData?.value?.weeklyStatus) return []
 
   return streakData.value.weeklyStatus.map((status) => {
     // Parse yyyy-mm-dd format explicitly

@@ -109,8 +109,8 @@ export const useAuth = defineStore('auth', () => {
   }
 
   let currentRefreshPromise: Promise<{ accessToken: string, refreshToken: string }> | null = null
-  async function requestRefreshToken() {
-    const $api = useNuxtApp().$backendApi as typeof $fetch
+  async function requestRefreshToken(api?: typeof $fetch) {
+    const $api = api || useNuxtApp().$backendApi as typeof $fetch
     try {
       if (!currentRefreshPromise)
         currentRefreshPromise = $api<{ accessToken: string, refreshToken: string }>('/auth/refresh', {

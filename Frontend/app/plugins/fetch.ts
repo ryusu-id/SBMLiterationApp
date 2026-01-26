@@ -32,7 +32,7 @@ export default defineNuxtPlugin(() => {
       }
 
       // Try to refresh the token
-      const refreshed = await authStore.requestRefreshToken()
+      const refreshed = await authStore.requestRefreshToken(api)
 
       if (refreshed) {
         // Update the Authorization header with the new token
@@ -60,7 +60,7 @@ export default defineNuxtPlugin(() => {
   ) {
     return useFetch(request, {
       ...opts,
-      $fetch: useNuxtApp().$authedApi as typeof $fetch
+      $fetch: authedApi as typeof $fetch
     })
   }
   // Expose to useNuxtApp().$api

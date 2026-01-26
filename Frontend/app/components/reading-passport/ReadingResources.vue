@@ -47,8 +47,6 @@ defineExpose({
 const { data, error, refresh } = await useAuthedFetch<{
   rows: ReadingResource[]
 }>(() => apiUri.value, {
-  lazy: true,
-  immediate: false,
   query: {
     page: 1,
     pageSize: 100
@@ -64,8 +62,6 @@ if (error.value) {
 const rows = computed(() => data.value?.rows || [])
 
 onMounted(async () => {
-  await refresh()
-
   if (rows.value.length > 0 && swiperInstance.value?.activeIndex === 0)
     setTimeout(() => swiperInstance.value?.slideNext(), 10)
 })
