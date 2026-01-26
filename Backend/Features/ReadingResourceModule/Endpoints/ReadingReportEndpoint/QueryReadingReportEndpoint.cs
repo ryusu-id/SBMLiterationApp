@@ -10,8 +10,19 @@ public record QueryReadingReportRequest(
     int? ReadingResourceId = null
 ) : PagingQuery;
 
+public record QueryReadingReportResponse(
+    int Id,
+    int UserId,
+    int ReadingResourceId,
+    DateTime ReportDate,
+    int CurrentPage,
+    string Insight,
+    int TimeSpent,
+    string? CoverImageUri
+);
+
 public class QueryReadingReportEndpoint(ApplicationDbContext context)
-    : Endpoint<QueryReadingReportRequest, PagingResult<ReadingReport>>
+    : Endpoint<QueryReadingReportRequest, PagingResult<QueryReadingReportResponse>>
 {
     public override void Configure()
     {
@@ -35,7 +46,16 @@ public class QueryReadingReportEndpoint(ApplicationDbContext context)
 
         query = query.Where(predicate).AsNoTracking();
 
-        var result = await PagingService.PaginateQueryAsync(query, req, ct);
+        var result = await PagingService.PaginateQueryAsync(query, req, report => new QueryReadingReportResponse(
+            report.Id,
+            report.UserId,
+            report.ReadingResourceId,
+            report.ReportDate,
+            report.CurrentPage,
+            report.Insight,
+            report.TimeSpent,
+            report.ReadingResource.CoverImageUri
+        ), ct);
 
         await Send.OkAsync(result, ct);
     }

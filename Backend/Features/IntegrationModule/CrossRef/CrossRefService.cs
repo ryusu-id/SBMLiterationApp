@@ -1,4 +1,4 @@
-namespace PureTCOWebApp.Features.TestModule.JournalDoi;
+namespace PureTCOWebApp.Features.IntegrationModule.CrossRef;
 
 public class CrossRefService(HttpClient httpClient)
 {
@@ -17,7 +17,7 @@ public class CrossRefService(HttpClient httpClient)
         var doiIndex = input.IndexOf("doi.org/", StringComparison.OrdinalIgnoreCase);
         if (doiIndex >= 0)
         {
-            return input.Substring(doiIndex + 8);
+            return input[(doiIndex + 8)..];
         }
         return input;
     }

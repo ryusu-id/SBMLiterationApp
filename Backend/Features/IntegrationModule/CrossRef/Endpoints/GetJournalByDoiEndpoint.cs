@@ -2,7 +2,7 @@ using FastEndpoints;
 using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
 
-namespace PureTCOWebApp.Features.TestModule.JournalDoi;
+namespace PureTCOWebApp.Features.IntegrationModule.CrossRef.Endpoints;
 
 public class GetJournalByDoiRequest
 {

@@ -1,7 +1,7 @@
 using FastEndpoints;
 using PureTCOWebApp.Core.Paging;
 
-namespace PureTCOWebApp.Features.TestModule.GoogleBook;
+namespace PureTCOWebApp.Features.IntegrationModule.GoogleBooks.Endpoints;
 
 public record SearchBooksRequest(string Query = "") : PagingQuery;
 
@@ -41,7 +41,7 @@ public class SearchBooksEndpoint : Endpoint<SearchBooksRequest, PagingResult<Boo
         var totalPages = (int)Math.Ceiling((double)result.TotalItems / req.RowsPerPage);
         
         var pagingResult = new PagingResult<BookItem>(
-            Rows: result.Items ?? new List<BookItem>(),
+            Rows: result.Items ?? [],
             Page: req.Page,
             RowsPerPage: req.RowsPerPage,
             TotalRows: result.TotalItems,

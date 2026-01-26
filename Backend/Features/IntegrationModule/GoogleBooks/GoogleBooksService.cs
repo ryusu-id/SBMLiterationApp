@@ -1,4 +1,4 @@
-namespace PureTCOWebApp.Features.TestModule.GoogleBook;
+namespace PureTCOWebApp.Features.IntegrationModule.GoogleBooks;
 
 public class GoogleBooksService
 {

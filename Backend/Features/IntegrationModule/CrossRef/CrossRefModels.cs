@@ -1,4 +1,4 @@
-namespace PureTCOWebApp.Features.TestModule.JournalDoi;
+namespace PureTCOWebApp.Features.IntegrationModule.CrossRef;
 
 public record WorkMessage(
     DateInfo Indexed,

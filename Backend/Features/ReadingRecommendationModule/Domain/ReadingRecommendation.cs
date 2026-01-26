@@ -1,4 +1,5 @@
 using PureTCOWebApp.Core.Models;
+using PureTCOWebApp.Features.ReadingRecommendationModule.Domain.Events;
 
 namespace PureTCOWebApp.Features.ReadingRecommendationModule.Domain;
 
@@ -29,7 +30,7 @@ public class ReadingRecommendation : AuditableEntity
         string? coverImageUri = null
     )
     {
-        return new ReadingRecommendation
+        var recommendation = new ReadingRecommendation
         {
             Title = title,
             ISBN = isbn,
@@ -40,6 +41,9 @@ public class ReadingRecommendation : AuditableEntity
             ResourceLink = resourceLink,
             CoverImageUri = coverImageUri
         };
+        
+        recommendation.Raise(new ReadingRecommendationCreatedEvent(recommendation));
+        return recommendation;
     }
 
     public void Update(
