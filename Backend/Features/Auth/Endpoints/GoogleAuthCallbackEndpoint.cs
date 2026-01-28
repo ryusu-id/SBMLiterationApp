@@ -167,7 +167,9 @@ public class GoogleAuthCallbackEndpoint : Endpoint<GoogleAuthCallbackRequest, Go
     {
         var clientId = _configuration["GoogleAuthCredentials:ClientId"];
         var clientSecret = _configuration["GoogleAuthCredentials:ClientSecret"];
-        var redirectUri = _configuration["GoogleOAuth:RedirectUri"];
+        // var redirectUri = _configuration["GoogleOAuth:RedirectUri"];
+        var redirectUri =
+            HttpContext.Request.Headers["Origin"].ToString() + "/auth/callback";
 
         var client = _httpClientFactory.CreateClient();
         
@@ -180,6 +182,7 @@ public class GoogleAuthCallbackEndpoint : Endpoint<GoogleAuthCallbackRequest, Go
             { "grant_type", "authorization_code" }
         };
 
+        Logger.LogError("Response: {Response}", JsonSerializer.Serialize(requestData));
         var response = await client.PostAsync(
             "https://oauth2.googleapis.com/token",
             new FormUrlEncodedContent(requestData),
@@ -189,6 +192,7 @@ public class GoogleAuthCallbackEndpoint : Endpoint<GoogleAuthCallbackRequest, Go
         if (!response.IsSuccessStatusCode)
         {
             Logger.LogError("Failed to exchange code for token. Status: {StatusCode}", response.StatusCode);
+            Logger.LogError("Response: {Response}", await response.Content.ReadAsStringAsync(ct));
             return null;
         }
 
