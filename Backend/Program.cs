@@ -158,7 +158,7 @@ if (app.Environment.IsDevelopment())
 else 
 {
     app.UseCors(policy =>
-        policy.WithOrigins("https://staging.ryusu.id")
+        policy.WithOrigins(["https://staging.ryusu.id", "http://localhost:3000"])
               .AllowAnyHeader()
               .AllowAnyMethod());
 

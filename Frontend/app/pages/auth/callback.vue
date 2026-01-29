@@ -23,17 +23,19 @@ if (!code || !state) {
 
 try {
   // Send the authorization code and state to backend
-  const { data, status } = await useBackendFetch<{ accessToken: string, refreshToken: string }>('auth/google/callback', {
+  const { data, status, execute } = await useBackendFetch<{ accessToken: string, refreshToken: string }>('auth/google/callback', {
     method: 'POST',
     body: {
       code,
       state
-    }
+    },
+    lazy: true
   })
 
   // Handle successful authorization
   // Redirect to home or dashboard
-  onMounted(() => {
+  onMounted(async () => {
+    await execute()
     if (status.value === 'success') {
       authStore.setToken(data.value!.accessToken)
       authStore.setRefreshToken(data.value!.refreshToken)

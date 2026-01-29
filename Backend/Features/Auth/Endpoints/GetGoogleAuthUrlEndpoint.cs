@@ -21,7 +21,10 @@ public class GetGoogleAuthUrlEndpoint : EndpointWithoutRequest<GetGoogleAuthUrlR
     public override async Task HandleAsync(CancellationToken ct)
     {
         var clientId = _configuration["GoogleAuthCredentials:ClientId"];
-        var redirectUri = _configuration["GoogleOAuth:RedirectUri"];
+        var redirectUri =
+            HttpContext.Request.Headers["Origin"].ToString() + "/auth/callback";
+
+        // var redirectUri = _configuration["GoogleOAuth:RedirectUri"];
 
         if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(redirectUri))
         {
