@@ -57,7 +57,7 @@ defineProps<{
             {{ report.title }}
           </h1>
           <!-- TODO: Use chevron down icon -->
-          <nuxt-icon name="i-lucide-chevron-down" />
+          <UIcon name="i-lucide-chevron-down" />
         </div>
 
         <UBadge

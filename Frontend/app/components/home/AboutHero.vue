@@ -1,5 +1,5 @@
 <template>
-  <section class="bg-white dark:bg-transparent text-black dark:text-white py-[40px] md:py-[120px]">
+  <section class="py-[40px] md:py-[120px]">
     <UContainer>
       <div class="grid grid-cols-12 gap-8">
         <!-- LEFT CONTENT -->
@@ -23,8 +23,8 @@
         </div>
 
         <!-- RIGHT FEATURES -->
-        <div class="col-span-12 lg:col-span-5 p-6 bg-amber-50 rounded-xl">
-          <h1 class="text-[30px] font-[500] mb-8 leading-none tracking-tight dark:text-dark">
+        <div class="col-span-12 lg:col-span-5 p-6 rounded-xl">
+          <h1 class="text-[30px] font-[500] mb-8 leading-none tracking-tight">
             Powerful Features Reading Experiences
           </h1>
 
@@ -34,13 +34,13 @@
               :key="i"
               class="flex space-x-3"
             >
-              <div class="p-2 rounded-full bg-base w-fit h-fit flex items-center dark:text-dark">
+              <div class="p-2 rounded-full w-fit h-fit flex items-center">
                 <UIcon
                   name="i-heroicons-trophy"
-                  class="text-white size-6"
+                  class="size-6"
                 />
               </div>
-              <div class="dark:text-dark">
+              <div>
                 <h2 class="text-[18px] font-[500]">
                   Leaderboard
                 </h2>
