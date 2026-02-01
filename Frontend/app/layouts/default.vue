@@ -9,7 +9,7 @@ const route = useRoute()
     }"
   >
     <UMain
-      class="min-h-[calc(100vh-147px)] pb-[113px] overflow-x-hidden"
+      class="min-h-[calc(100vh-147px)] pb-[113px] overflow-x-hidden participant"
     >
       <slot />
       <UCard
