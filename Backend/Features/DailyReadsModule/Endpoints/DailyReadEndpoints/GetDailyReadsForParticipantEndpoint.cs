@@ -29,7 +29,7 @@ public record DailyReadWithQuizResult(
 public record GetDailyReadsForParticipantRequest(
     string? Title = null,
     string? Category = null,
-    DateOnly? Date = null
+    DateOnly? DateTo = null
 ) : PagingQuery;
 
 public class GetDailyReadsForParticipantEndpoint(ApplicationDbContext dbContext)
@@ -59,10 +59,18 @@ public class GetDailyReadsForParticipantEndpoint(ApplicationDbContext dbContext)
             predicate = predicate.And(x => x.Category != null && x.Category.Contains(req.Category));
         }
 
-        if (req.Date.HasValue)
+        var localTime = DateTime.UtcNow.ToLocalTime();
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.ToLocalTime());
+        if (req.DateTo.HasValue)
         {
-            predicate = predicate.And(x => x.Date == req.Date.Value);
+            predicate = predicate.And(x => x.Date <= req.DateTo.Value);
         }
+        else
+        {
+            predicate = predicate.And(x => x.Date == today);
+        }
+
+        predicate = predicate.And(x => x.Date <= today);
 
         query = query.Where(predicate).OrderByDescending(x => x.Date);
 

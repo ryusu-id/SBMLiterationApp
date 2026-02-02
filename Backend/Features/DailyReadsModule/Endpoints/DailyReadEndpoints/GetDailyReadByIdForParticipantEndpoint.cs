@@ -22,7 +22,8 @@ public class GetDailyReadByIdForParticipantEndpoint(ApplicationDbContext dbConte
 
         var dailyRead = await dbContext.DailyReads.FindAsync([id], ct);
 
-        if (dailyRead == null)
+        var today = DateOnly.FromDateTime(DateTime.UtcNow.ToLocalTime());
+        if (dailyRead == null || dailyRead.Date > today)
         {
             await Send.ResultAsync(TypedResults.NotFound<ApiResponse>((Result)CrudDomainError.NotFound("DailyRead", id)));
             return;

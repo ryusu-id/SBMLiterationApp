@@ -56,6 +56,12 @@ public class SubmitQuizAnswerEndpoint(
             return;
         }
 
+        if (dailyRead.Date != DateOnly.FromDateTime(DateTime.UtcNow.ToLocalTime()))
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(Result.Failure(new Error("CannotSubmitQuiz", "Cannot submit quiz answers for a Daily Read that is not for today."))));
+            return;
+        }
+
         var maxRetrySeqs = await dbContext.QuizAnswers
             .Where(a => a.UserId == userId && a.DailyReadId == dailyReadId)
             .GroupBy(a => a.QuestionSeq)
