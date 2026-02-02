@@ -1,9 +1,25 @@
 using FastEndpoints;
+using Microsoft.EntityFrameworkCore;
 using PureTCOWebApp.Core.Paging;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.ReadingResourceModule.Domain;
 
 namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.JournalPaperEndpoints;
+
+public record JournalPaperWithProgress(
+    int Id,
+    int UserId,
+    string Title,
+    string ISBN,
+    string ReadingCategory,
+    string Authors,
+    string PublishYear,
+    int Page,
+    string? ResourceLink,
+    string? CoverImageUri,
+    string CssClass,
+    int? LastReadPage
+);
 
 public record QueryJournalPaperRequest(
     string? Title = null,
@@ -14,7 +30,7 @@ public record QueryJournalPaperRequest(
 ) : PagingQuery;
 
 public class QueryJournalPaperEndpoint(ApplicationDbContext dbContext)
-    : Endpoint<QueryJournalPaperRequest, PagingResult<JournalPaper>>
+    : Endpoint<QueryJournalPaperRequest, PagingResult<JournalPaperWithProgress>>
 {
     public override void Configure()
     {
@@ -57,7 +73,45 @@ public class QueryJournalPaperEndpoint(ApplicationDbContext dbContext)
         
         query = query.Where(predicate);
 
-        var result = await PagingService.PaginateQueryAsync(query, req, dbContext, ct);
+        var pagedJournals = await PagingService.PaginateQueryAsync(query, req, dbContext, ct);
+
+        var journalIds = pagedJournals.Rows.Select(j => j.Id).ToList();
+
+        var lastReadPages = await dbContext.ReadingReports
+            .Where(r => r.UserId == userId && journalIds.Contains(r.ReadingResourceId))
+            .GroupBy(r => r.ReadingResourceId)
+            .Select(g => new
+            {
+                ReadingResourceId = g.Key,
+                LastReadPage = g.OrderByDescending(r => r.ReportDate).First().CurrentPage
+            })
+            .ToDictionaryAsync(x => x.ReadingResourceId, x => x.LastReadPage, ct);
+
+        var journalsWithProgress = pagedJournals.Rows.Select(j => new JournalPaperWithProgress(
+            j.Id,
+            j.UserId,
+            j.Title,
+            j.ISBN,
+            j.ReadingCategory,
+            j.Authors,
+            j.PublishYear,
+            j.Page,
+            j.ResourceLink,
+            j.CoverImageUri,
+            j.CssClass,
+            lastReadPages.GetValueOrDefault(j.Id)
+        )).ToList();
+
+        var result = new PagingResult<JournalPaperWithProgress>(
+            journalsWithProgress,
+            pagedJournals.Page,
+            pagedJournals.RowsPerPage,
+            pagedJournals.TotalRows,
+            pagedJournals.TotalPages,
+            pagedJournals.SearchText,
+            pagedJournals.SortBy,
+            pagedJournals.SortDirection
+        );
 
         await Send.OkAsync(result, cancellation: ct);
     }
