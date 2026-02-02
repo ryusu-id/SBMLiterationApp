@@ -29,6 +29,16 @@ const route = useRoute()
           />
         </UButton>
         <UButton
+          to="/leaderboard"
+          class="h-[64px] w-[64px] rounded-2xl flex flex-row items-center justify-center p-0"
+          :variant="route.name === 'leaderboard' ? 'solid' : 'soft'"
+        >
+          <nuxt-icon
+            name="reading"
+            class="text-[34px] mb-0"
+          />
+        </UButton>
+        <UButton
           class="h-[64px] w-[64px] rounded-2xl flex flex-row items-center justify-center p-0"
           :variant="route.name === 'posts' ? 'solid' : 'soft'"
         >
