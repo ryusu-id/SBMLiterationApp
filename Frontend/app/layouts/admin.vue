@@ -30,6 +30,10 @@ const items: NavigationMenuItem[] = [{
   icon: 'i-lucide-album',
   to: '/admin/recommendation'
 }, {
+  label: 'Daily Reads',
+  icon: 'i-lucide-calendar-clock',
+  to: '/admin/daily-reads'
+}, {
   label: 'Users',
   icon: 'i-lucide-users',
   to: '/admin/users'

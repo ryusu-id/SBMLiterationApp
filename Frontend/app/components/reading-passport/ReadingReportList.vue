@@ -14,12 +14,12 @@ export interface ReadingReportData {
   currentPage: number
   insight: string
   timeSpent: number
+  coverImageUri?: string | undefined
 }
 
 const props = defineProps<{
   reports: ReadingReportData[]
   resourceTitle?: string
-  resourceImageUrl?: string
   totalPage?: number
   dashboard?: boolean
 }>()
@@ -28,7 +28,7 @@ const props = defineProps<{
 const mappedReports = computed(() => {
   return props.reports.map(report => ({
     title: props.resourceTitle || 'Reading Resource',
-    imageUrl: props.resourceImageUrl || '',
+    imageUrl: report.coverImageUri || '',
     insight: report.insight,
     readDate: new Date(report.reportDate).toISOString().split('T')[0],
     currentPage: report.currentPage,

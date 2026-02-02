@@ -7,6 +7,7 @@ import ReadingReportList from '~/components/reading-passport/ReadingReportList.v
 import type { ReadingReportData } from '~/components/reading-passport/ReadingReportList.vue'
 import ReadingResources from '~/components/reading-passport/ReadingResources.vue'
 import Streak from '~/components/reading-passport/Streak.vue'
+import DailyReads from '~/components/daily-reads/DailyReads.vue'
 
 definePageMeta({
   keepalive: true,
@@ -18,7 +19,7 @@ const recommendation = useTemplateRef<typeof ReadingRecomendationList>('recommen
 const auth = useAuth()
 const useAuthedFetch = useNuxtApp().$useAuthedFetch
 
-const { data: readingReports, pending: reportPending, error } = await useAuthedFetch<PagingResult<ReadingReportData>>('/reading-resources/reports', {
+const { data: readingReports, pending: reportPending, error } = await useAuthedFetch<PagingResult<ReadingReportData>>('/reading-resources/reports/latest-activity', {
   query: {
     page: 1,
     pageSize: 5
@@ -49,6 +50,12 @@ const tabs = ref<TabsItem[]>([
     icon: 'i-lucide-form',
     slot: 'journal-paper',
     value: 1
+  },
+  {
+    label: 'Daily Reading',
+    icon: 'i-lucide-calendar',
+    slot: 'daily-reading',
+    value: 2
   }
 ])
 
@@ -56,9 +63,7 @@ const tab = ref(0)
 </script>
 
 <template>
-  <UContainer
-    class="max-w-[950px]"
-  >
+  <UContainer>
     <div class="flex flex-col space-y-[32px]">
       <div class="flex flex-col md:flex-row mb-0">
         <UPageHeader
@@ -96,13 +101,19 @@ const tab = ref(0)
               list: 'mb-2',
               trigger: 'cursor-pointer'
             }"
-            class="max-w-[300px] mt-3 mb-2 mx-auto md:mx-0 md:mr-auto"
+            class="max-w-full mt-3 mb-2 mx-auto md:mx-0 md:mr-auto"
           />
-          <ReadingResources
-            ref="readingResource"
-            :journal="!!tab"
-            @refresh="fetchRecommendation"
-          />
+          <div class="min-h-[495px] flex items-start justify-center">
+            <ReadingResources
+              v-if="tab !== 2"
+              ref="readingResource"
+              :journal="tab === 1"
+              @refresh="fetchRecommendation"
+            />
+            <DailyReads
+              v-else
+            />
+          </div>
         </div>
         <div class="hidden md:flex sm:col-span-6 flex-row justify-center items-center">
           <nuxt-img

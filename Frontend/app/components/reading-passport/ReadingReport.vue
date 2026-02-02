@@ -9,6 +9,7 @@ defineProps<{
     readDate?: string
     currentPage: number
     totalPage: number
+    coverImageUrl?: string | undefined
   }
   withImage?: boolean
 }>()
@@ -56,7 +57,7 @@ defineProps<{
             {{ report.title }}
           </h1>
           <!-- TODO: Use chevron down icon -->
-          <nuxt-icon name="i-heroicons-chevron-down" />
+          <UIcon name="i-lucide-chevron-down" />
         </div>
 
         <UBadge

@@ -2,14 +2,8 @@
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 import { $authedFetch, handleResponseError } from '~/apis/api'
-import type { PagingResult } from '~/apis/paging'
 import GoogleBooksSearchModal from './GoogleBooksSearchModal.vue'
 import type { GoogleBookVolume } from './GoogleBooksSearchModal.vue'
-
-interface ReadingCategory {
-  id: number
-  categoryName: string
-}
 
 defineProps<{
   loading?: boolean
@@ -32,7 +26,6 @@ const state = reactive({
   title: '',
   isbn: '',
   readingCategory: '',
-  customCategory: '',
   authors: '',
   publishYear: '',
   page: 0,
@@ -43,18 +36,6 @@ const state = reactive({
 const uploading = ref(false)
 const toast = useToast()
 const googleBooksModal = useTemplateRef<typeof GoogleBooksSearchModal>('googleBooksModal')
-const categories = ref<ReadingCategory[]>([])
-const categoriesLoading = ref(false)
-
-const categoryOptions = computed(() => [
-  ...categories.value.map(cat => ({
-    value: cat.categoryName,
-    label: cat.categoryName
-  })),
-  { value: 'Other', label: 'Other (Custom)' }
-])
-
-const isCustomCategory = computed(() => state.readingCategory === 'Other')
 
 const id = ref<number | null>(null)
 
@@ -65,36 +46,12 @@ const emit = defineEmits<{
 const action = ref<'Create' | 'Update'>('Create')
 const open = ref(false)
 
-async function fetchCategories() {
-  try {
-    categoriesLoading.value = true
-    const response = await $authedFetch<PagingResult<ReadingCategory>>('/reading-categories', {
-      query: {
-        page: 1,
-        pageSize: 100
-      }
-    })
-    if (response.rows) {
-      categories.value = response.rows
-    }
-  } catch (err) {
-    handleResponseError(err)
-  } finally {
-    categoriesLoading.value = false
-  }
-}
-
-onMounted(() => {
-  fetchCategories()
-})
-
 function create() {
   action.value = 'Create'
   id.value = null
   state.title = ''
   state.isbn = ''
   state.readingCategory = ''
-  state.customCategory = ''
   state.authors = ''
   state.publishYear = ''
   state.page = 0
@@ -108,17 +65,7 @@ function update(param: ReadingRecommendationSchema & { id: number }) {
   id.value = param.id
   state.title = param.title
   state.isbn = param.isbn
-
-  // Handle category selection
-  const categoryExists = categories.value.some(cat => cat.categoryName === param.readingCategory)
-  if (categoryExists) {
-    state.readingCategory = param.readingCategory
-    state.customCategory = ''
-  } else {
-    state.readingCategory = 'Other'
-    state.customCategory = param.readingCategory
-  }
-
+  state.readingCategory = param.readingCategory
   state.authors = param.authors
   state.publishYear = param.publishYear
   state.page = param.page
@@ -175,11 +122,7 @@ async function handleFileUpload(files: File[]) {
 }
 
 async function onSubmit(event: FormSubmitEvent<ReadingRecommendationSchema>) {
-  const data = {
-    ...event.data,
-    readingCategory: isCustomCategory.value ? state.customCategory : event.data.readingCategory
-  }
-  emit('submit', { action: action.value, data, id: id.value })
+  emit('submit', { action: action.value, data: event.data, id: id.value })
 }
 
 function openGoogleBooksSearch() {
@@ -193,18 +136,7 @@ function handleBookSelection(book: GoogleBookVolume) {
 
   state.title = book.volumeInfo.title || ''
   state.isbn = isbn
-
-  // Handle category selection
-  const bookCategory = book.volumeInfo.categories?.[0] || ''
-  const categoryExists = categories.value.some(cat => cat.categoryName === bookCategory)
-  if (categoryExists && bookCategory) {
-    state.readingCategory = bookCategory
-    state.customCategory = ''
-  } else if (bookCategory) {
-    state.readingCategory = 'Other'
-    state.customCategory = bookCategory
-  }
-
+  state.readingCategory = book.volumeInfo.categories?.[0] || ''
   state.authors = book.volumeInfo.authors?.join(', ') || ''
   state.publishYear = book.volumeInfo.publishedDate?.substring(0, 4) || ''
   state.page = book.volumeInfo.pageCount || 0
@@ -305,20 +237,11 @@ function handleBookSelection(book: GoogleBookVolume) {
         </UFormField>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <UFormField
-            label="Category"
+          <CategorySelect
+            v-model="state.readingCategory"
             name="readingCategory"
             required
-          >
-            <USelectMenu
-              :model-value="categoryOptions.find(opt => opt.value === state.readingCategory)"
-              :items="categoryOptions"
-              :loading="categoriesLoading"
-              placeholder="Select category"
-              class="w-full"
-              @update:model-value="(selected) => state.readingCategory = selected.value"
-            />
-          </UFormField>
+          />
 
           <UFormField
             label="Page Count"
@@ -333,19 +256,6 @@ function handleBookSelection(book: GoogleBookVolume) {
             />
           </UFormField>
         </div>
-
-        <UFormField
-          v-if="isCustomCategory"
-          label="Custom Category"
-          name="customCategory"
-          required
-        >
-          <UInput
-            v-model="state.customCategory"
-            placeholder="Enter custom category name"
-            class="w-full"
-          />
-        </UFormField>
 
         <UFormField
           label="Resource Link"

@@ -301,6 +301,265 @@ namespace PureTCOWebApp.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("PureTCOWebApp.Features.DailyReadsModule.Domain.DailyRead", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("category");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<string>("CoverImg")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("cover_img");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time")
+                        .HasDefaultValueSql("(now())");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<decimal>("Exp")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("exp");
+
+                    b.Property<int>("MinimalCorrectAnswer")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("minimal_correct_answer");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_mt_daily_read");
+
+                    b.ToTable("mt_daily_read", (string)null);
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.DailyReadsModule.Domain.Entities.QuizAnswer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)")
+                        .HasColumnName("answer");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time")
+                        .HasDefaultValueSql("(now())");
+
+                    b.Property<int>("DailyReadId")
+                        .HasColumnType("integer")
+                        .HasColumnName("daily_read_id");
+
+                    b.Property<int>("QuestionSeq")
+                        .HasColumnType("integer")
+                        .HasColumnName("question_seq");
+
+                    b.Property<int>("RetrySeq")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("retry_seq");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_mt_quiz_answer");
+
+                    b.HasIndex("UserId", "DailyReadId", "QuestionSeq")
+                        .HasDatabaseName("ix_mt_quiz_answer_user_daily_question");
+
+                    b.ToTable("mt_quiz_answer", (string)null);
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.DailyReadsModule.Domain.Entities.QuizChoice", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("answer");
+
+                    b.Property<string>("Choice")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)")
+                        .HasColumnName("choice");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time")
+                        .HasDefaultValueSql("(now())");
+
+                    b.Property<int>("QuizQuestionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("quiz_question_id");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_mt_quiz_choice");
+
+                    b.HasIndex("QuizQuestionId");
+
+                    b.ToTable("mt_quiz_choice", (string)null);
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.DailyReadsModule.Domain.Entities.QuizQuestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CorrectAnswer")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("character varying(1)")
+                        .HasColumnName("correct_answer");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time")
+                        .HasDefaultValueSql("(now())");
+
+                    b.Property<int>("DailyReadId")
+                        .HasColumnType("integer")
+                        .HasColumnName("daily_read_id");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("question");
+
+                    b.Property<int>("QuestionSeq")
+                        .HasColumnType("integer")
+                        .HasColumnName("question_seq");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_mt_quiz_question");
+
+                    b.HasIndex("DailyReadId");
+
+                    b.ToTable("mt_quiz_question", (string)null);
+                });
+
             modelBuilder.Entity("PureTCOWebApp.Features.ReadingCategoryModule.Domain.ReadingCategory", b =>
                 {
                     b.Property<int>("Id")
@@ -847,6 +1106,26 @@ namespace PureTCOWebApp.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("PureTCOWebApp.Features.DailyReadsModule.Domain.Entities.QuizChoice", b =>
+                {
+                    b.HasOne("PureTCOWebApp.Features.DailyReadsModule.Domain.Entities.QuizQuestion", null)
+                        .WithMany("Choices")
+                        .HasForeignKey("QuizQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.DailyReadsModule.Domain.Entities.QuizQuestion", b =>
+                {
+                    b.HasOne("PureTCOWebApp.Features.DailyReadsModule.Domain.DailyRead", "DailyRead")
+                        .WithMany()
+                        .HasForeignKey("DailyReadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DailyRead");
+                });
+
             modelBuilder.Entity("PureTCOWebApp.Features.ReadingResourceModule.Domain.Entities.ReadingReport", b =>
                 {
                     b.HasOne("PureTCOWebApp.Features.ReadingResourceModule.Domain.ReadingResourceBase", "ReadingResource")
@@ -856,6 +1135,11 @@ namespace PureTCOWebApp.Migrations
                         .IsRequired();
 
                     b.Navigation("ReadingResource");
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.DailyReadsModule.Domain.Entities.QuizQuestion", b =>
+                {
+                    b.Navigation("Choices");
                 });
 
             modelBuilder.Entity("PureTCOWebApp.Features.ReadingResourceModule.Domain.ReadingResourceBase", b =>

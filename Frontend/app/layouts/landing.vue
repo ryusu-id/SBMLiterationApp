@@ -50,7 +50,7 @@ function goToDashboard() {
     <UHeader :toggle="false">
       <template #left>
         <NuxtLink to="/">
-          <AppLogo class="w-auto h-6 shrink-0" />
+          <AppLogo class="h-12 shrink-0" />
         </NuxtLink>
       </template>
 

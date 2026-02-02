@@ -19,7 +19,7 @@ public class ReadingRecommendationCreatedEventHandler : IDomainEventHandler<Read
         var categoryName = domainEvent.Recommendation.ReadingCategory.Trim();
 
         var exists = await _dbContext.ReadingCategories
-            .AnyAsync(c => c.CategoryName.Equals(categoryName, StringComparison.CurrentCultureIgnoreCase), cancellationToken);
+            .AnyAsync(c => c.CategoryName.ToLower() == categoryName.ToLower(), cancellationToken);
 
         if (!exists)
         {

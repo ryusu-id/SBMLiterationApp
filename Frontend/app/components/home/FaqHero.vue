@@ -1,12 +1,12 @@
 <template>
-  <section class="bg-white dark:bg-transparent py-[40px] md:py-[80px]">
+  <section class="py-[40px] md:py-[80px]">
     <UContainer>
-      <div class="grid grid-cols-12 bg-amber-50 pt-5 md:pt-8 md:p-8 rounded-2xl gap-8">
+      <div class="grid grid-cols-12 pt-5 md:pt-8 md:p-8 rounded-2xl gap-8">
         <!-- FAQ SECTION -->
         <div class="col-span-12 lg:col-span-6">
           <div class="mx-auto px-4">
             <h2
-              class="text-[32px] md:text-[40px] font-[500] tracking-tight mb-10 text-gray-900"
+              class="text-[32px] md:text-[40px] font-[500] tracking-tight mb-10"
             >
               Frequently Asked Questions
             </h2>
@@ -21,16 +21,16 @@
                 }"
               >
                 <button
-                  class="w-full flex justify-between items-center p-5 text-left bg-white hover:bg-gray-50 transition-colors"
+                  class="w-full flex justify-between items-center p-5 text-left transition-colors"
                   @click="toggle(index)"
                 >
-                  <span class="font-[600] text-gray-800 tracking-tight">
+                  <span class="font-[600] tracking-tight">
                     {{ item.question }}
                   </span>
 
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5 text-gray-500 transition-transform"
+                    class="h-5 w-5 transition-transform"
                     :class="{ 'rotate-180': activeIndex === index }"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -47,7 +47,7 @@
 
                 <div
                   v-show="activeIndex === index"
-                  class="p-5 pt-0 text-gray-600 bg-white leading-relaxed"
+                  class="p-5 pt-0 leading-relaxed"
                 >
                   {{ item.answer }}
                 </div>
@@ -59,7 +59,7 @@
         <!-- IMAGE SECTION -->
         <div class="col-span-12 lg:col-span-6 flex items-end justify-center">
           <div
-            class="w-fit h-[90%] bg-[#e2f047] rounded-t-full flex items-end justify-center"
+            class="w-fit h-[90%] rounded-t-full flex items-end justify-center"
           >
             <img
               class="h-full w-auto"

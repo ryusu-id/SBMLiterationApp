@@ -69,7 +69,7 @@ public class MinIOService : IMinIOService
             await EnsureBucketExistsAsync(cancellationToken);
 
             // Generate unique filename
-            var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
+            var uniqueFileName = $"{Guid.NewGuid()}";
 
             var putObjectArgs = new PutObjectArgs()
                 .WithBucket(_settings.BucketName)

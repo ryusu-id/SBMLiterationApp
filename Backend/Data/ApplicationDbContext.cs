@@ -8,6 +8,8 @@ using PureTCOWebApp.Features.ReadingResourceModule.Domain.Entities;
 using PureTCOWebApp.Features.ReadingCategoryModule.Domain;
 using PureTCOWebApp.Features.ReadingRecommendationModule.Domain;
 using PureTCOWebApp.Features.StreakModule.Domain;
+using PureTCOWebApp.Features.DailyReadsModule.Domain;
+using PureTCOWebApp.Features.DailyReadsModule.Domain.Entities;
 using PureTCOWebApp.Core.Events;
 
 namespace PureTCOWebApp.Data;
@@ -31,6 +33,10 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     public DbSet<StreakLog> StreakLogs { get; set; }
     public DbSet<ReadingCategory> ReadingCategories { get; set; }
     public DbSet<ReadingRecommendation> ReadingRecommendations { get; set; }
+    public DbSet<DailyRead> DailyReads { get; set; }
+    public DbSet<QuizQuestion> QuizQuestions { get; set; }
+    public DbSet<QuizChoice> QuizChoices { get; set; }
+    public DbSet<QuizAnswer> QuizAnswers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

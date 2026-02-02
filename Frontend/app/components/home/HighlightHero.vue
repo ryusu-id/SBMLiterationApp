@@ -1,10 +1,10 @@
 <template>
-  <section class="bg-white dark:bg-transparent px-4 py-16">
+  <section class="px-4 py-16">
     <UContainer>
       <div class="grid grid-cols-12 gap-y-8 lg:gap-y-0">
         <!-- LEFT -->
         <div class="col-span-12 lg:col-span-4 pt-8 border-transparent lg:pt-0 border-t lg:border-t-0 dark:border-gray-500  p-4 flex flex-col justify-between">
-          <div class="font-poppins tracking-tight text-[37px] font-[400] mb-5 text-dark dark:text-white">
+          <div class="font-poppins tracking-tight text-[37px] font-[400] mb-5">
             <h1 class="leading-tight">
               Join Our Community
             </h1>
@@ -16,13 +16,13 @@
             </h1>
           </div>
 
-          <h1 class="underline text-dark dark:text-white">
+          <h1 class="underline">
             LET'S GO
           </h1>
         </div>
 
         <!-- MIDDLE -->
-        <div class="col-span-12 lg:col-span-4 pt-8 lg:pt-0  border-t lg:border-l lg:border-t-0 border-gray-500 p-4 flex flex-col justify-between text-dark dark:text-white">
+        <div class="col-span-12 lg:col-span-4 pt-8 lg:pt-0  border-t lg:border-l lg:border-t-0 border-gray-500 p-4 flex flex-col justify-between">
           <h1 class="text-[40px]">
             900+
           </h1>
@@ -34,7 +34,7 @@
         </div>
 
         <!-- RIGHT -->
-        <div class="col-span-12 lg:col-span-4 p-8 flex flex-col justify-between bg-[#0b4c53] dark:bg-white text-white dark:text-dark">
+        <div class="col-span-12 lg:col-span-4 p-8 flex flex-col justify-between">
           <!-- Rating -->
           <div class="flex items-start justify-between ">
             <div class="flex items-start space-x-2 flex-1 mb-8 ">
@@ -71,7 +71,7 @@
             >
 
             <div
-              class="w-12 h-12 rounded-full bg-lime-400 text-black flex items-center justify-center text-[10px] leading-[10px] border-2 border-base -ml-4"
+              class="w-12 h-12 rounded-full bg-lime-400 flex items-center justify-center text-[10px] leading-[10px] border-2 border-base -ml-4"
             >
               100+<br>More
             </div>

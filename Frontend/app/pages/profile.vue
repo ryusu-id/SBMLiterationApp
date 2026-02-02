@@ -142,6 +142,7 @@ function toggleColorMode() {
             />
             <UAvatar
               :src="profile?.pictureUrl"
+              icon="i-lucide-user-circle"
               size="2xl"
             />
           </template>

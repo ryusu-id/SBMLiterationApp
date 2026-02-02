@@ -1,27 +1,26 @@
 <template>
-  <section class="bg-base dark:bg-transparent py-[40px] md:py-[120px]">
+  <section class="py-[40px] md:py-[120px]">
     <UContainer>
       <div class="grid grid-cols-12 gap-8">
         <!-- LEFT CONTENT -->
         <div class="col-span-12 lg:col-span-7">
           <div
-            class="text-[48px] md:text-[70px] tracking-tight leading-tight mb-4 text-white dark:text-white"
+            class="text-[48px] md:text-[70px] tracking-tight leading-tight mb-4"
           >
             <h1>Compete</h1>
             <h1>Track Your Progress</h1>
             <h1>and Level Up</h1>
           </div>
 
-          <p class="text-[17px] w-full lg:w-[80%] font-[300] mb-8 text-white">
+          <p class="text-[17px] w-full lg:w-[80%] font-[300] mb-8">
             Join thousands of readers, climb the leaderboards, and turn every page
             into a winning streak.
           </p>
 
-          <div
-            class="px-8 py-4 bg-[#e2f047] text-base w-fit rounded-full font-[700]"
-          >
-            Join Program Now
-          </div>
+          <UButton
+            class="px-8 py-4 w-fit rounded-full font-[700]"
+            label="Join Program Now"
+          />
         </div>
 
         <!-- RIGHT IMAGE -->

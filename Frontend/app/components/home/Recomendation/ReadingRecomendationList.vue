@@ -2,13 +2,10 @@
 import { handleResponseError } from '~/apis/api'
 import type { PagingResult } from '~/apis/paging'
 import ReadingRecomendation from './ReadingRecomendation.vue'
-import { Swiper, SwiperSlide } from 'swiper/vue'
 
 // Import Swiper styles
 import 'swiper/css'
 import 'swiper/css/pagination'
-
-import { Mousewheel, Pagination } from 'swiper/modules'
 
 export interface ReadingRecommendation {
   id: number
@@ -44,8 +41,6 @@ watch(error, (err) => {
 
 const books = computed(() => response.value?.rows || [])
 
-const modules = [Pagination, Mousewheel]
-
 const emit = defineEmits<{
   (e: 'refresh'): void
 }>()
@@ -77,34 +72,26 @@ function handleRefresh() {
     </div>
 
     <!-- Swiper Carousel -->
-    <swiper
-      v-else-if="books.length > 0"
-      :space-between="12"
-      :pagination="{ clickable: true }"
-      :modules="modules"
-      :slides-per-view="'auto'"
-      mousewheel
-      class="mb-8"
+    <div
+      v-if="books.length > 0"
+      class="flex flex-row gap-x-2 overflow-x-auto"
     >
-      <swiper-slide
-        v-for="book in books"
+      <ReadingRecomendation
+        v-for="(book) in books"
         :key="book.id"
-        class="min-w-fit"
-      >
-        <ReadingRecomendation
-          :book="{
-            id: book.id,
-            title: book.title,
-            imageUrl: book.coverImageUri,
-            category: book.readingCategory,
-            author: book.authors,
-            totalPage: book.page,
-            xp: 30
-          }"
-          @refresh="handleRefresh"
-        />
-      </swiper-slide>
-    </swiper>
+        class="shrink-0"
+        :book="{
+          id: book.id,
+          title: book.title,
+          imageUrl: book.coverImageUri,
+          category: book.readingCategory,
+          author: book.authors,
+          totalPage: book.page,
+          xp: 30
+        }"
+        @refresh="handleRefresh"
+      />
+    </div>
 
     <div
       v-else

@@ -25,6 +25,25 @@
   --font-poppins: "Poppins", sans-serif;
 }
 
+:root {
+  --ui-text: #3d3c39;
+  --ui-text-highlighted: #3d3c39;
+  --ui-bg: hsl(48, 100%, 97%);
+  --ui-primary: hsl(48, 98%, 45%);
+}
+
+.participant {
+  --ui-container: 60rem;
+}
+
+.dark {
+  --ui-bg: #262624;
+  --ui-text: #faf9f5;
+  --ui-text-highlighted: #faf9f5;
+  --ui-border: #41403d;
+  --ui-primary: hsl(48, 98%, 49%);
+}
+
 .swiper-pagination-bullets {
   display: none;
 }
