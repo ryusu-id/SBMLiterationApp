@@ -7,4 +7,5 @@ public static class ExpConstants
     public const decimal DAILY_READ_QUIZ_PASSED = 10m;
     
     public const int STREAK_BONUS_DAYS = 7;
+    public const int SNAPSHOT_EVENT_INTERVAL = 7;
 }

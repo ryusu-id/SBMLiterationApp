@@ -27,8 +27,6 @@ public class QuizAnswer : AuditableEntity
             RetrySeq = retrySeq
         };
         
-        entity.Raise(new QuizAnsweredEvent(entity));
-        
         return entity;
     }
 }

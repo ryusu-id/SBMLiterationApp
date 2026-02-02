@@ -16,26 +16,41 @@ public class UserExpSnapshotEventHandler : IDomainEventHandler<UserExpCreatedEve
     public async Task Handle(UserExpCreatedEvent domainEvent, CancellationToken cancellationToken)
     {
         var userExpEvent = domainEvent.UserExpEvent;
-        
-        var snapshot = await _dbContext.UserExpSnapshots
-            .FirstOrDefaultAsync(s => s.UserId == userExpEvent.UserId, cancellationToken);
-        
-        if (snapshot == null)
+
+        var lastSnapshot = await _dbContext.UserExpSnapshots
+            .AsNoTracking()
+            .Where(e => e.UserId == userExpEvent.UserId)
+            .OrderByDescending(s => s.SnapshotSeq)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var lastEventId = lastSnapshot?.LastEventSeq ?? 0;
+        var unsnapshottedEventCount = await _dbContext.UserExpEvents
+            .AsNoTracking()
+            .Where(e => e.UserId == userExpEvent.UserId && e.Id > lastEventId)
+            .OrderByDescending(e => e.Id)
+            .CountAsync(cancellationToken);
+
+        // Only create snapshot if we've exceeded the interval threshold
+        if (unsnapshottedEventCount < ExpConstants.SNAPSHOT_EVENT_INTERVAL)
         {
-            snapshot = UserExpSnapshot.Create(
-                userExpEvent.UserId,
-                1,
-                userExpEvent.EventSeq,
-                userExpEvent.Exp
-            );
-            await _dbContext.UserExpSnapshots.AddAsync(snapshot, cancellationToken);
+            return;
         }
-        else
-        {
-            snapshot.Update(
-                userExpEvent.EventSeq,
-                snapshot.Exp + userExpEvent.Exp
-            );
-        }
+
+        var accumulatedExp = await _dbContext.UserExpEvents
+            .AsNoTracking()
+            .Where(e =>
+                e.UserId == userExpEvent.UserId 
+                && e.Id > lastEventId 
+                && e.Id <= userExpEvent.Id)
+            .SumAsync(e => e.Exp, cancellationToken);
+        
+        var newSnapshot = UserExpSnapshot.Create(
+            userExpEvent.UserId,
+            (lastSnapshot?.SnapshotSeq ?? 0) + 1,
+            userExpEvent.Id,
+            (lastSnapshot?.Exp ?? 0) + accumulatedExp
+        );
+        await _dbContext.UserExpSnapshots.AddAsync(newSnapshot, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 }

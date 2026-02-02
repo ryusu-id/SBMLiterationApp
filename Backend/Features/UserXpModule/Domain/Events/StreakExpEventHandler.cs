@@ -8,66 +8,58 @@ namespace PureTCOWebApp.Features.UserXpModule.Domain.Events;
 public class StreakExpEventHandler : IDomainEventHandler<StreakLogCreatedEvent>
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly UserExpDomainService _userExpService;
 
-    public StreakExpEventHandler(ApplicationDbContext dbContext)
+    public StreakExpEventHandler(ApplicationDbContext dbContext, UserExpDomainService userExpService)
     {
         _dbContext = dbContext;
+        _userExpService = userExpService;
     }
 
     public async Task Handle(StreakLogCreatedEvent domainEvent, CancellationToken cancellationToken)
     {
         var streakLog = domainEvent.StreakLog;
         
-        var last7Days = Enumerable.Range(0, ExpConstants.STREAK_BONUS_DAYS)
-            .Select(i => streakLog.StreakDate.AddDays(-i))
-            .OrderBy(d => d)
-            .ToList();
-        
-        var streakLogs = await _dbContext.StreakLogs
-            .Where(s => s.UserId == streakLog.UserId && last7Days.Contains(s.StreakDate))
-            .OrderBy(s => s.StreakDate)
+        // Get all streak logs for this user up to and including the current date
+        var allStreakLogs = await _dbContext.StreakLogs
+            .Where(s => s.UserId == streakLog.UserId && s.StreakDate <= streakLog.StreakDate)
+            .OrderByDescending(s => s.StreakDate)
             .ToListAsync(cancellationToken);
         
-        if (streakLogs.Count < ExpConstants.STREAK_BONUS_DAYS) return;
+        // Calculate the current consecutive streak count
+        int consecutiveStreak = 0;
+        DateOnly expectedDate = streakLog.StreakDate;
         
-        var isConsecutive = true;
-        for (int i = 1; i < streakLogs.Count; i++)
+        foreach (var log in allStreakLogs)
         {
-            if (streakLogs[i].StreakDate != streakLogs[i - 1].StreakDate.AddDays(1))
+            if (log.StreakDate == expectedDate)
             {
-                isConsecutive = false;
-                break;
+                consecutiveStreak++;
+                expectedDate = expectedDate.AddDays(-1);
+            }
+            else
+            {
+                break; // Streak is broken
             }
         }
         
-        if (!isConsecutive) return;
+        // Only award bonus if streak count is exactly a multiple of 7 (7th, 14th, 21st day, etc.)
+        if (consecutiveStreak % ExpConstants.STREAK_BONUS_DAYS != 0) return;
         
-        var firstDayOfStreak = streakLogs.First().StreakDate;
-        
+        // Check if we already awarded XP for this streak milestone (using current streak log as reference)
         var alreadyGivenXp = await _dbContext.UserExpEvents
             .AnyAsync(e => e.UserId == streakLog.UserId &&
                           e.EventName == nameof(UserExpEvent.ExpEventType.StreakExp) &&
-                          e.RefId == streakLogs.First().Id, cancellationToken);
+                          e.RefId == streakLog.Id, cancellationToken);
         
         if (alreadyGivenXp) return;
         
-        var maxSeq = await _dbContext.UserExpEvents
-            .Where(e => e.UserId == streakLog.UserId)
-            .OrderByDescending(e => e.EventSeq)
-            .Select(e => e.EventSeq)
-            .FirstOrDefaultAsync(cancellationToken);
-        
-        var nextSeq = maxSeq + 1;
-        
         var userExp = UserExpEvent.Create(
             streakLog.UserId,
-            nextSeq,
             ExpConstants.STREAK_7_DAYS_BONUS,
             nameof(UserExpEvent.ExpEventType.StreakExp),
             streakLog.Id
         );
-        
-        userExp.Raise(new UserExpCreatedEvent(userExp));
         
         await _dbContext.UserExpEvents.AddAsync(userExp, cancellationToken);
     }

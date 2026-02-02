@@ -39,6 +39,7 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     public DbSet<QuizAnswer> QuizAnswers { get; set; }
     public DbSet<UserExpEvent> UserExpEvents { get; set; }
     public DbSet<UserExpSnapshot> UserExpSnapshots { get; set; }
+    public DbSet<UserExpLeaderboard> UserExpLeaderboard { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

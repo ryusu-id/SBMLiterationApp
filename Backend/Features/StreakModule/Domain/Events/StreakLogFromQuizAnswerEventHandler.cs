@@ -16,20 +16,18 @@ public class StreakLogFromQuizAnswerEventHandler : IDomainEventHandler<QuizAnswe
 
     public async Task Handle(QuizAnsweredEvent domainEvent, CancellationToken cancellationToken)
     {
-        var quizAnswer = domainEvent.QuizAnswer;
-        
         var latestAnswers = await _dbContext.QuizAnswers
-            .Where(a => a.UserId == quizAnswer.UserId && a.DailyReadId == quizAnswer.DailyReadId)
+            .Where(a => a.UserId == domainEvent.UserId && a.DailyReadId == domainEvent.DailyRead.Id)
             .GroupBy(a => a.QuestionSeq)
             .Select(g => g.OrderByDescending(a => a.RetrySeq).First())
             .ToListAsync(cancellationToken);
         
         var questions = await _dbContext.QuizQuestions
-            .Where(q => q.DailyReadId == quizAnswer.DailyReadId)
+            .Where(q => q.DailyReadId == domainEvent.DailyRead.Id)
             .ToListAsync(cancellationToken);
         
         var dailyRead = await _dbContext.DailyReads
-            .FirstOrDefaultAsync(dr => dr.Id == quizAnswer.DailyReadId, cancellationToken);
+            .FirstOrDefaultAsync(dr => dr.Id == domainEvent.DailyRead.Id, cancellationToken);
         
         if (dailyRead == null) return;
         
@@ -42,12 +40,11 @@ public class StreakLogFromQuizAnswerEventHandler : IDomainEventHandler<QuizAnswe
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         
         var existsToday = await _dbContext.StreakLogs
-            .AnyAsync(s => s.UserId == quizAnswer.UserId && s.StreakDate == today, cancellationToken);
+            .AnyAsync(s => s.UserId == domainEvent.UserId && s.StreakDate == today, cancellationToken);
         
         if (existsToday) return;
         
-        var streakLog = StreakLog.Create(quizAnswer.UserId, today);
-        streakLog.Raise(new StreakLogCreatedEvent(streakLog));
+        var streakLog = StreakLog.Create(domainEvent.UserId, today);
         
         await _dbContext.StreakLogs.AddAsync(streakLog, cancellationToken);
     }

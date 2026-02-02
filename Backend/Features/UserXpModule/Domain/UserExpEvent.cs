@@ -7,7 +7,6 @@ public class UserExpEvent : AuditableEntity
 {
     public int Id { get; protected set; }
     public int UserId { get; protected set; }
-    public int EventSeq { get; protected set; }
     public decimal Exp { get; protected set; }
     public string EventName { get; protected set; }
     public int RefId { get; protected set; }
@@ -16,12 +15,11 @@ public class UserExpEvent : AuditableEntity
     protected UserExpEvent() { }
 #pragma warning restore CS8618
 
-    public static UserExpEvent Create(int userId, int eventSeq, decimal exp, string eventName, int refId)
+    public static UserExpEvent Create(int userId, decimal exp, string eventName, int refId)
     {
         var entity = new UserExpEvent
         {
             UserId = userId,
-            EventSeq = eventSeq,
             Exp = exp,
             EventName = eventName,
             RefId = refId

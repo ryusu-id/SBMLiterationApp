@@ -25,7 +25,6 @@ public class StreakLogFromReadingReportEventHandler : IDomainEventHandler<Readin
         if (existsToday) return;
         
         var streakLog = StreakLog.Create(report.UserId, today);
-        streakLog.Raise(new StreakLogCreatedEvent(streakLog));
         
         await _dbContext.StreakLogs.AddAsync(streakLog, cancellationToken);
     }

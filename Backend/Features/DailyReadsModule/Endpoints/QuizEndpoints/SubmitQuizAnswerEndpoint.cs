@@ -5,6 +5,7 @@ using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.DailyReadsModule.Domain.Entities;
+using PureTCOWebApp.Features.DailyReadsModule.Domain.Events;
 
 namespace PureTCOWebApp.Features.DailyReadsModule.Endpoints.QuizEndpoints;
 
@@ -61,6 +62,7 @@ public class SubmitQuizAnswerEndpoint(
             .Select(g => new { QuestionSeq = g.Key, MaxRetrySeq = g.Max(a => a.RetrySeq) })
             .ToDictionaryAsync(x => x.QuestionSeq, x => x.MaxRetrySeq, ct);
 
+        QuizAnswer? lastAnswer = null;
         foreach (var answerDto in req.Answers)
         {
             var normalizedAnswer = answerDto.Answer.ToUpper().Trim();
@@ -68,7 +70,11 @@ public class SubmitQuizAnswerEndpoint(
             
             var quizAnswer = QuizAnswer.Create(userId, dailyReadId, answerDto.QuestionSeq, normalizedAnswer, nextRetrySeq);
             await dbContext.AddAsync(quizAnswer, ct);
+
+            lastAnswer = quizAnswer;
         }
+        
+        lastAnswer?.Raise(new QuizAnsweredEvent(dailyRead, userId));
 
         var result = await unitOfWork.SaveChangesAsync(ct);
 

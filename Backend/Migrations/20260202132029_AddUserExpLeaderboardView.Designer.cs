@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PureTCOWebApp.Data;
@@ -11,9 +12,11 @@ using PureTCOWebApp.Data;
 namespace PureTCOWebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260202132029_AddUserExpLeaderboardView")]
+    partial class AddUserExpLeaderboardView
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1018,6 +1021,10 @@ namespace PureTCOWebApp.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("event_name");
 
+                    b.Property<int>("EventSeq")
+                        .HasColumnType("integer")
+                        .HasColumnName("event_seq");
+
                     b.Property<decimal>("Exp")
                         .HasColumnType("decimal(18,2)")
                         .HasColumnName("exp");
@@ -1045,24 +1052,10 @@ namespace PureTCOWebApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "EventSeq")
+                        .IsUnique();
 
                     b.ToTable("user_exp_events", (string)null);
-                });
-
-            modelBuilder.Entity("PureTCOWebApp.Features.UserXpModule.Domain.UserExpLeaderboard", b =>
-                {
-                    b.Property<decimal>("TotalExp")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("total_exp");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
-
-                    b.ToTable((string)null);
-
-                    b.ToView("user_exp_leaderboard", (string)null);
                 });
 
             modelBuilder.Entity("PureTCOWebApp.Features.UserXpModule.Domain.UserExpSnapshot", b =>

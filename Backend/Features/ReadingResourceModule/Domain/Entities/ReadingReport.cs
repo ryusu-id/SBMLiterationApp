@@ -26,7 +26,8 @@ public class ReadingReport : AuditableEntity
         int readingResourceId,
         int currentPage,
         string insight,
-        int timeSpent
+        int timeSpent,
+        int lastPage = 0
     )
     {
         var entity = new ReadingReport
@@ -39,7 +40,7 @@ public class ReadingReport : AuditableEntity
             ReportDate = DateTime.UtcNow
         };
 
-        entity.Raise(new ReadingReportCreatedEvent(entity));
+        entity.Raise(new ReadingReportCreatedEvent(entity, lastPage));
 
         return entity;
     }

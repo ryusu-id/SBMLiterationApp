@@ -3,4 +3,4 @@ using PureTCOWebApp.Features.DailyReadsModule.Domain.Entities;
 
 namespace PureTCOWebApp.Features.DailyReadsModule.Domain.Events;
 
-public record QuizAnsweredEvent(QuizAnswer QuizAnswer) : IDomainEvent;
+public record QuizAnsweredEvent(DailyRead DailyRead, int UserId) : IDomainEvent;

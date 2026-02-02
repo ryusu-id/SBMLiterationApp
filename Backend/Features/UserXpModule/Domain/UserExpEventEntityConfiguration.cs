@@ -18,10 +18,6 @@ public class UserExpEventEntityConfiguration : IEntityTypeConfiguration<UserExpE
             .HasColumnName("user_id")
             .IsRequired();
 
-        builder.Property(x => x.EventSeq)
-            .HasColumnName("event_seq")
-            .IsRequired();
-
         builder.Property(x => x.Exp)
             .HasColumnName("exp")
             .HasColumnType("decimal(18,2)")
@@ -36,7 +32,6 @@ public class UserExpEventEntityConfiguration : IEntityTypeConfiguration<UserExpE
             .HasColumnName("ref_id")
             .IsRequired();
 
-        builder.HasIndex(x => new { x.UserId, x.EventSeq })
-            .IsUnique();
+        builder.HasIndex(x => new { x.UserId });
     }
 }
