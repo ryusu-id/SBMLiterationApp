@@ -3,7 +3,7 @@
     <UContainer>
       <div class="grid grid-cols-12 pt-5 md:pt-8 md:p-8 rounded-2xl gap-8">
         <!-- FAQ SECTION -->
-        <div class="col-span-12 lg:col-span-6">
+        <div class="col-span-12 lg:col-span-12">
           <div class="mx-auto px-4">
             <h2
               class="text-[32px] md:text-[40px] font-[500] tracking-tight mb-10"
@@ -47,17 +47,34 @@
 
                 <div
                   v-show="activeIndex === index"
-                  class="p-5 pt-0 leading-relaxed"
+                  class="p-5 pt-0 leading-relaxed space-y-3"
                 >
-                  {{ item.answer }}
+                  <!-- Jika answer berupa text biasa -->
+                  <p v-if="typeof item.answer === 'string'">
+                    {{ item.answer }}
+                  </p>
+
+                  <!-- Jika answer berupa bullet object -->
+                  <div v-else>
+                    <p>{{ item.answer.intro }}</p>
+
+                    <ul class="list-disc pl-6 space-y-1">
+                      <li v-for="(bullet, i) in item.answer.bullets" :key="i">
+                        {{ bullet }}
+                      </li>
+                    </ul>
+
+                    <p class="pt-2">{{ item.answer.outro }}</p>
+                  </div>
                 </div>
+
               </div>
             </div>
           </div>
         </div>
 
         <!-- IMAGE SECTION -->
-        <div class="col-span-12 lg:col-span-6 flex items-end justify-center">
+        <!-- <div class="col-span-12 lg:col-span-6 flex items-end justify-center">
           <div
             class="w-fit h-[90%] rounded-t-full flex items-end justify-center"
           >
@@ -67,7 +84,7 @@
               alt="FAQ Illustration"
             >
           </div>
-        </div>
+        </div> -->
       </div>
     </UContainer>
   </section>
@@ -80,24 +97,53 @@ const activeIndex = ref(null)
 
 const faqs = [
   {
-    question: 'How do I start a reading challenge?',
+    question: 'Who is this app for?',
     answer:
-      'Simply sign up, set your yearly or monthly goal, and start logging the books you read. The system will automatically track your progress.'
+      'This app is designed primarily for college students majoring in management and entrepreneurship who want to build a consistent reading habit and improve critical thinking skills. However, students from other majors may also use the app if they are interested.'
   },
   {
-    question: 'Can I compete with my friends?',
+    question: 'Are students required to read specific books?',
     answer:
-      'Yes! You can follow your friends, join public leaderboards, or create private reading leagues to see who reads the most.'
+      'No. This is your chance to get out of academic context and explore your reading preference as much as possible. Any format (physical, ebook, or audiobook), any genre, anything to your liking!'
   },
   {
-    question: 'Is there a limit to how many books I can track?',
-    answer:
-      'Not at all. Whether you read 1 book or 100 books a year, our platform is designed to handle your entire library.'
+    question: 'How is reading activity tracked?',
+    answer: {
+      intro: 'Students log their reading manually by:',
+      bullets: [
+        'Recording the number of pages read',
+        'Logging reading sessions',
+        'Submitting short reflections or responses'
+      ],
+      outro:
+        'The system tracks reading frequency, consistency, and progress over time.'
+    }
   },
   {
-    question: 'How are the rankings calculated?',
-    answer:
-      'Rankings are based on the number of pages or books completed within a specific timeframe, depending on the challenge rules.'
+    question: 'What kind of reflection or report is required?',
+    answer: {
+      intro: 'Reflections are short and structured, focusing on:',
+      bullets: [
+        'Key ideas or insights from the reading',
+        'Personal interpretation or takeaway',
+        'Relevance to daily life, leadership, or decision-making'
+      ],
+      outro:
+        'Formal summaries or academic writing are not required'
+    }
+  },
+  {
+    question: 'How does the points or rewards system work?',
+    answer: {
+      intro: 'Points are awarded based on:',
+      bullets: [
+        'Reading consistency',
+        'Completion of reading logs',
+        'Streaks and milestones'
+      ],
+      outro:
+        'The system is designed to encourage habit formation.'
+    }
   }
 ]
 
