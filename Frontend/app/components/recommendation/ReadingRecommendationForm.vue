@@ -16,6 +16,7 @@ const schema = z.object({
   authors: z.string().min(1, 'Authors is required').max(500, 'Authors must be 500 characters or less'),
   publishYear: z.string().regex(/^\d{4}$/, 'Publish year must be a 4-digit year'),
   page: z.coerce.number().min(1, 'Page count must be at least 1'),
+  exp: z.coerce.number(),
   resourceLink: z.url('Must be a valid URL').optional().or(z.literal('')),
   coverImageUri: z.url().optional()
 })
@@ -29,6 +30,7 @@ const state = reactive({
   authors: '',
   publishYear: '',
   page: 0,
+  exp: 0,
   resourceLink: '',
   coverImageUri: ''
 })
@@ -55,6 +57,7 @@ function create() {
   state.authors = ''
   state.publishYear = ''
   state.page = 0
+  state.exp = 0
   state.resourceLink = ''
   state.coverImageUri = ''
   open.value = true
@@ -69,6 +72,7 @@ function update(param: ReadingRecommendationSchema & { id: number }) {
   state.authors = param.authors
   state.publishYear = param.publishYear
   state.page = param.page
+  state.exp = param.exp
   state.resourceLink = param.resourceLink || ''
   state.coverImageUri = param.coverImageUri || ''
   open.value = true
@@ -236,7 +240,7 @@ function handleBookSelection(book: GoogleBookVolume) {
           />
         </UFormField>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <CategorySelect
             v-model="state.readingCategory"
             name="readingCategory"
@@ -252,6 +256,19 @@ function handleBookSelection(book: GoogleBookVolume) {
               v-model="state.page"
               type="number"
               placeholder="Enter page count"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField
+            label="EXP Reward"
+            name="exp"
+            required
+          >
+            <UInput
+              v-model="state.exp"
+              type="number"
+              placeholder="Enter EXP"
               class="w-full"
             />
           </UFormField>

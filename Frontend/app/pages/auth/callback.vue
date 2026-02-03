@@ -33,19 +33,19 @@ try {
   })
 
   // Handle successful authorization
-  // Redirect to home or dashboard
+  // Redirect to onboarding page
   onMounted(async () => {
     await execute()
     if (status.value === 'success') {
       authStore.setToken(data.value!.accessToken)
       authStore.setRefreshToken(data.value!.refreshToken)
 
-      if (authStore.getRoles().includes('admin'))
-        router.push('/admin')
-      else
-        router.push('/dashboard')
-    } else
+      // Redirect to onboarding page
+      router.push('/onboarding')
+    } else {
       error.value = 'Authorization failed, please try again.'
+      loading.value = false
+    }
   })
 } catch (err: unknown) {
   // Handle authorization error

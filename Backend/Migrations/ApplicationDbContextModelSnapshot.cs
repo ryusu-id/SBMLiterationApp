@@ -638,6 +638,10 @@ namespace PureTCOWebApp.Migrations
                         .HasColumnName("create_time")
                         .HasDefaultValueSql("(now())");
 
+                    b.Property<int>("Exp")
+                        .HasColumnType("integer")
+                        .HasColumnName("exp");
+
                     b.Property<string>("ISBN")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -883,64 +887,6 @@ namespace PureTCOWebApp.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("PureTCOWebApp.Features.StreakModule.Domain.StreakExp", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<long>("CreateBy")
-                        .HasColumnType("bigint")
-                        .HasColumnName("create_by");
-
-                    b.Property<DateTime>("CreateTime")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time")
-                        .HasDefaultValueSql("(now())");
-
-                    b.Property<int>("Duration")
-                        .HasColumnType("integer")
-                        .HasColumnName("duration");
-
-                    b.Property<int>("Exp")
-                        .HasColumnType("integer")
-                        .HasColumnName("exp");
-
-                    b.Property<int>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("status");
-
-                    b.Property<DateOnly>("StreakDateFrom")
-                        .HasColumnType("date")
-                        .HasColumnName("streak_date_from");
-
-                    b.Property<long?>("UpdateBy")
-                        .HasColumnType("bigint")
-                        .HasColumnName("update_by");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_mt_streak_exp");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_streak_exp_user_id");
-
-                    b.ToTable("mt_streak_exp", (string)null);
-                });
-
             modelBuilder.Entity("PureTCOWebApp.Features.StreakModule.Domain.StreakLog", b =>
                 {
                     b.Property<int>("Id")
@@ -950,22 +896,43 @@ namespace PureTCOWebApp.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreateByStr")
+                        .HasColumnType("text")
+                        .HasJsonPropertyName("createBy");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
                     b.Property<DateOnly>("StreakDate")
                         .HasColumnType("date")
                         .HasColumnName("streak_date");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UpdateByStr")
+                        .HasColumnType("text")
+                        .HasJsonPropertyName("updateBy");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer")
                         .HasColumnName("user_id");
 
-                    b.HasKey("Id")
-                        .HasName("pk_mt_streak_log");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId", "StreakDate")
-                        .IsUnique()
-                        .HasDatabaseName("ix_streak_log_user_date_unique");
+                        .IsUnique();
 
-                    b.ToTable("mt_streak_log", (string)null);
+                    b.ToTable("streak_logs", (string)null);
                 });
 
             modelBuilder.Entity("PureTCOWebApp.Features.TestModule.TestItem", b =>
@@ -1028,6 +995,134 @@ namespace PureTCOWebApp.Migrations
                         .IsUnique();
 
                     b.ToTable("mt_test_item", (string)null);
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.UserXpModule.Domain.UserExpEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreateByStr")
+                        .HasColumnType("text")
+                        .HasJsonPropertyName("createBy");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EventName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("event_name");
+
+                    b.Property<decimal>("Exp")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("exp");
+
+                    b.Property<int>("RefId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ref_id");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UpdateByStr")
+                        .HasColumnType("text")
+                        .HasJsonPropertyName("updateBy");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("user_exp_events", (string)null);
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.UserXpModule.Domain.UserExpLeaderboard", b =>
+                {
+                    b.Property<decimal>("TotalExp")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("total_exp");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.ToTable((string)null);
+
+                    b.ToView("user_exp_leaderboard", (string)null);
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.UserXpModule.Domain.UserExpSnapshot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("CreateByStr")
+                        .HasColumnType("text")
+                        .HasJsonPropertyName("createBy");
+
+                    b.Property<DateTime>("CreateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("Exp")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("exp");
+
+                    b.Property<int>("LastEventSeq")
+                        .HasColumnType("integer")
+                        .HasColumnName("last_event_seq");
+
+                    b.Property<int>("SnapshotSeq")
+                        .HasColumnType("integer")
+                        .HasColumnName("snapshot_seq");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UpdateByStr")
+                        .HasColumnType("text")
+                        .HasJsonPropertyName("updateBy");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "SnapshotSeq")
+                        .IsUnique();
+
+                    b.ToTable("user_exp_snapshots", (string)null);
                 });
 
             modelBuilder.Entity("PureTCOWebApp.Features.ReadingResourceModule.Domain.Book", b =>

@@ -5,6 +5,7 @@ using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.DailyReadsModule.Domain.Entities;
+using PureTCOWebApp.Features.DailyReadsModule.Domain.Events;
 
 namespace PureTCOWebApp.Features.DailyReadsModule.Endpoints.QuizEndpoints;
 
@@ -55,24 +56,31 @@ public class SubmitQuizAnswerEndpoint(
             return;
         }
 
-        var existingAnswers = await dbContext.QuizAnswers
-            .Where(a => a.UserId == userId && a.DailyReadId == dailyReadId)
-            .ToDictionaryAsync(a => a.QuestionSeq, ct);
+        if (dailyRead.Date != DateOnly.FromDateTime(DateTime.UtcNow.ToLocalTime()))
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(Result.Failure(new Error("CannotSubmitQuiz", "Cannot submit quiz answers for a Daily Read that is not for today."))));
+            return;
+        }
 
+        var maxRetrySeqs = await dbContext.QuizAnswers
+            .Where(a => a.UserId == userId && a.DailyReadId == dailyReadId)
+            .GroupBy(a => a.QuestionSeq)
+            .Select(g => new { QuestionSeq = g.Key, MaxRetrySeq = g.Max(a => a.RetrySeq) })
+            .ToDictionaryAsync(x => x.QuestionSeq, x => x.MaxRetrySeq, ct);
+
+        QuizAnswer? lastAnswer = null;
         foreach (var answerDto in req.Answers)
         {
             var normalizedAnswer = answerDto.Answer.ToUpper().Trim();
+            var nextRetrySeq = maxRetrySeqs.GetValueOrDefault(answerDto.QuestionSeq, -1) + 1;
+            
+            var quizAnswer = QuizAnswer.Create(userId, dailyReadId, answerDto.QuestionSeq, normalizedAnswer, nextRetrySeq);
+            await dbContext.AddAsync(quizAnswer, ct);
 
-            if (existingAnswers.TryGetValue(answerDto.QuestionSeq, out var existing))
-            {
-                existing.UpdateAnswer(normalizedAnswer);
-            }
-            else
-            {
-                var quizAnswer = QuizAnswer.Create(userId, dailyReadId, answerDto.QuestionSeq, normalizedAnswer);
-                await dbContext.AddAsync(quizAnswer, ct);
-            }
+            lastAnswer = quizAnswer;
         }
+        
+        lastAnswer?.Raise(new QuizAnsweredEvent(dailyRead, userId));
 
         var result = await unitOfWork.SaveChangesAsync(ct);
 

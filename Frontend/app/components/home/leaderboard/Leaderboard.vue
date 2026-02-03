@@ -1,34 +1,26 @@
-<template>
-    <div></div>
-    <div>
-        <LeaderboardRow firstCol="Rank" secondCol="Name" thirdCol="Points" header/>
-        <LeaderboardRow
-            v-for="data in datas"
-            :key="data.no"
-            :firstCol="data.no"
-            :secondCol="data.name"
-            :thirdCol="data.points"
-        />
-    </div>
-</template>
-
 <script setup lang="ts">
-import LeaderboardRow from './LeaderboardRow.vue';
-const datas = [
-    {
-        no: '1',
-        name: 'Nico Abel',
-        points: '180'
-    },
-      {
-        no: '2',
-        name: 'Nico Abel',
-        points: '180'
-    },
-      {
-        no: '3',
-        name: 'Nico Abel',
-        points: '180'
-    },
-]
+import LeaderboardRow from './LeaderboardRow.vue'
+import type { LeaderboardEntry } from '~/pages/leaderboard.vue'
+
+defineProps<{
+  data: LeaderboardEntry[]
+}>()
 </script>
+
+<template>
+  <div>
+    <LeaderboardRow
+      first-col="Rank"
+      second-col="Name"
+      third-col="Points"
+      header
+    />
+    <LeaderboardRow
+      v-for="entry in data"
+      :key="entry.rank"
+      :first-col="String(entry.rank)"
+      :second-col="entry.username"
+      :third-col="String(entry.exp)"
+    />
+  </div>
+</template>

@@ -73,7 +73,7 @@ async function addToReadList(book: { id: number }) {
         class="w-[178px] sm:w-[240px] aspect-[3/4] shrink-0 overflow-hidden rounded-[12px] relative"
       >
         <UBadge
-          v-if="!googleBooks"
+          v-if="!googleBooks && book.xp"
           class="absolute right-3 top-3 tracking-tight font-semibold rounded-lg text-[12px] shadow-sm"
         >
           +{{ book.xp }}xp

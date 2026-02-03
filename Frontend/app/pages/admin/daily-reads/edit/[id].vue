@@ -95,21 +95,23 @@ async function onSubmit(param: {
     })
 
     // Then, upload quiz if file is selected
-    const quizFile = form.value?.getQuizFile()
-    if (quizFile) {
-      const formData = new FormData()
-      formData.append('file', quizFile)
+    if (quizForm.value?.getQuizFile != null) {
+      const quizFile = quizForm.value?.getQuizFile()
+      if (quizFile) {
+        const formData = new FormData()
+        formData.append('file', quizFile)
 
-      await $authedFetch(`/daily-reads/${dailyReadId.value}/quiz/upload`, {
-        method: 'POST',
-        body: formData
-      })
+        await $authedFetch(`/daily-reads/${dailyReadId.value}/quiz/upload`, {
+          method: 'POST',
+          body: formData
+        })
 
-      // Refresh the quiz display
-      quizForm.value?.refresh()
+        // Refresh the quiz display
+        quizForm.value?.refresh()
 
-      // Clear the quiz file from the form
-      form.value?.clearQuizFile()
+        // Clear the quiz file from the form
+        quizForm.value?.clearQuizFile()
+      }
     }
 
     toast.add({

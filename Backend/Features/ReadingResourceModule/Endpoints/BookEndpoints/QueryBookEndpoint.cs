@@ -1,10 +1,26 @@
 using FastEndpoints;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using PureTCOWebApp.Core.Paging;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.ReadingResourceModule.Domain;
 
 namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.BookEndpoints;
+
+public record BookWithProgress(
+    int Id,
+    int UserId,
+    string Title,
+    string ISBN,
+    string ReadingCategory,
+    string Authors,
+    string PublishYear,
+    int Page,
+    string? ResourceLink,
+    string? CoverImageUri,
+    string CssClass,
+    int? LastReadPage
+);
 
 public record QueryBookRequest(
     string? Title = null,
@@ -15,7 +31,7 @@ public record QueryBookRequest(
 ) : PagingQuery;
 
 public class QueryBookEndpoint(ApplicationDbContext dbContext)
-    : Endpoint<QueryBookRequest, PagingResult<Book>>
+    : Endpoint<QueryBookRequest, PagingResult<BookWithProgress>>
 {
     public override void Configure()
     {
@@ -58,7 +74,45 @@ public class QueryBookEndpoint(ApplicationDbContext dbContext)
 
         query = query.Where(predicate);
 
-        var result = await PagingService.PaginateQueryAsync(query, req, dbContext, ct);
+        var pagedBooks = await PagingService.PaginateQueryAsync(query, req, dbContext, ct);
+
+        var bookIds = pagedBooks.Rows.Select(b => b.Id).ToList();
+
+        var lastReadPages = await dbContext.ReadingReports
+            .Where(r => r.UserId == userId && bookIds.Contains(r.ReadingResourceId))
+            .GroupBy(r => r.ReadingResourceId)
+            .Select(g => new
+            {
+                ReadingResourceId = g.Key,
+                LastReadPage = g.OrderByDescending(r => r.ReportDate).First().CurrentPage
+            })
+            .ToDictionaryAsync(x => x.ReadingResourceId, x => x.LastReadPage, ct);
+
+        var booksWithProgress = pagedBooks.Rows.Select(b => new BookWithProgress(
+            b.Id,
+            b.UserId,
+            b.Title,
+            b.ISBN,
+            b.ReadingCategory,
+            b.Authors,
+            b.PublishYear,
+            b.Page,
+            b.ResourceLink,
+            b.CoverImageUri,
+            b.CssClass,
+            lastReadPages.GetValueOrDefault(b.Id)
+        )).ToList();
+
+        var result = new PagingResult<BookWithProgress>(
+            booksWithProgress,
+            pagedBooks.Page,
+            pagedBooks.RowsPerPage,
+            pagedBooks.TotalRows,
+            pagedBooks.TotalPages,
+            pagedBooks.SearchText,
+            pagedBooks.SortBy,
+            pagedBooks.SortDirection
+        );
 
         await Send.OkAsync(result, cancellation: ct);
     }

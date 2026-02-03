@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const route = useRoute()
+const navButtonClass = 'h-[48px] w-[48px] rounded-2xl flex flex-row items-center justify-center p-0'
 </script>
 
 <template>
@@ -20,7 +21,7 @@ const route = useRoute()
       >
         <UButton
           to="/dashboard"
-          class="h-[64px] w-[64px] rounded-2xl flex flex-row items-center justify-center p-0"
+          :class="navButtonClass"
           :variant="route.name === 'dashboard' ? 'solid' : 'soft'"
         >
           <nuxt-icon
@@ -29,7 +30,27 @@ const route = useRoute()
           />
         </UButton>
         <UButton
-          class="h-[64px] w-[64px] rounded-2xl flex flex-row items-center justify-center p-0"
+          to="/leaderboard"
+          :class="navButtonClass"
+          :variant="route.name === 'leaderboard' ? 'solid' : 'soft'"
+        >
+          <nuxt-icon
+            name="trophy"
+            class="text-[34px] mb-0"
+          />
+        </UButton>
+        <UButton
+          to="/feeds"
+          :class="navButtonClass"
+          :variant="route.name === 'feeds' ? 'solid' : 'soft'"
+        >
+          <nuxt-icon
+            name="heart"
+            class="text-[34px] mb-0"
+          />
+        </UButton>
+        <UButton
+          :class="navButtonClass"
           :variant="route.name === 'posts' ? 'solid' : 'soft'"
         >
           <nuxt-icon
@@ -38,7 +59,7 @@ const route = useRoute()
           />
         </UButton>
         <UButton
-          class="h-[64px] w-[64px] rounded-2xl flex flex-row items-center justify-center p-0"
+          :class="navButtonClass"
           :variant="route.name === 'assignments' ? 'solid' : 'soft'"
         >
           <nuxt-icon
@@ -47,7 +68,7 @@ const route = useRoute()
           />
         </UButton>
         <UButton
-          class="h-[64px] w-[64px] rounded-2xl flex flex-row items-center justify-center p-0"
+          :class="navButtonClass"
           :variant="route.name === 'profile' ? 'solid' : 'soft'"
           to="/profile"
         >

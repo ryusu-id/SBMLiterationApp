@@ -1,4 +1,5 @@
 using PureTCOWebApp.Core.Models;
+using PureTCOWebApp.Features.DailyReadsModule.Domain.Events;
 
 namespace PureTCOWebApp.Features.DailyReadsModule.Domain.Entities;
 
@@ -17,7 +18,7 @@ public class QuizAnswer : AuditableEntity
 
     public static QuizAnswer Create(int userId, int dailyReadId, int questionSeq, string answer, int retrySeq = 0)
     {
-        return new QuizAnswer
+        var entity = new QuizAnswer
         {
             UserId = userId,
             DailyReadId = dailyReadId,
@@ -25,11 +26,7 @@ public class QuizAnswer : AuditableEntity
             Answer = answer,
             RetrySeq = retrySeq
         };
-    }
-
-    public void UpdateAnswer(string answer)
-    {
-        Answer = answer;
-        RetrySeq++;
+        
+        return entity;
     }
 }
