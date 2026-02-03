@@ -82,7 +82,8 @@ public class CreateReadingReportEndpoint(ApplicationDbContext context, UnitOfWor
             req.ReadingResourceId,
             req.CurrentPage,
             req.Insight,
-            req.TimeSpent);
+            req.TimeSpent,
+            latestReport?.CurrentPage ?? 0);
 
         context.ReadingReports.Add(report);
         var result = await unitOfWork.SaveChangesAsync(ct);

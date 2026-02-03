@@ -6,18 +6,16 @@ using PureTCOWebApp.Features.ReadingResourceModule.Domain;
 
 namespace PureTCOWebApp.Features.ReadingResourceModule.Endpoints.ReadingReportEndpoint;
 
-public record GetUsersLatestReadingActivityRequest(
-    int UserId
-) : PagingQuery;
+public record GetUsersLatestReadingActivityRequest() : PagingQuery;
 
 public record UserLatestReadingActivity(
-    int UserId,
     int ReadingResourceId,
     string ResourceTitle,
     string ResourceType,
-    DateTime LastReportDate,
+    DateTime ReportDate,
     int CurrentPage,
-    string LastInsight,
+    string Insight,
+    int TimeSpent,
     string? CoverImageUri);
 
 public class GetUsersLatestReadingActivityEndpoint(ApplicationDbContext context)
@@ -31,15 +29,16 @@ public class GetUsersLatestReadingActivityEndpoint(ApplicationDbContext context)
 
     public override async Task HandleAsync(GetUsersLatestReadingActivityRequest req, CancellationToken ct)
     {
-        if (req.UserId <= 0)
+        if (!int.TryParse(User.Identities.FirstOrDefault()?.FindFirst("sub")?.Value, out var userId))
         {
-            await Send.ErrorsAsync(cancellation: ct);
+            await Send.ForbiddenAsync(ct);
             return;
         }
+
         req = req with { SortBy = string.IsNullOrEmpty(req.SortBy) ? "-ReportDate" : req.SortBy };
 
         var latestReports = from report in context.ReadingReports
-                            where report.UserId == req.UserId
+                            where report.UserId == userId
                             group report by new { report.UserId, report.ReadingResourceId } into g
                             select new
                             {
@@ -57,31 +56,37 @@ public class GetUsersLatestReadingActivityEndpoint(ApplicationDbContext context)
                         report.UserId,
                         report.ReadingResourceId,
                         resource.Title,
-                        ResourceType = resource is Book ? "Book" : "JournalPaper",
+                        Resource = resource,
                         report.ReportDate,
                         report.CurrentPage,
                         report.Insight,
-                        resource.CoverImageUri
+                        resource.CoverImageUri,
+                        report.TimeSpent
                     };
 
         query = query.AsNoTracking();
 
-        var mappedQuery = query.Select(x => new UserLatestReadingActivity(
-            x.UserId,
-            x.ReadingResourceId,
-            x.Title,
-            x.ResourceType,
-            x.ReportDate,
-            x.CurrentPage,
-            x.Insight,
-            x.CoverImageUri
-        ));
-
         var result = await PagingService.PaginateQueryAsync(
-            mappedQuery,
+            query,
             req,
             ct);
 
-        await Send.OkAsync(result, ct);
+        var mappedResult = new PagingResult<UserLatestReadingActivity>(
+            result.Rows.Select(x => new UserLatestReadingActivity(
+                x.ReadingResourceId,
+                x.Title,
+                x.Resource is Book ? "Book" : "JournalPaper",
+                x.ReportDate,
+                x.CurrentPage,
+                x.Insight,
+                x.TimeSpent,
+                x.CoverImageUri
+            )).ToList(),
+            result.Page,
+            result.RowsPerPage,
+            result.TotalRows, result.TotalPages
+        );
+
+        await Send.OkAsync(mappedResult, ct);
     }
 }

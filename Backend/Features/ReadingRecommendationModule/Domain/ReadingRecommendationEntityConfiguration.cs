@@ -62,6 +62,9 @@ public class ReadingRecommendationEntityConfiguration : IEntityTypeConfiguration
             .IsUnicode(false)
             .HasColumnName("cover_image_uri");
 
+        builder.Property(e => e.Exp)
+            .HasColumnName("exp");
+
         builder.Property(e => e.Status)
             .HasDefaultValue(0)
             .HasColumnName("status");

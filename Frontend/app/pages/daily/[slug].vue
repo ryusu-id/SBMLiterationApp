@@ -12,11 +12,19 @@ const slug = computed(() => route.params.slug as string)
 const dailyRead = ref<DailyRead | null>(null)
 const pending = ref(false)
 
+const todayLocalDate = computed(() => {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+})
+
 onMounted(async () => {
   try {
     pending.value = true
     const response = await $authedFetch<ApiResponse<DailyRead>>(
-      `/daily-reads/${slug.value}`
+      `/daily-reads/${slug.value}/participant`
     )
 
     if (response.data) {
@@ -131,6 +139,7 @@ function startQuiz() {
       <!-- Quiz Button -->
       <div class="flex justify-center pt-6">
         <UButton
+          v-if="dailyRead.date === todayLocalDate"
           size="xl"
           icon="i-lucide-brain"
           @click="startQuiz"

@@ -31,7 +31,7 @@ public class UnitOfWork
     {
         if (_transactionCount == 0)
         {
-            throw new InvalidOperationException("No active transaction to commit");
+            return;
         }
 
         _transactionCount--;
@@ -69,7 +69,11 @@ public class UnitOfWork
             
             if (hasChanges)
             {
-                await SaveChangesAsync(cancellationToken);
+                var result = await SaveChangesAsync(cancellationToken);
+                if (result.IsFailure)
+                {
+                    return result;
+                }
             }
             
             await CommitTransactionAsync(cancellationToken);

@@ -46,13 +46,13 @@ const tabs = ref<TabsItem[]>([
     value: 0
   },
   {
-    label: 'Research Article',
+    label: 'Papers',
     icon: 'i-lucide-form',
     slot: 'journal-paper',
     value: 1
   },
   {
-    label: 'Daily Reading',
+    label: 'Daily',
     icon: 'i-lucide-calendar',
     slot: 'daily-reading',
     value: 2

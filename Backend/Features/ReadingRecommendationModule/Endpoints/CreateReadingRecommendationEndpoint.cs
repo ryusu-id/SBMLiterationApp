@@ -53,7 +53,8 @@ public record CreateReadingRecommendationRequest(
     string PublishYear,
     int Page,
     string? ResourceLink = null,
-    string? CoverImageUri = null
+    string? CoverImageUri = null,
+    int Exp = 0
 );
 
 public record CreateReadingRecommendationResponse(
@@ -65,7 +66,8 @@ public record CreateReadingRecommendationResponse(
     string PublishYear,
     int Page,
     string? ResourceLink,
-    string? CoverImageUri
+    string? CoverImageUri,
+    int Exp
 );
 
 public class CreateReadingRecommendationEndpoint(
@@ -96,7 +98,8 @@ public class CreateReadingRecommendationEndpoint(
             req.PublishYear,
             req.Page,
             req.ResourceLink,
-            req.CoverImageUri
+            req.CoverImageUri,
+            req.Exp
         );
 
         await dbContext.AddAsync(recommendation, ct);
@@ -118,7 +121,8 @@ public class CreateReadingRecommendationEndpoint(
                 recommendation.PublishYear,
                 recommendation.Page,
                 recommendation.ResourceLink,
-                recommendation.CoverImageUri
+                recommendation.CoverImageUri,
+                recommendation.Exp
             )
         ), ct);
     }

@@ -14,6 +14,7 @@ public class ReadingRecommendation : AuditableEntity
     public int Page { get; protected set; }
     public string? ResourceLink { get; protected set; }
     public string? CoverImageUri { get; protected set; }
+    public int Exp { get; protected set; }
 
 #pragma warning disable CS8618
     public ReadingRecommendation() { }
@@ -27,7 +28,8 @@ public class ReadingRecommendation : AuditableEntity
         string publishYear,
         int page,
         string? resourceLink = null,
-        string? coverImageUri = null
+        string? coverImageUri = null,
+        int exp = 0
     )
     {
         var recommendation = new ReadingRecommendation
@@ -39,7 +41,8 @@ public class ReadingRecommendation : AuditableEntity
             PublishYear = publishYear,
             Page = page,
             ResourceLink = resourceLink,
-            CoverImageUri = coverImageUri
+            CoverImageUri = coverImageUri,
+            Exp = exp
         };
         
         recommendation.Raise(new ReadingRecommendationCreatedEvent(recommendation));
@@ -54,7 +57,8 @@ public class ReadingRecommendation : AuditableEntity
         string publishYear,
         int page,
         string? resourceLink = null,
-        string? coverImageUri = null
+        string? coverImageUri = null,
+        int exp = 0
     )
     {
         Title = title;
@@ -65,5 +69,6 @@ public class ReadingRecommendation : AuditableEntity
         Page = page;
         ResourceLink = resourceLink;
         CoverImageUri = coverImageUri;
+        Exp = exp;
     }
 }

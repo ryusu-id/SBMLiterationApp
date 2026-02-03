@@ -9,7 +9,6 @@ definePageMeta({
   middleware: ['auth', 'admin-only']
 })
 
-const form = useTemplateRef<typeof DailyReadForm>('form')
 const quizForm = useTemplateRef<typeof DailyReadQuizForm>('quizForm')
 const formLoading = ref(false)
 const toast = useToast()

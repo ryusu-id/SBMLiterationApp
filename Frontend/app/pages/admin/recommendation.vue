@@ -17,6 +17,7 @@ export interface ReadingRecommendation {
   authors: string
   publishYear: string
   page: number
+  exp: number
   resourceLink?: string
   coverImageUri: string
 }
@@ -82,6 +83,7 @@ function onUpdate(recommendation: ReadingRecommendation) {
     authors: recommendation.authors,
     publishYear: recommendation.publishYear,
     page: recommendation.page,
+    exp: recommendation.exp,
     resourceLink: recommendation.resourceLink || '',
     coverImageUri: recommendation.coverImageUri
   })

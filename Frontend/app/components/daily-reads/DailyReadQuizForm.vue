@@ -76,7 +76,7 @@ async function fetchQuiz() {
   try {
     pending.value = true
     const response = await $authedFetch<ApiResponse<QuizQuestion[]>>(
-      `/daily-reads/${props.dailyReadId}/quiz`
+      `/daily-reads/${props.dailyReadId}/quiz/review`
     )
 
     if (response.data && Array.isArray(response.data)) {

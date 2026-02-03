@@ -6,7 +6,13 @@ using PureTCOWebApp.Data;
 
 namespace PureTCOWebApp.Features.DailyReadsModule.Endpoints.QuizEndpoints;
 
-public record QuizQuestionResponse(
+public record QuizChoiceResponse(
+    int Id,
+    string Choice,
+    string Answer
+);
+
+public record QuizQuestionForReviewResponse(
     int Id,
     int QuestionSeq,
     string Question,
@@ -14,20 +20,14 @@ public record QuizQuestionResponse(
     List<QuizChoiceResponse> Choices
 );
 
-public record QuizChoiceResponse(
-    int Id,
-    string Choice,
-    string Answer
-);
-
-public class GetQuizQuestionsEndpoint(ApplicationDbContext dbContext)
-    : EndpointWithoutRequest<ApiResponse<List<QuizQuestionResponse>>>
+public class GetQuizQuestionsForReviewEndpoint(ApplicationDbContext dbContext)
+    : EndpointWithoutRequest<ApiResponse<List<QuizQuestionForReviewResponse>>>
 {
     public override void Configure()
     {
-        Get("{dailyReadId}/quiz");
+        Get("{dailyReadId}/quiz/review");
         Group<DailyReadsEndpointGroup>();
-        AllowAnonymous();
+        Roles("admin");
     }
 
     public override async Task HandleAsync(CancellationToken ct)
@@ -38,7 +38,7 @@ public class GetQuizQuestionsEndpoint(ApplicationDbContext dbContext)
             .Include(q => q.Choices)
             .Where(q => q.DailyReadId == dailyReadId)
             .OrderBy(q => q.QuestionSeq)
-            .Select(q => new QuizQuestionResponse(
+            .Select(q => new QuizQuestionForReviewResponse(
                 q.Id,
                 q.QuestionSeq,
                 q.Question,

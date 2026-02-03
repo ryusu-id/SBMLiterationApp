@@ -24,10 +24,15 @@ const toast = useToast()
 async function onSubmit(data: { readingResourceId: number, currentPage: number, insight: string }) {
   try {
     formLoading.value = true
-    await $authedFetch('/reading-resources/reports', {
+    const response = await $authedFetch<ApiResponse>('/reading-resources/reports', {
       method: 'POST',
       body: data
     })
+
+    if (response.errorDescription) {
+      handleResponseError(response)
+      return
+    }
 
     toast.add({
       title: 'Reading report created successfully',

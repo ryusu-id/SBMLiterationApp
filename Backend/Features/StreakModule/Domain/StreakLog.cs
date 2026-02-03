@@ -1,6 +1,9 @@
+using PureTCOWebApp.Core.Models;
+using PureTCOWebApp.Features.StreakModule.Domain.Events;
+
 namespace PureTCOWebApp.Features.StreakModule.Domain;
 
-public class StreakLog
+public class StreakLog : AuditableEntity
 {
     public int Id { get; protected set; }
     public int UserId { get; protected set; }
@@ -12,10 +15,14 @@ public class StreakLog
 
     public static StreakLog Create(int userId, DateOnly streakDate)
     {
-        return new StreakLog
+        var entity = new StreakLog
         {
             UserId = userId,
             StreakDate = streakDate
         };
+        
+        entity.Raise(new StreakLogCreatedEvent(entity));
+        
+        return entity;
     }
 }

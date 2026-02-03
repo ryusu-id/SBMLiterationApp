@@ -65,7 +65,7 @@ onMounted(async () => {
   try {
     pending.value = true
     const response = await $authedFetch<ApiResponse<QuizQuestion[]>>(
-      `/daily-reads/${slug.value}/quiz`
+      `/daily-reads/${slug.value}/quiz/attempt`
     )
 
     if (response.data && Array.isArray(response.data)) {
@@ -77,11 +77,11 @@ onMounted(async () => {
       quiz.value = shuffledQuestions
     } else {
       handleResponseError(response)
-      router.push('/dashboard')
+      router.back()
     }
   } catch (err) {
     handleResponseError(err)
-    router.push('/dashboard')
+    router.back()
   } finally {
     pending.value = false
   }

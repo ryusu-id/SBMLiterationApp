@@ -15,6 +15,7 @@ export interface ReadingRecommendation {
   authors: string
   publishYear: string
   page: number
+  exp: number
   resourceLink?: string
   coverImageUri: string
 }
@@ -87,7 +88,7 @@ function handleRefresh() {
           category: book.readingCategory,
           author: book.authors,
           totalPage: book.page,
-          xp: 30
+          xp: book.exp
         }"
         @refresh="handleRefresh"
       />

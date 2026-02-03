@@ -11,6 +11,7 @@ using PureTCOWebApp.Features.Auth.Domain;
 using PureTCOWebApp.Features.FileSystem;
 using PureTCOWebApp.Core.Events;
 using PureTCOWebApp.Core.JsonConverter;
+using PureTCOWebApp.Features.UserXpModule;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -123,6 +124,7 @@ builder.Services
         options.ClientSecret = googleClientSecret;
     });
 
+builder.Services.AddScoped<UserExpDomainService>();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>

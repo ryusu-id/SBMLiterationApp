@@ -2,8 +2,16 @@
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
-defineProps<{
+const props = defineProps<{
   loading?: boolean
+  embedded?: boolean
+  initialData?: {
+    nim?: string
+    fullname?: string
+    programStudy?: string
+    faculty?: string
+    generationYear?: string
+  }
 }>()
 
 const schema = z.object({
@@ -25,6 +33,17 @@ const state = reactive({
   faculty: '',
   generationYear: ''
 })
+
+// Initialize state with initialData if provided
+watch(() => props.initialData, (data) => {
+  if (data) {
+    state.fullname = data.fullname || ''
+    state.nim = data.nim || ''
+    state.programStudy = data.programStudy || ''
+    state.faculty = data.faculty || ''
+    state.generationYear = data.generationYear || ''
+  }
+}, { immediate: true })
 
 const emit = defineEmits<{
   (e: 'submit', data: ProfileFormSchema): void
@@ -68,6 +87,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileFormSchema>) {
 
 <template>
   <UModal
+    v-if="!embedded"
     v-model:open="isOpen"
     title="Edit Profile"
     description="Update your profile information"
@@ -172,4 +192,100 @@ async function onSubmit(event: FormSubmitEvent<ProfileFormSchema>) {
       </UForm>
     </template>
   </UModal>
+
+  <UForm
+    v-else
+    :schema="schema"
+    :state="state"
+    class="space-y-6"
+    @submit="onSubmit"
+  >
+    <!-- Full Name field -->
+    <UFormField
+      label="Full Name"
+      name="fullName"
+      required
+    >
+      <UInput
+        v-model="state.fullname"
+        placeholder="Enter your full name"
+        size="lg"
+        class="w-full"
+      />
+    </UFormField>
+
+    <!-- NIM field -->
+    <UFormField
+      label="NIM (Student ID)"
+      name="nim"
+      required
+    >
+      <UInput
+        v-model="state.nim"
+        placeholder="Enter your NIM"
+        size="lg"
+        class="w-full"
+        maxlength="50"
+      />
+    </UFormField>
+
+    <!-- Program Study and Faculty - responsive grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <UFormField
+        label="Program Study"
+        name="programStudy"
+        required
+      >
+        <UInput
+          v-model="state.programStudy"
+          placeholder="e.g., Computer Science"
+          size="lg"
+          class="w-full"
+          maxlength="100"
+        />
+      </UFormField>
+
+      <UFormField
+        label="Faculty"
+        name="faculty"
+        required
+      >
+        <UInput
+          v-model="state.faculty"
+          placeholder="e.g., Engineering"
+          size="lg"
+          class="w-full"
+          maxlength="100"
+        />
+      </UFormField>
+    </div>
+
+    <!-- Generation Year field -->
+    <UFormField
+      label="Generation Year"
+      name="generationYear"
+      required
+    >
+      <UInput
+        v-model="state.generationYear"
+        type="text"
+        placeholder="e.g., 2020"
+        size="lg"
+        class="w-full"
+        maxlength="4"
+      />
+    </UFormField>
+
+    <!-- Submit button -->
+    <div class="flex justify-end pt-4">
+      <UButton
+        type="submit"
+        size="lg"
+        class="px-8 w-full text-center flex justify-center"
+        :loading
+      >
+        Complete Profile
+      </UButton>
+    </div>
+  </UForm>
 </template>

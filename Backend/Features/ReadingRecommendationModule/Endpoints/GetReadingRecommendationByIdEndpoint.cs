@@ -16,7 +16,8 @@ public record GetReadingRecommendationByIdResponse(
     string PublishYear,
     int Page,
     string? ResourceLink,
-    string? CoverImageUri
+    string? CoverImageUri,
+    int Exp
 );
 
 public class GetReadingRecommendationByIdEndpoint(ApplicationDbContext dbContext)
@@ -49,7 +50,8 @@ public class GetReadingRecommendationByIdEndpoint(ApplicationDbContext dbContext
             recommendation.PublishYear,
             recommendation.Page,
             recommendation.ResourceLink,
-            recommendation.CoverImageUri
+            recommendation.CoverImageUri,
+            recommendation.Exp
         );
 
         await Send.OkAsync(Result.Success(response), cancellation: ct);

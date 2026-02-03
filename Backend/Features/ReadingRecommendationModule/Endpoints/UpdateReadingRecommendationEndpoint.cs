@@ -52,7 +52,8 @@ public record UpdateReadingRecommendationRequest(
     string PublishYear,
     int Page,
     string? ResourceLink = null,
-    string? CoverImageUri = null
+    string? CoverImageUri = null,
+    int Exp = 0
 );
 
 public record UpdateReadingRecommendationResponse(
@@ -64,7 +65,8 @@ public record UpdateReadingRecommendationResponse(
     string PublishYear,
     int Page,
     string? ResourceLink,
-    string? CoverImageUri
+    string? CoverImageUri,
+    int Exp
 );
 
 public class UpdateReadingRecommendationEndpoint(
@@ -98,7 +100,8 @@ public class UpdateReadingRecommendationEndpoint(
             req.PublishYear,
             req.Page,
             req.ResourceLink,
-            req.CoverImageUri
+            req.CoverImageUri,
+            req.Exp
         );
 
         var result = await unitOfWork.SaveChangesAsync(ct);
@@ -119,7 +122,8 @@ public class UpdateReadingRecommendationEndpoint(
                 recommendation.PublishYear,
                 recommendation.Page,
                 recommendation.ResourceLink,
-                recommendation.CoverImageUri
+                recommendation.CoverImageUri,
+                recommendation.Exp
             )
         ), cancellation: ct);
     }

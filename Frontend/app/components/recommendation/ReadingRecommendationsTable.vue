@@ -114,6 +114,16 @@ const columns: TableColumn<ReadingRecommendation>[] = [
     }
   },
   {
+    id: 'exp',
+    accessorKey: 'exp',
+    header: 'EXP',
+    meta: {
+      class: {
+        th: 'w-[80px]'
+      }
+    }
+  },
+  {
     id: 'resourceLink',
     accessorKey: 'resourceLink',
     header: 'Link',
