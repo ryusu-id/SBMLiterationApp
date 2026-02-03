@@ -51,7 +51,7 @@ const mappedReports = computed(() => {
   >
     <UIcon
       name="i-heroicons-book-open"
-      class="size-16 text-gray-300 mb-4"
+      class="size-16 text-primary mb-4"
     />
     <p class="text-gray-500 text-center text-lg font-medium">
       You haven't read yet! Let's report your progress! 📚

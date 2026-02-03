@@ -53,7 +53,7 @@ async function handleSubmit(
         class="overflow-visible mb-[100px]"
         :ui="{
           header: ' border-0',
-          root: 'bg-[#265FC4] mx-[-16px] sm:mx-[-24px] lg:mx-[-32px] rounded-t-none rounded-b-3xl px-4 py-4'
+          root: 'bg-primary mx-[-16px] sm:mx-[-24px] lg:mx-[-32px] rounded-t-none rounded-b-3xl px-4 py-4'
         }"
       >
       <template #header>

@@ -133,13 +133,13 @@ onMounted(async () => {
           class="overflow-visible mb-[100px]"
           :ui="{
             header: ' border-0',
-            root: 'bg-[#265FC4] mx-[-16px] sm:mx-[-24px] lg:mx-[-32px] rounded-t-none rounded-b-3xl px-4 py-4'
+            root: 'bg-primary mx-[-16px] sm:mx-[-24px] lg:mx-[-32px] rounded-t-none rounded-b-3xl px-4 py-4'
           }"
         >
           <template #header>
             <div class="flex flex-row items-start justify-between gap-4">
               <div class="text-white">
-                <div
+                <div 
                   class="flex items-center justify-center w-10 h-10 -ml-2 rounded-full transition-all duration-200 cursor-pointer hover:bg-white/20 active:bg-white/30 active:scale-90 group"
                   @click="useRouter().back()"
                 >
@@ -185,10 +185,10 @@ onMounted(async () => {
             <div class="flex flex-row gap-x-2">
               <nuxt-icon
                 name="users"
-                class="text-[38px]"
+                class="text-[38px]  text-primary"
               />
               <div class="flex flex-col items-start">
-                <p class="font-semibold">
+                <p class="font-semibold  text-primary">
                   Author
                 </p>
                 <p class="text-sm text-gray-500">
@@ -202,10 +202,10 @@ onMounted(async () => {
             <div class="flex flex-row gap-x-2">
               <nuxt-icon
                 name="reading"
-                class="text-[38px]"
+                class="text-[38px] text-primary"
               />
               <div class="flex flex-col items-start">
-                <p class="font-semibold">
+                <p class="font-semibold  text-primary">
                   Publish Year
                 </p>
                 <p class="text-sm text-gray-500">
@@ -219,10 +219,10 @@ onMounted(async () => {
             <div class="flex flex-row gap-x-2">
               <nuxt-icon
                 name="reading"
-                class="text-[38px]"
+                class="text-[38px] text-primary"
               />
               <div class="flex flex-col items-start">
-                <p class="font-semibold">
+                <p class="font-semibold text-primary">
                   ISBN
                 </p>
                 <p class="text-sm text-gray-500">
@@ -236,10 +236,10 @@ onMounted(async () => {
             <div class="flex flex-row gap-x-2">
               <nuxt-icon
                 name="reading"
-                class="text-[38px]"
+                class="text-[38px] text-primary"
               />
               <div class="flex flex-col items-start">
-                <p class="font-semibold">
+                <p class="font-semibold text-primary">
                   Category
                 </p>
                 <p class="text-sm text-gray-500">
@@ -252,7 +252,7 @@ onMounted(async () => {
 
         <!-- TODO: Style the report reading session button -->
         <UButton
-          class="w-full flex justify-center py-4 bg-[#265FC4]  cursor-pointer"
+          class="w-full flex justify-center py-4 bg-primary  cursor-pointer"
           @click="form?.open()"
         >
           <nuxt-icon

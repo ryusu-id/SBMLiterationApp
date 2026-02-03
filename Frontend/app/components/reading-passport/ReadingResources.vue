@@ -106,14 +106,14 @@ function onCreate() {
   >
     <SwiperSlide class="aspect-[2/3] rounded-[36px] overflow-hidden">
       <div
-        class="w-full h-full border-5 border-[#3566CD] rounded-[36px] bg-white flex flex-col items-center justify-center gap-4 text-[#3566CD] 
+        class="w-full h-full border-5 border-primary rounded-[36px] bg-white flex flex-col items-center justify-center gap-4 text-primary 
               cursor-pointer transition-all duration-300 group
-              hover:bg-[#3566CD] hover:text-white hover:shadow-xl active:scale-95"
+              hover:bg-primary hover:text-white hover:shadow-xl active:scale-95"
         @click="onCreate"
       >
         <UIcon
           name="i-heroicons-plus"
-          class="size-16 transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110"
+          class="size-16 transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110 "
         />
 
         <h1 class="text-center font-semibold text-xl leading-tight">
@@ -134,11 +134,11 @@ function onCreate() {
       />
     </SwiperSlide>
   </Swiper>
-  <button class="prev-btn absolute left-[-5px] sm:left-[-15px] top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-lg  border border-gray-100 text-[#3566CD] transition-all duration-300 hover:bg-[#3566CD] hover:text-white active:scale-95 disabled:opacity-0 disabled:pointer-events-none cursor-pointer">
+  <button class="prev-btn absolute left-[-5px] sm:left-[-15px] top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-lg  border border-gray-100 text-primary transition-all duration-300 hover:bg-primary hover:text-white active:scale-95 disabled:opacity-0 disabled:pointer-events-none cursor-pointer">
   <UIcon name="i-heroicons-chevron-left" class="size-6" />
 </button>
 
-<button class="next-btn absolute right-[-5px] sm:right-[-15px] top-1/2 -translate-y-1/2 z-30  flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-lg border border-gray-100 text-[#3566CD] transition-all duration-300 hover:bg-[#3566CD] hover:text-white active:scale-95 disabled:opacity-0 disabled:pointer-events-none  cursor-pointer">
+<button class="next-btn absolute right-[-5px] sm:right-[-15px] top-1/2 -translate-y-1/2 z-30  flex items-center justify-center w-12 h-12 rounded-full bg-white shadow-lg border border-gray-100 text-primary transition-all duration-300 hover:bg-primary hover:text-white active:scale-95 disabled:opacity-0 disabled:pointer-events-none  cursor-pointer">
   <UIcon name="i-heroicons-chevron-right" class="size-6" />
 </button>
  </div>

@@ -86,7 +86,7 @@ function goToReportPage() {
 
 <template>
   <UCard
-    class="bg-[#3566CD] rounded-[36px] aspect-[2/3] py-4 px-3 flex flex-col justify-between"
+    class="bg-primary rounded-[36px] aspect-[2/3] py-4 px-3 flex flex-col justify-between"
     :ui="{
       root: '',
       header: 'border-0',
