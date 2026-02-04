@@ -73,7 +73,20 @@ public class QueryJournalPaperEndpoint(ApplicationDbContext dbContext)
         
         query = query.Where(predicate);
 
-        var pagedJournals = await PagingService.PaginateQueryAsync(query, req, dbContext, ct);
+        var queryWithLastRead = from journal in query
+                                select new
+                                {
+                                    Journal = journal,
+                                    LastReadDate = dbContext.ReadingReports
+                                        .Where(r => r.ReadingResourceId == journal.Id)
+                                        .OrderByDescending(r => r.ReportDate)
+                                        .Select(r => (DateTime?)r.ReportDate)
+                                        .FirstOrDefault()
+                                };
+
+        queryWithLastRead = queryWithLastRead.OrderByDescending(x => x.LastReadDate);
+
+        var pagedJournals = await PagingService.PaginateQueryAsync(queryWithLastRead.Select(x => x.Journal), req, dbContext, ct);
 
         var journalIds = pagedJournals.Rows.Select(j => j.Id).ToList();
 

@@ -74,7 +74,20 @@ public class QueryBookEndpoint(ApplicationDbContext dbContext)
 
         query = query.Where(predicate);
 
-        var pagedBooks = await PagingService.PaginateQueryAsync(query, req, dbContext, ct);
+        var queryWithLastRead = from book in query
+                                select new
+                                {
+                                    Book = book,
+                                    LastReadDate = dbContext.ReadingReports
+                                        .Where(r => r.ReadingResourceId == book.Id)
+                                        .OrderByDescending(r => r.ReportDate)
+                                        .Select(r => (DateTime?)r.ReportDate)
+                                        .FirstOrDefault()
+                                };
+
+        queryWithLastRead = queryWithLastRead.OrderByDescending(x => x.LastReadDate);
+
+        var pagedBooks = await PagingService.PaginateQueryAsync(queryWithLastRead.Select(x => x.Book), req, dbContext, ct);
 
         var bookIds = pagedBooks.Rows.Select(b => b.Id).ToList();
 
