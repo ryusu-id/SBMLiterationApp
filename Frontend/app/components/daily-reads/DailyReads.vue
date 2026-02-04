@@ -164,7 +164,7 @@ onMounted(async () => {
     <!-- Swiper Cards -->
     <div
       v-else
-      class="relative"
+      class="relative w-full"
     >
       <Swiper
         :modules="[EffectCards, Mousewheel, Navigation]"

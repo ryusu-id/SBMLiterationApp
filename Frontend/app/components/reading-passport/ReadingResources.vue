@@ -91,7 +91,7 @@ function onCreate() {
 </script>
 
 <template>
- <div class="relative ">
+ <div class="relative w-full">
   <Swiper
     :modules="[EffectCards, Mousewheel, Navigation]"
     effect="cards"
