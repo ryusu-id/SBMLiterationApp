@@ -20,7 +20,7 @@ defineProps<{
   <UCard
     variant="soft"
     :ui="{
-      root: 'rounded-[20px] max-w-xl col-span-12 lg:col-span-6 bg-slate-100 dark:bg-slate-800',
+      root: 'rounded-[20px] max-w-xl col-span-12 lg:col-span-6 bg-elevated',
       body: 'p-2 sm:p-2  '
     }"
   >
@@ -104,7 +104,7 @@ defineProps<{
             </div>
           </div>
           <div
-            class="flex items-center gap-x-2 tracking-tight pl-3 pr-1 py-[1px] bg-slate-200 dark:bg-slate-700 rounded-full"
+            class="flex items-center gap-x-2 tracking-tight pl-3 pr-1 py-[1px] bg-elevated rounded-full"
           >
             <p class="font-medium text-[10px] sm:text-[12px]">
               Page Progress

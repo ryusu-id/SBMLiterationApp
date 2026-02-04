@@ -106,7 +106,8 @@ const showRightMonth = computed(() => {
           class="rounded-2xl"
           variant="soft"
           :ui="{
-            body: 'flex flex-row rounded-2xl gap-x-2 p-3 sm:p-3'
+            body: 'flex flex-row rounded-2xl gap-x-2 p-3 sm:p-3',
+            root: 'bg-elevated'
           }"
         >
           <div
@@ -116,7 +117,7 @@ const showRightMonth = computed(() => {
           >
             <p
               class="text-xs font-semibold mb-1"
-              :class="dateItem.isToday ? 'text-primary' : 'text-gray-600'"
+              :class="dateItem.isToday ? 'text-primary' : 'text-dimmed'"
             >
               {{ dateItem.dateNum }}
             </p>
@@ -124,7 +125,7 @@ const showRightMonth = computed(() => {
               :name="dateItem.hasStreak ? 'check' : 'no-streak'"
               :filled="false"
               class="text-[20px]"
-              :class="dateItem.hasStreak ? 'text-primary' : 'text-[#CCCCCC]'"
+              :class="dateItem.hasStreak && dateItem.isToday ? 'text-primary' : 'text-dimmed'"
             />
           </div>
         </UCard>

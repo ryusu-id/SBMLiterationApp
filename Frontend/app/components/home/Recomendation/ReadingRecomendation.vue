@@ -64,7 +64,7 @@ async function addToReadList(book: { id: number }) {
   <UCard
     variant="soft"
     :ui="{
-      root: 'rounded-[22px] w-fit bg-slate-100 dark:bg-slate-800',
+      root: 'rounded-[22px] w-fit bg-elevated',
       body: 'p-3 sm:p-3'
     }"
   >
