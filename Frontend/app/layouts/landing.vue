@@ -9,27 +9,24 @@ useHead({
   }
 })
 
-const title = 'Nuxt Starter Template'
-const description
-  = 'A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours.'
-
-useSeoMeta({
-  title,
-  description,
-  ogTitle: title,
-  ogDescription: description,
-  ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/starter-light.png',
-  twitterImage: 'https://ui.nuxt.com/assets/templates/nuxt/starter-light.png',
-  twitterCard: 'summary_large_image'
-})
-
 const auth = useAuth()
 const isAuthLoading = ref(true)
+const isScrolled = ref(false)
 
 onMounted(() => {
   auth.getToken()
   auth.getRefreshToken()
   isAuthLoading.value = false
+
+  const handleScroll = () => {
+    isScrolled.value = window.scrollY > 20
+  }
+
+  window.addEventListener('scroll', handleScroll)
+
+  onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll)
+  })
 })
 
 function goToDashboard() {
@@ -47,7 +44,12 @@ function goToDashboard() {
       position: 'top-right'
     }"
   >
-    <UHeader :toggle="false">
+    <UHeader
+      :toggle="false"
+      :ui="{
+        root: isScrolled ? 'transition' : 'bg-default/0 backdrop-blur-none border-none transition'
+      }"
+    >
       <template #left>
         <NuxtLink to="/">
           <AppLogo class="h-12 shrink-0" />
@@ -99,3 +101,9 @@ function goToDashboard() {
     </UFooter>
   </UApp>
 </template>
+
+<style scoped>
+.transition {
+  transition: all 0.3s ease-in-out;
+}
+</style>
