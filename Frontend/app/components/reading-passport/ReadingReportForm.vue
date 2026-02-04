@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const schema = z.object({
   currentPage: z.coerce.number().min(props.latestPageProgress, `Current page must be at least ${props.latestPageProgress}`).max(props.maxPage, `Current page cannot exceed ${props.maxPage}`),
-  insight: z.string().min(1, 'Insight is required'),
+  insight: z.string().min(1000, 'Insight should be at least 1000 characters long').max(5000, 'Insight cannot exceed 1000 characters'),
   timeSpent: z.coerce.number().min(1, 'Time spent must be at least 1 minute')
 })
 
@@ -144,6 +144,9 @@ async function onSubmit(event: FormSubmitEvent<ReadingReportSchema>) {
             class="w-full"
             :rows="6"
           />
+          <p class="text-muted">
+            {{ state.insight.length }} / 1000 characters
+          </p>
         </UFormField>
 
         <!-- Submit button -->

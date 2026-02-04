@@ -145,7 +145,7 @@ public partial class ReadingReportConfiguration : IEntityTypeConfiguration<Readi
 
         builder.Property(e => e.Insight)
             .IsRequired()
-            .HasMaxLength(1000)
+            .HasMaxLength(5000)
             .IsUnicode(false)
             .HasColumnName("insight");
 

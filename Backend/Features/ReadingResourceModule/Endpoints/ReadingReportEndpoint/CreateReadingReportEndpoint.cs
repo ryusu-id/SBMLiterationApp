@@ -30,8 +30,8 @@ public class CreateReadingReportValidator : AbstractValidator<CreateReadingRepor
         RuleFor(x => x.Insight)
             .NotEmpty()
             .WithMessage("Insight is required.")
-            .MaximumLength(1000)
-            .WithMessage("Insight must not exceed 1000 characters.");
+            .MaximumLength(5000)
+            .WithMessage("Insight must not exceed 5000 characters.");
 
         RuleFor(x => x.TimeSpent)
             .GreaterThan(0)
