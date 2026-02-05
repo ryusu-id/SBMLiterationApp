@@ -33,7 +33,7 @@ public class UploadResourceFileEndpoint : Endpoint<UploadResourceFileRequest, Ap
         { "application/pdf", new[] { ".pdf" } }
     };
 
-    private const long MaxFileSize = 10 * 1024 * 1024; // 10MB
+    private const long MaxFileSize = 2 * 1024 * 1024; // 2MB
 
     public UploadResourceFileEndpoint(IMinIOService minioService, ILogger<UploadResourceFileEndpoint> logger)
     {
