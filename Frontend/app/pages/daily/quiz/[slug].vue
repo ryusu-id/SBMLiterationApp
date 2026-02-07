@@ -76,7 +76,12 @@ onMounted(async () => {
       const allQuestions = response.data
 
       // Clean up stale quizzes from previous days or different versions
-      quizComposable.cleanupStaleQuizzes()
+      quizComposable.cleanupStaleQuizzes(response.data.map(q => (
+        {
+          seq: q.questionSeq,
+          lastUpdate: q.updateTime
+        }
+      )))
 
       // Check if there's an existing quiz state
       const existingState = quizComposable.getQuizState(slug.value)
@@ -96,7 +101,18 @@ onMounted(async () => {
           choices: shuffleArray(question.choices)
         }))
 
-        quiz.value = shuffledUnanswered
+        quiz.value = [
+          ...userAnswers.value.map((answer) => {
+            const question = allQuestions.find(q => q.questionSeq === answer.questionSeq)!
+            return {
+              ...question,
+              choices: shuffleArray(question.choices)
+            }
+          }),
+          ...shuffledUnanswered
+        ]
+
+        currentQuestionIndex.value = userAnswers.value.length
 
         toast.add({
           title: 'Resuming Quiz',
