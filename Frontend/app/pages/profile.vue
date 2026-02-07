@@ -3,6 +3,7 @@ import type { ButtonProps } from '@nuxt/ui'
 import { $authedFetch, handleResponseError, useAuth, type ApiResponse } from '~/apis/api'
 import ProfileForm from '~/components/profile/ProfileForm.vue'
 import type { ProfileFormSchema } from '~/components/profile/ProfileForm.vue'
+import type { PersistedQuizState } from '~/composables/quiz'
 
 definePageMeta({
   middleware: ['auth', 'participant-only']
@@ -23,6 +24,8 @@ const pending = ref(false)
 const form = useTemplateRef<typeof ProfileForm>('form')
 const formLoading = ref(false)
 const toast = useToast()
+const quizComposable = usePersistedQuiz()
+const unfinishedQuizzes = ref<PersistedQuizState[]>([])
 
 async function fetchProfile() {
   try {
@@ -38,6 +41,26 @@ async function fetchProfile() {
   } finally {
     pending.value = false
   }
+}
+
+function loadUnfinishedQuizzes() {
+  // Clean up stale quizzes first
+  quizComposable.cleanupStaleQuizzes()
+  unfinishedQuizzes.value = quizComposable.getUnfinishedQuizzes()
+}
+
+function continueQuiz(slug: string) {
+  router.push(`/daily/quiz/${slug}`)
+}
+
+function formatDate(dateString: string) {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
 function openEditForm() {
@@ -82,6 +105,7 @@ async function onSubmit(data: ProfileFormSchema) {
 
 onMounted(() => {
   fetchProfile()
+  loadUnfinishedQuizzes()
 })
 
 const dialog = useDialog()
@@ -222,6 +246,77 @@ function toggleColorMode() {
               <p class="font-semibold">
                 {{ profile.generationYear }}
               </p>
+            </div>
+          </div>
+        </UCard>
+
+        <!-- Unfinished Quizzes Section -->
+        <UCard
+          v-if="unfinishedQuizzes.length > 0"
+          :ui="{
+            body: 'space-y-6'
+          }"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-xl font-semibold">
+                Unfinished Quizzes
+              </h2>
+              <p class="text-sm text-gray-600 mt-1">
+                Continue where you left off
+              </p>
+            </div>
+            <UBadge
+              color="primary"
+              variant="subtle"
+              size="lg"
+            >
+              {{ unfinishedQuizzes.length }}
+            </UBadge>
+          </div>
+
+          <div class="space-y-3">
+            <div
+              v-for="quiz in unfinishedQuizzes"
+              :key="quiz.slug"
+              class="flex items-center justify-between p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 transition-colors"
+            >
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <UIcon
+                    name="i-heroicons-academic-cap"
+                    class="size-5 text-primary-600"
+                  />
+                  <h3 class="font-medium">
+                    {{ quiz.title || `Quiz: ${quiz.slug}` }}
+                  </h3>
+                </div>
+                <div class="flex items-center gap-4 text-sm text-gray-600">
+                  <span>{{ quiz.answeredQuestions }} / {{ quiz.totalQuestions }} answered</span>
+                  <span>•</span>
+                  <span>{{ formatDate(quiz.lastUpdated) }}</span>
+                </div>
+                <div class="mt-2">
+                  <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      class="bg-primary-600 h-2 rounded-full transition-all"
+                      :style="{ width: `${(quiz.answeredQuestions / quiz.totalQuestions) * 100}%` }"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="ml-4">
+                <UButton
+                  color="primary"
+                  variant="soft"
+                  @click="continueQuiz(quiz.slug)"
+                >
+                  Continue
+                  <template #trailing>
+                    <UIcon name="i-heroicons-arrow-right" />
+                  </template>
+                </UButton>
+              </div>
             </div>
           </div>
         </UCard>

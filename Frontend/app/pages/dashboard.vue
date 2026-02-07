@@ -38,6 +38,12 @@ function fetchRecommendation() {
   recommendation.value?.fetch()
 }
 
+const quizComposable = usePersistedQuiz()
+
+onMounted(() => {
+  quizComposable.cleanupStaleQuizzes()
+})
+
 const tabs = ref<TabsItem[]>([
   {
     label: 'Books',

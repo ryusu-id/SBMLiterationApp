@@ -5,6 +5,8 @@ definePageMeta({
   middleware: ['auth', 'participant-only']
 })
 
+const quizComposable = usePersistedQuiz()
+
 interface QuizChoice {
   id: number
   choice: string
@@ -17,6 +19,7 @@ interface QuizQuestion {
   question: string
   correctAnswer: string
   choices: QuizChoice[]
+  updateTime: string
 }
 
 interface QuizSubmission {
@@ -64,17 +67,57 @@ function shuffleArray<T>(array: T[]): T[] {
 onMounted(async () => {
   try {
     pending.value = true
+
     const response = await $authedFetch<ApiResponse<QuizQuestion[]>>(
       `/daily-reads/${slug.value}/quiz/attempt`
     )
 
-    if (response.data && Array.isArray(response.data)) {
-      // Shuffle questions and their choices
-      const shuffledQuestions = shuffleArray(response.data).map(question => ({
-        ...question,
-        choices: shuffleArray(question.choices)
-      }))
-      quiz.value = shuffledQuestions
+    if (response.data && response.data && Array.isArray(response.data)) {
+      const allQuestions = response.data
+
+      // Clean up stale quizzes from previous days or different versions
+      quizComposable.cleanupStaleQuizzes()
+
+      // Check if there's an existing quiz state
+      const existingState = quizComposable.getQuizState(slug.value)
+
+      if (existingState && existingState.answeredQuestions > 0) {
+        // Resume quiz - load previous answers
+        userAnswers.value = [...existingState.userAnswers]
+
+        // Get unanswered questions and shuffle them
+        const unansweredQuestions = quizComposable.getUnansweredQuestions(
+          slug.value,
+          allQuestions
+        )
+
+        const shuffledUnanswered = shuffleArray(unansweredQuestions).map(question => ({
+          ...question,
+          choices: shuffleArray(question.choices)
+        }))
+
+        quiz.value = shuffledUnanswered
+
+        toast.add({
+          title: 'Resuming Quiz',
+          description: `Continuing from question ${existingState.answeredQuestions + 1}/${allQuestions.length}`,
+          color: 'primary'
+        })
+      } else {
+        // New quiz - shuffle all questions and choices
+        const shuffledQuestions = shuffleArray(allQuestions).map(question => ({
+          ...question,
+          choices: shuffleArray(question.choices)
+        }))
+        quiz.value = shuffledQuestions
+
+        // Initialize quiz state in localStorage with today's date and lastUpdate
+        quizComposable.initQuizState(
+          slug.value,
+          allQuestions.length,
+          quizComposable.getTodayDate()
+        )
+      }
     } else {
       handleResponseError(response)
       router.back()
@@ -102,11 +145,19 @@ async function nextQuestion() {
 
   if (!currentQuestion.value) return
 
-  // Store the answer
+  // Store the answer in memory
   userAnswers.value.push({
     questionSeq: currentQuestion.value.questionSeq,
     answer: selectedAnswer.value
   })
+
+  // Save to localStorage
+  quizComposable.saveAnswer(
+    slug.value,
+    currentQuestion.value.questionSeq,
+    selectedAnswer.value,
+    currentQuestion.value.updateTime
+  )
 
   if (isLastQuestion.value) {
     await submitQuiz()
@@ -128,6 +179,9 @@ async function submitQuiz() {
       method: 'POST',
       body: submission
     })
+
+    // Clear quiz state from localStorage
+    quizComposable.clearQuizState(slug.value)
 
     // Fetch the quiz result
     pending.value = true

@@ -9,7 +9,8 @@ namespace PureTCOWebApp.Features.DailyReadsModule.Endpoints.QuizEndpoints;
 public record QuizQuestionForAttemptResponse(
     int QuestionSeq,
     string Question,
-    List<QuizChoiceResponse> Choices
+    List<QuizChoiceResponse> Choices,
+    DateTime? UpdateTime
 );
 
 public class GetQuizQuestionsForAttemptEndpoint(ApplicationDbContext dbContext)
@@ -73,7 +74,8 @@ public class GetQuizQuestionsForAttemptEndpoint(ApplicationDbContext dbContext)
             .Select(q => new QuizQuestionForAttemptResponse(
                 q.QuestionSeq,
                 q.Question,
-                q.Choices.Select(c => new QuizChoiceResponse(c.Id, c.Choice, c.Answer)).ToList()
+                q.Choices.Select(c => new QuizChoiceResponse(c.Id, c.Choice, c.Answer)).ToList(),
+                q.UpdateTime
             ))
             .ToListAsync(ct);
 
