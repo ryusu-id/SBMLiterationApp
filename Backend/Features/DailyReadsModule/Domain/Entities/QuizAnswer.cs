@@ -1,5 +1,4 @@
 using PureTCOWebApp.Core.Models;
-using PureTCOWebApp.Features.DailyReadsModule.Domain.Events;
 
 namespace PureTCOWebApp.Features.DailyReadsModule.Domain.Entities;
 

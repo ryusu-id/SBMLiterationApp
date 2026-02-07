@@ -30,6 +30,17 @@ public class QuizQuestion : AuditableEntity
         };
     }
 
+    public void Update(string question, string correctAnswer)
+    {
+        Question = question;
+        CorrectAnswer = correctAnswer;
+    }
+
+    public void ClearChoices()
+    {
+        Choices.Clear();
+    }
+
     public void AddChoice(string choice, string answer)
     {
         var quizChoice = QuizChoice.Create(choice, answer);
