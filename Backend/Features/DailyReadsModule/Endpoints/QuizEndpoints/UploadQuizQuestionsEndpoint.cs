@@ -186,6 +186,26 @@ public class UploadQuizQuestionsEndpoint(
                 }
             }
 
+            // Validate CorrectOption matches available options
+            if (!string.IsNullOrWhiteSpace(row.CorrectOption))
+            {
+                var correctOpt = row.CorrectOption.ToUpper();
+                var hasOption = correctOpt switch
+                {
+                    "A" => !string.IsNullOrWhiteSpace(row.OptionA),
+                    "B" => !string.IsNullOrWhiteSpace(row.OptionB),
+                    "C" => !string.IsNullOrWhiteSpace(row.OptionC),
+                    "D" => !string.IsNullOrWhiteSpace(row.OptionD),
+                    "E" => !string.IsNullOrWhiteSpace(row.OptionE),
+                    _ => false
+                };
+
+                if (!hasOption)
+                {
+                    results.Add(ExcelDomainError.ValidationError($"H{idx}", $"Correct Option '{correctOpt}' must have a corresponding option value."));
+                }
+            }
+
             idx++;
         }
 
