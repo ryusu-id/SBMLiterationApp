@@ -53,10 +53,10 @@ public class CreateReadingReportEndpoint(ApplicationDbContext context, UnitOfWor
     {
         var userId = int.Parse(User.FindFirst("sub")!.Value);
         
-        var resourceExists = await context.Set<ReadingResourceBase>()
-            .AnyAsync(r => r.Id == req.ReadingResourceId && r.UserId == userId, ct);
+        var resource = await context.Set<ReadingResourceBase>()
+            .FirstOrDefaultAsync(r => r.Id == req.ReadingResourceId && r.UserId == userId, ct);
 
-        if (!resourceExists)
+        if (resource == null)
         {
             var error = CrudDomainError.NotFound("ReadingResource", req.ReadingResourceId);
             await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>((Result)error));
@@ -77,13 +77,23 @@ public class CreateReadingReportEndpoint(ApplicationDbContext context, UnitOfWor
             return;
         }
 
+        // Validate: CurrentPage must not exceed total pages
+        if (req.CurrentPage > resource.Page)
+        {
+            var error = new Error("CurrentPageExceedsTotalPages", 
+                $"Current page ({req.CurrentPage}) cannot exceed total pages ({resource.Page}).");
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(Result.Failure(error)));
+            return;
+        }
+
         var report = ReadingReport.Create(
             userId,
             req.ReadingResourceId,
             req.CurrentPage,
             req.Insight,
             req.TimeSpent,
-            latestReport?.CurrentPage ?? 0);
+            latestReport?.CurrentPage ?? 0
+        );
 
         context.ReadingReports.Add(report);
         var result = await unitOfWork.SaveChangesAsync(ct);

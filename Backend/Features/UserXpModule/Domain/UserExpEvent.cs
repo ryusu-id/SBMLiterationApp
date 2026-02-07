@@ -35,7 +35,9 @@ public class UserExpEvent : AuditableEntity
     {
         ReadingExp,
         DailyReadsExp,
-        StreakExp
+        StreakExp,
+        BookCompleted,
+        RecommendedBookCompleted
     }
 
     public ExpEventType EventType => Enum.Parse<ExpEventType>(EventName);

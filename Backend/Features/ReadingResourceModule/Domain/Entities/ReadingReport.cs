@@ -41,6 +41,7 @@ public class ReadingReport : AuditableEntity
         };
 
         entity.Raise(new ReadingReportCreatedEvent(entity, lastPage));
+        entity.Raise(new BookCompletedEvent(entity));
 
         return entity;
     }
