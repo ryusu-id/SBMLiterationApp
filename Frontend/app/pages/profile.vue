@@ -4,6 +4,7 @@ import { $authedFetch, handleResponseError, useAuth, type ApiResponse } from '~/
 import ProfileForm from '~/components/profile/ProfileForm.vue'
 import type { ProfileFormSchema } from '~/components/profile/ProfileForm.vue'
 import type { PersistedQuizState } from '~/composables/quiz'
+import type { PersistedReadingReportState } from '~/composables/reading-report'
 
 definePageMeta({
   middleware: ['auth', 'participant-only']
@@ -26,6 +27,8 @@ const formLoading = ref(false)
 const toast = useToast()
 const quizComposable = usePersistedQuiz()
 const unfinishedQuizzes = ref<PersistedQuizState[]>([])
+const reportComposable = usePersistedReadingReport()
+const unfinishedReports = ref<PersistedReadingReportState[]>([])
 
 async function fetchProfile() {
   try {
@@ -49,8 +52,16 @@ function loadUnfinishedQuizzes() {
   unfinishedQuizzes.value = quizComposable.getUnfinishedQuizzes()
 }
 
+function loadUnfinishedReports() {
+  unfinishedReports.value = reportComposable.getUnfinishedReports()
+}
+
 function continueQuiz(slug: string) {
   router.push(`/daily/quiz/${slug}`)
+}
+
+function continueReport(slug: string) {
+  router.push(`/reading/${slug}`)
 }
 
 function formatDate(dateString: string) {
@@ -106,6 +117,7 @@ async function onSubmit(data: ProfileFormSchema) {
 onMounted(() => {
   fetchProfile()
   loadUnfinishedQuizzes()
+  loadUnfinishedReports()
 })
 
 const dialog = useDialog()
@@ -246,6 +258,86 @@ function toggleColorMode() {
               <p class="font-semibold">
                 {{ profile.generationYear }}
               </p>
+            </div>
+          </div>
+        </UCard>
+
+        <!-- Unfinished Reading Reports Section -->
+        <UCard
+          v-if="unfinishedReports.length > 0"
+          :ui="{
+            body: 'space-y-6'
+          }"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-xl font-semibold">
+                Unfinished Reading Reports
+              </h2>
+              <p class="text-sm text-gray-600 mt-1">
+                Continue your reading sessions
+              </p>
+            </div>
+            <UBadge
+              color="primary"
+              variant="subtle"
+              size="lg"
+            >
+              {{ unfinishedReports.length }}
+            </UBadge>
+          </div>
+
+          <div class="space-y-3">
+            <div
+              v-for="report in unfinishedReports"
+              :key="report.readingResourceId"
+              class="flex items-center justify-between p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 transition-colors"
+            >
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <UIcon
+                    name="i-heroicons-book-open"
+                    class="size-5 text-primary-600"
+                  />
+                  <h3 class="font-medium">
+                    {{ report.title }}
+                  </h3>
+                </div>
+                <div class="flex items-center gap-4 text-sm text-gray-600">
+                  <span>Page {{ report.currentPage }} / {{ report.maxPage }}</span>
+                  <span>•</span>
+                  <span v-if="report.timeSpent > 0">{{ report.timeSpent }} min</span>
+                  <span v-else>No time recorded</span>
+                  <span>•</span>
+                  <span>{{ formatDate(report.lastUpdated) }}</span>
+                </div>
+                <div class="mt-2">
+                  <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      class="bg-primary-600 h-2 rounded-full transition-all"
+                      :style="{ width: `${(report.currentPage / report.maxPage) * 100}%` }"
+                    />
+                  </div>
+                </div>
+                <div
+                  v-if="report.insight.length > 0"
+                  class="mt-2 text-sm text-gray-500 truncate"
+                >
+                  Draft: {{ report.insight.substring(0, 100) }}{{ report.insight.length > 100 ? '...' : '' }}
+                </div>
+              </div>
+              <div class="ml-4">
+                <UButton
+                  color="primary"
+                  variant="soft"
+                  @click="continueReport(report.slug)"
+                >
+                  Continue
+                  <template #trailing>
+                    <UIcon name="i-heroicons-arrow-right" />
+                  </template>
+                </UButton>
+              </div>
             </div>
           </div>
         </UCard>

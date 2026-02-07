@@ -40,6 +40,8 @@ async function onSubmit(data: { readingResourceId: number, currentPage: number, 
       color: 'success'
     })
 
+    // Clear the persisted state on successful submission
+    form.value?.clearPersistedState()
     form.value?.close()
 
     // Refresh the reports list
@@ -72,6 +74,7 @@ const latestPageProgress = computed(() => {
   return Math.max(...readingReports.value.map(r => r.currentPage))
 })
 
+const router = useRouter()
 onMounted(async () => {
   // fetch reading resource detail
   try {
@@ -81,9 +84,13 @@ onMounted(async () => {
       readingResource.value = response.data
     else {
       handleResponseError(response)
+      form.value?.clearPersistedState()
+      router.back()
     }
   } catch (err) {
     handleResponseError(err)
+    form.value?.clearPersistedState()
+    router.back()
   } finally {
     pending.value = false
   }
@@ -287,6 +294,8 @@ onMounted(async () => {
           ref="form"
           :loading="formLoading"
           :reading-resource-id="readingResource?.id || 0"
+          :resource-slug="String(route.params.slug)"
+          :resource-title="readingResource?.title || ''"
           :latest-page-progress="latestPageProgress"
           :max-page="readingResource?.page || 0"
           @submit="onSubmit"
