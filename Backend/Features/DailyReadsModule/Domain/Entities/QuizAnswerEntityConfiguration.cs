@@ -11,7 +11,7 @@ public partial class QuizAnswerConfiguration : IEntityTypeConfiguration<QuizAnsw
 
         builder.HasKey(e => e.Id).HasName("pk_mt_quiz_answer");
 
-        builder.HasIndex(e => new { e.UserId, e.DailyReadId, e.QuestionSeq })
+        builder.HasIndex(e => new { e.UserId, e.DailyReadId, e.QuestionSeq, e.RetrySeq })
             .HasDatabaseName("ix_mt_quiz_answer_user_daily_question");
 
         builder.Ignore(e => e.CreateByStr);

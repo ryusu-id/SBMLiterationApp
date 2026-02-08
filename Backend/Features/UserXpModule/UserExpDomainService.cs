@@ -52,7 +52,7 @@ public class UserExpDomainService(ApplicationDbContext _context)
     public async Task<PagingResult<UserExp>> QueryLeaderboard(PagingQuery pagingQuery, CancellationToken ct = default)
     {
         // Override sort to always sort by exp descending in leaderboard
-        pagingQuery = pagingQuery with { SortBy = "-TotalExp" };
+        pagingQuery = pagingQuery with { SortBy = "-Exp" };
 
         // Query the view which efficiently calculates exp for all users
         var query = from leaderboard in _context.UserExpLeaderboard

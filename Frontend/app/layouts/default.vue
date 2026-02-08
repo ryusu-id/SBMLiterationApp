@@ -49,24 +49,48 @@ const navButtonClass = 'h-[48px] w-[48px] rounded-2xl flex flex-row items-center
             class="text-[34px] mb-0"
           />
         </UButton>
-        <UButton
-          :class="navButtonClass"
-          :variant="route.name === 'posts' ? 'solid' : 'soft'"
-        >
-          <nuxt-icon
-            name="posts"
-            class="text-[34px] mb-0"
-          />
-        </UButton>
-        <UButton
-          :class="navButtonClass"
-          :variant="route.name === 'assignments' ? 'solid' : 'soft'"
-        >
-          <nuxt-icon
-            name="assignments"
-            class="text-[34px] mb-0"
-          />
-        </UButton>
+        <UTooltip text="Coming Soon">
+          <div class="relative">
+            <UButton
+              :class="navButtonClass"
+              :variant="route.name === 'posts' ? 'solid' : 'soft'"
+              disabled
+            >
+              <nuxt-icon
+                name="posts"
+                class="text-[34px] mb-0"
+              />
+            </UButton>
+            <UBadge
+              color="primary"
+              variant="solid"
+              size="xs"
+              class="absolute -top-1 -right-1 pointer-events-none"
+              label="Soon"
+            />
+          </div>
+        </UTooltip>
+        <UTooltip text="Coming Soon">
+          <div class="relative">
+            <UButton
+              :class="navButtonClass"
+              :variant="route.name === 'assignments' ? 'solid' : 'soft'"
+              disabled
+            >
+              <nuxt-icon
+                name="assignments"
+                class="text-[34px] mb-0"
+              />
+            </UButton>
+            <UBadge
+              color="primary"
+              variant="solid"
+              size="xs"
+              class="absolute -top-1 -right-1 pointer-events-none"
+              label="Soon"
+            />
+          </div>
+        </UTooltip>
         <UButton
           :class="navButtonClass"
           :variant="route.name === 'profile' ? 'solid' : 'soft'"

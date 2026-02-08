@@ -3,6 +3,8 @@ import type { ButtonProps } from '@nuxt/ui'
 import { $authedFetch, handleResponseError, useAuth, type ApiResponse } from '~/apis/api'
 import ProfileForm from '~/components/profile/ProfileForm.vue'
 import type { ProfileFormSchema } from '~/components/profile/ProfileForm.vue'
+import type { PersistedQuizState } from '~/composables/quiz'
+import type { PersistedReadingReportState } from '~/composables/reading-report'
 
 definePageMeta({
   middleware: ['auth', 'participant-only']
@@ -23,6 +25,10 @@ const pending = ref(false)
 const form = useTemplateRef<typeof ProfileForm>('form')
 const formLoading = ref(false)
 const toast = useToast()
+const quizComposable = usePersistedQuiz()
+const unfinishedQuizzes = ref<PersistedQuizState[]>([])
+const reportComposable = usePersistedReadingReport()
+const unfinishedReports = ref<PersistedReadingReportState[]>([])
 
 async function fetchProfile() {
   try {
@@ -38,6 +44,66 @@ async function fetchProfile() {
   } finally {
     pending.value = false
   }
+}
+
+function loadUnfinishedQuizzes() {
+  // Clean up stale quizzes first
+  quizComposable.cleanupStaleQuizzes()
+  unfinishedQuizzes.value = quizComposable.getUnfinishedQuizzes()
+}
+
+function loadUnfinishedReports() {
+  unfinishedReports.value = reportComposable.getUnfinishedReports()
+}
+
+function continueQuiz(slug: string) {
+  router.push(`/daily/quiz/${slug}`)
+}
+
+function continueReport(slug: string) {
+  router.push(`/reading/${slug}`)
+}
+
+function deleteQuiz(slug: string) {
+  dialog.confirm({
+    title: 'Delete Quiz Progress',
+    subTitle: 'This action cannot be undone',
+    message: 'Are you sure you want to delete your progress for this quiz?',
+    onOk: () => {
+      quizComposable.clearQuizState(slug)
+      loadUnfinishedQuizzes()
+      toast.add({
+        title: 'Quiz progress deleted',
+        color: 'success'
+      })
+    }
+  })
+}
+
+function deleteReport(readingResourceId: number) {
+  dialog.confirm({
+    title: 'Delete Reading Report Draft',
+    subTitle: 'This action cannot be undone',
+    message: 'Are you sure you want to delete this draft reading report?',
+    onOk: () => {
+      reportComposable.clearReportState(readingResourceId)
+      loadUnfinishedReports()
+      toast.add({
+        title: 'Reading report draft deleted',
+        color: 'success'
+      })
+    }
+  })
+}
+
+function formatDate(dateString: string) {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 }
 
 function openEditForm() {
@@ -82,6 +148,8 @@ async function onSubmit(data: ProfileFormSchema) {
 
 onMounted(() => {
   fetchProfile()
+  loadUnfinishedQuizzes()
+  loadUnfinishedReports()
 })
 
 const dialog = useDialog()
@@ -222,6 +290,169 @@ function toggleColorMode() {
               <p class="font-semibold">
                 {{ profile.generationYear }}
               </p>
+            </div>
+          </div>
+        </UCard>
+
+        <!-- Unfinished Reading Reports Section -->
+        <UCard
+          v-if="unfinishedReports.length > 0"
+          :ui="{
+            body: 'space-y-6'
+          }"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-xl font-semibold">
+                Unfinished Reading Reports
+              </h2>
+              <p class="text-sm text-gray-600 mt-1">
+                Continue your reading sessions
+              </p>
+            </div>
+            <UBadge
+              color="primary"
+              variant="subtle"
+              size="lg"
+            >
+              {{ unfinishedReports.length }}
+            </UBadge>
+          </div>
+
+          <div class="space-y-3">
+            <div
+              v-for="report in unfinishedReports"
+              :key="report.readingResourceId"
+              class="flex items-center justify-between p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 transition-colors"
+            >
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <UIcon
+                    name="i-heroicons-book-open"
+                    class="size-5 text-primary-600"
+                  />
+                  <h3 class="font-medium">
+                    {{ report.title }}
+                  </h3>
+                </div>
+                <div class="flex items-center gap-4 text-sm text-gray-600">
+                  <span>Page {{ report.currentPage }} / {{ report.maxPage }}</span>
+                  <span>•</span>
+                  <span v-if="report.timeSpent > 0">{{ report.timeSpent }} min</span>
+                  <span v-else>No time recorded</span>
+                  <span>•</span>
+                  <span>{{ formatDate(report.lastUpdated) }}</span>
+                </div>
+                <div class="mt-2">
+                  <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      class="bg-primary-600 h-2 rounded-full transition-all"
+                      :style="{ width: `${(report.currentPage / report.maxPage) * 100}%` }"
+                    />
+                  </div>
+                </div>
+                <div
+                  v-if="report.insight.length > 0"
+                  class="mt-2 text-sm text-gray-500 truncate"
+                >
+                  Draft: {{ report.insight.substring(0, 100) }}{{ report.insight.length > 100 ? '...' : '' }}
+                </div>
+              </div>
+              <div class="ml-4 flex gap-2">
+                <UButton
+                  color="primary"
+                  variant="soft"
+                  @click="continueReport(report.slug)"
+                >
+                  Continue
+                  <template #trailing>
+                    <UIcon name="i-heroicons-arrow-right" />
+                  </template>
+                </UButton>
+                <UButton
+                  color="error"
+                  variant="ghost"
+                  icon="i-heroicons-trash"
+                  @click="deleteReport(report.readingResourceId)"
+                />
+              </div>
+            </div>
+          </div>
+        </UCard>
+
+        <!-- Unfinished Quizzes Section -->
+        <UCard
+          v-if="unfinishedQuizzes.length > 0"
+          :ui="{
+            body: 'space-y-6'
+          }"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-xl font-semibold">
+                Unfinished Quizzes
+              </h2>
+              <p class="text-sm text-gray-600 mt-1">
+                Continue where you left off
+              </p>
+            </div>
+            <UBadge
+              color="primary"
+              variant="subtle"
+              size="lg"
+            >
+              {{ unfinishedQuizzes.length }}
+            </UBadge>
+          </div>
+
+          <div class="space-y-3">
+            <div
+              v-for="quiz in unfinishedQuizzes"
+              :key="quiz.slug"
+              class="flex items-center justify-between p-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 transition-colors"
+            >
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <UIcon
+                    name="i-heroicons-academic-cap"
+                    class="size-5 text-primary-600"
+                  />
+                  <h3 class="font-medium">
+                    {{ quiz.title || `Quiz: ${quiz.slug}` }}
+                  </h3>
+                </div>
+                <div class="flex items-center gap-4 text-sm text-gray-600">
+                  <span>{{ quiz.answeredQuestions }} / {{ quiz.totalQuestions }} answered</span>
+                  <span>•</span>
+                  <span>{{ formatDate(quiz.lastUpdated) }}</span>
+                </div>
+                <div class="mt-2">
+                  <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div
+                      class="bg-primary-600 h-2 rounded-full transition-all"
+                      :style="{ width: `${(quiz.answeredQuestions / quiz.totalQuestions) * 100}%` }"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="ml-4 flex gap-2">
+                <UButton
+                  color="primary"
+                  variant="soft"
+                  @click="continueQuiz(quiz.slug)"
+                >
+                  Continue
+                  <template #trailing>
+                    <UIcon name="i-heroicons-arrow-right" />
+                  </template>
+                </UButton>
+                <UButton
+                  color="error"
+                  variant="ghost"
+                  icon="i-heroicons-trash"
+                  @click="deleteQuiz(quiz.slug)"
+                />
+              </div>
             </div>
           </div>
         </UCard>

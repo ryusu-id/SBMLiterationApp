@@ -22,7 +22,7 @@ public abstract class AuditableEntity : IAuditableEntity
     [JsonConverter(typeof(DateTimeJsonConverter))]
     public DateTime CreateTime { get; set; } = DateTime.UtcNow;
     [JsonConverter(typeof(DateTimeJsonConverter))]
-    public DateTime? UpdateTime { get; set; }
+    public DateTime? UpdateTime { get; set; } = DateTime.UtcNow;
     [JsonIgnore]
     public long CreateBy { get; set; }
     [JsonIgnore]

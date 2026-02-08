@@ -5,25 +5,43 @@ import type { FormSubmitEvent } from '#ui/types'
 const props = defineProps<{
   loading?: boolean
   readingResourceId: number
+  resourceSlug: string
+  resourceTitle: string
   latestPageProgress: number
   maxPage: number
 }>()
 
 const schema = z.object({
   currentPage: z.coerce.number().min(props.latestPageProgress, `Current page must be at least ${props.latestPageProgress}`).max(props.maxPage, `Current page cannot exceed ${props.maxPage}`),
-  insight: z.string().min(1000, 'Insight should be at least 1000 characters long').max(5000, 'Insight cannot exceed 1000 characters'),
+  insight: z.string().min(200, 'Insight should be at least 200 characters long').max(5000, 'Insight cannot exceed 5000 characters'),
   timeSpent: z.coerce.number().min(1, 'Time spent must be at least 1 minute')
 })
 
 export type ReadingReportSchema = z.output<typeof schema>
 
 const isOpen = ref(false)
+const reportComposable = usePersistedReadingReport()
 
 const state = reactive({
   currentPage: props.latestPageProgress,
   insight: '',
   timeSpent: 0
 })
+
+// Watch for changes and auto-save to localStorage
+watch(
+  () => [state.currentPage, state.timeSpent, state.insight],
+  () => {
+    if (isOpen.value && (state.insight.length > 0 || state.timeSpent > 0)) {
+      reportComposable.updateReportState(props.readingResourceId, {
+        currentPage: state.currentPage,
+        timeSpent: state.timeSpent,
+        insight: state.insight
+      })
+    }
+  },
+  { deep: true }
+)
 
 const emit = defineEmits<{
   (
@@ -58,8 +76,29 @@ function resetState() {
   state.timeSpent = 0
 }
 
+function loadPersistedState() {
+  const persisted = reportComposable.getReportState(props.readingResourceId)
+  if (persisted) {
+    state.currentPage = persisted.currentPage
+    state.insight = persisted.insight
+    state.timeSpent = persisted.timeSpent
+  }
+}
+
 function open() {
   resetState()
+  // Try to load persisted state
+  loadPersistedState()
+  // If no persisted state, initialize it
+  if (!reportComposable.getReportState(props.readingResourceId)) {
+    reportComposable.initReportState(
+      props.readingResourceId,
+      props.resourceSlug,
+      props.resourceTitle,
+      props.maxPage,
+      props.latestPageProgress
+    )
+  }
   isOpen.value = true
 }
 
@@ -71,7 +110,8 @@ defineExpose({
   setState,
   resetState,
   open,
-  close
+  close,
+  clearPersistedState: () => reportComposable.clearReportState(props.readingResourceId)
 })
 
 async function onSubmit(event: FormSubmitEvent<ReadingReportSchema>) {
@@ -145,7 +185,7 @@ async function onSubmit(event: FormSubmitEvent<ReadingReportSchema>) {
             :rows="6"
           />
           <p class="text-muted">
-            {{ state.insight.length }} / 1000 characters
+            {{ state.insight.length }} / 200 characters
           </p>
         </UFormField>
 
