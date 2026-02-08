@@ -11,14 +11,16 @@ defineProps<{
   <div>
     <LeaderboardRow
       first-col="Rank"
-      second-col="Name"
-      third-col="Points"
+      second-col="Users"
+      third-col="Exp"
       header
     />
     <LeaderboardRow
       v-for="entry in data"
       :key="entry.rank"
+      :position="entry.rank"
       :first-col="String(entry.rank)"
+      :profile-col="entry.picture"
       :second-col="entry.username"
       :third-col="String(entry.exp)"
     />

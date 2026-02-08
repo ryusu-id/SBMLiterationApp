@@ -110,7 +110,7 @@ function goToReportPage() {
           <h1>{{ resource.title }}</h1>
         </div>
 
-        <div class="flex-1">
+        <div class="flex-1 flex justify-end">
           <UDropdownMenu :items>
             <UButton
               class="dark"
@@ -160,7 +160,7 @@ function goToReportPage() {
           {{ journal ? "Journal" : "Book" }}
         </div>
         <div class="text-[17px]">
-          {{ resource.page }} p.
+          {{resource.pagesRead}}/{{ resource.page }} p.
         </div>
       </div>
     </template>

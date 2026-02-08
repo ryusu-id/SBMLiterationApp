@@ -12,7 +12,7 @@ function navigateToDaily(id: string) {
 
 <template>
   <div
-    class="relative w-full h-full border-5 border-[#3566CD] rounded-[36px] overflow-hidden bg-cover bg-center cursor-pointer transition-all duration-300 hover:shadow-2xl active:scale-95 group"
+    class="relative w-full h-full border-5 border-[#3566CD] rounded-[36px] overflow-hidden bg-cover bg-center cursor-pointer transition-all duration-300 hover:shadow-2xl active:scale-95 group bg-muted"
     :style="dailyRead.coverImg ? `background-image: url('${dailyRead.coverImg}')` : 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)'"
     @click="navigateToDaily(dailyRead.id)"
   >

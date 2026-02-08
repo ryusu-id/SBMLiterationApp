@@ -3,7 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const fullText = [
   'Cuma perlu satu buku untuk jatuh cinta pada membaca.',
-  'Cari Buku itu, mari jatuh cinta.'
+  'Cari buku itu, mari jatuh cinta.'
 ]
 
 const displayedLines = ref<string[]>(['', ''])

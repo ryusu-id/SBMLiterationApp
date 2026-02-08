@@ -25,7 +25,7 @@ const navButtonClass = 'h-[48px] w-[48px] rounded-2xl flex flex-row items-center
           :variant="route.name === 'dashboard' ? 'solid' : 'soft'"
         >
           <nuxt-icon
-            name="reading"
+            name="home"
             class="text-[34px] mb-0"
           />
         </UButton>
