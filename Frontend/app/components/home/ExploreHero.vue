@@ -10,12 +10,16 @@
             <h1>How It Works</h1>
           </div>
 
-          <ul class="flex flex-col space-y-4 mb-8">
+          <ol class="flex flex-col space-y-4 mb-8">
             <li
-              v-for="it, i in datas"
+              v-for="(it, i) in datas"
               :key="i"
               class="flex space-x-3"
             >
+              <span class="text-[14px] font-[500] w-[30px] h-[30px] bg-primary    text-center rounded-full flex items-center justify-center ">
+                {{ i + 1 }}
+              </span>
+
               <div>
                 <h2 class="text-[18px] font-[500]">
                   {{ it.title }}
@@ -25,7 +29,8 @@
                 </p>
               </div>
             </li>
-          </ul>
+          </ol>
+
 
           <UButton
             class="px-8 py-4 w-fit rounded-full font-[700]"
@@ -68,7 +73,7 @@ const datas = [
   },
   {
     title: 'Grow—Quietly but Powerfully',
-    desc: 'Better ideas. Broader perspectives. Stronger thinking',
+    desc: 'Better ideas. Broader perspectives. Stronger thinking.',
   }
 ]
 </script>

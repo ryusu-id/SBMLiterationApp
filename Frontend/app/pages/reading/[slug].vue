@@ -176,7 +176,6 @@ onMounted(async () => {
             >
               <img
                 :src="readingResource?.coverImageUri"
-                :alt="`${readingResource?.title} Cover`"
                 class="h-48 md:h-60 aspect-2/3 rounded-2xl absolute -top-12"
               >
               <div />

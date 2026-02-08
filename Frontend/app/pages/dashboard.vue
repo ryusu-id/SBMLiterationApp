@@ -86,7 +86,7 @@ const tab = ref(0)
               <h1 class="text-[36px] font-extrabold tracking-tighter">
                 Welcome,
 
-                {{ auth.getFullname() }}
+                {{ auth.getFullname() }} 😁
               </h1>
             </div>
           </template>

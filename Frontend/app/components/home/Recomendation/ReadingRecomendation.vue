@@ -26,7 +26,7 @@ const dialog = useDialog()
 async function addToReadList(book: { id: number }) {
   dialog.confirm({
     title: 'Add to Read List',
-    subTitle: 'Bonus exp is aqcuired upon completion!',
+    subTitle: 'Bonus exp is acquired upon completion!',
     message: 'Are you sure you want to add this book to your reading list?',
     onOk: async () => {
       try {

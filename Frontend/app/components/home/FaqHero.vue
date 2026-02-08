@@ -129,7 +129,7 @@ const faqs = [
         'Relevance to daily life, leadership, or decision-making'
       ],
       outro:
-        'Formal summaries or academic writing are not required'
+        'Formal summaries or academic writing are not required.'
     }
   },
   {
