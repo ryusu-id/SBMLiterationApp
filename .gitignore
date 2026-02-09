@@ -1,1 +1,12 @@
 **/.DS_Store
+
+# Go build artifacts (binaries only)
+Hub/hub
+**/*.exe
+**/*.dll
+**/*.so
+**/*.dylib
+
+# Go test files
+**/*.test
+**/*.out

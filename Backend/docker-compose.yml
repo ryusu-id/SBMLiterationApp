@@ -28,10 +28,30 @@ services:
       - MinIO__AccessKey=minioadmin
       - MinIO__SecretKey=minioadmin
       - MinIO__UseSSL=false
+      - Hub__BaseUrl=http://hub:8081
+      - Hub__ApiKey=${HUB_API_KEY:-your-secret-api-key-change-in-production}
     depends_on:
       - postgres
       - minio
+      - hub
     restart: unless-stopped
+
+  hub:
+    build:
+      context: ../Hub
+      dockerfile: Dockerfile
+    container_name: puretco-hub
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+      - HUB_API_KEY=${HUB_API_KEY:-your-secret-api-key-change-in-production}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   minio:
     image: minio/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1

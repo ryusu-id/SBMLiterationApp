@@ -1,0 +1,30 @@
+{
+  "name": "Hub Service (Go)",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "hub",
+  "workspaceFolder": "/workspace",
+  
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "go.useLanguageServer": true,
+        "go.gopath": "/go"
+      }
+    }
+  },
+
+  "forwardPorts": [8081],
+  "portsAttributes": {
+    "8081": {
+      "label": "Hub Service",
+      "onAutoForward": "notify"
+    }
+  },
+
+  "postCreateCommand": "go mod download",
+  "remoteUser": "root"
+}

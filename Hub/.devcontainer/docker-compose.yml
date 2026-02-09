@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  hub:
+    image: golang:1.23
+    container_name: puretco-hub-dev
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    environment:
+      - PORT=8081
+      - HUB_API_KEY=dev-secret-key
+    ports:
+      - "8081:8081"
+    working_dir: /workspace

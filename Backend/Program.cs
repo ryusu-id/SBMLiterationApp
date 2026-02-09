@@ -67,6 +67,10 @@ if (minioSettings != null)
     builder.Services.AddScoped<IMinIOService, MinIOService>();
 }
 
+// Configure Hub Client
+builder.Services.Configure<PureTCOWebApp.Core.Hub.HubSettings>(builder.Configuration.GetSection("Hub"));
+builder.Services.AddHttpClient<PureTCOWebApp.Core.Hub.IHubClient, PureTCOWebApp.Core.Hub.HubClient>();
+
 // Add HttpClient factory for OAuth
 builder.Services.AddHttpClient();
 

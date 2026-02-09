@@ -1,6 +1,7 @@
 appsettings.Development.json
 appsettings.Production.json
 bin
+obj
 out
 deploy.sh
 monitor.sh
