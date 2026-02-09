@@ -16,10 +16,13 @@ interface JournalDoiResponse {
       affiliation?: string[]
     }>
     issued?: {
-      dateParts?: number[][]
+      timestamp?: number
     }
     published?: {
-      dateParts?: number[][]
+      timestamp?: number
+    }
+    created: {
+      timestamp: number
     }
     page?: string
     issn?: string[]
@@ -233,7 +236,16 @@ async function handleDoiPaste(event: ClipboardEvent) {
       }
 
       // Fill publish year
-      const year = data.issued?.dateParts?.[0]?.[0] || data.published?.dateParts?.[0]?.[0]
+      console.log(data.created.timestamp, new Date(data.created.timestamp))
+      const year
+        = data.issued?.timestamp
+          ? new Date(data.issued.timestamp).getFullYear()
+          : data.published?.timestamp
+            ? new Date(data.published.timestamp).getFullYear()
+            : data.created.timestamp
+              ? new Date(data.created.timestamp).getFullYear()
+              : null
+
       if (year) {
         state.publishYear = year.toString()
       }
@@ -327,7 +339,7 @@ async function onSubmit(event: FormSubmitEvent<ReadingResourceSchema>) {
       >
         <UInput
           v-model="state.title"
-          placeholder="Enter book title"
+          :placeholder="journal ? 'Enter article title' : 'Enter book title'"
           size="lg"
           class="w-full"
         />
