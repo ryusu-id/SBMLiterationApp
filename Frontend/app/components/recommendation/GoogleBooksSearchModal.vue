@@ -44,15 +44,42 @@ export interface GoogleBookVolume {
   }
 }
 
+export interface GoogleBooksSelection {
+  title: string
+  isbn: string
+  authors: string
+  publishYear: string
+  category: string
+  page: number
+  resourceLink: string
+  coverImageUri: string
+}
+
 const emit = defineEmits<{
-  (e: 'select', book: GoogleBookVolume): void
+  (e: 'select', book: GoogleBooksSelection): void
 }>()
 
 const open = ref(false)
 const searchQuery = ref('')
+const searchType = ref<'general' | 'isbn' | 'other'>('general')
 const results = ref<GoogleBookVolume[]>([])
 const pending = ref(false)
 const hasSearched = ref(false)
+
+const searchTypeOptions = [
+  { label: 'Title/Author', value: 'general', icon: 'i-heroicons-magnifying-glass' },
+  { label: 'ISBN', value: 'isbn', icon: 'i-heroicons-hashtag' },
+  { label: 'Other ID', value: 'other', icon: 'i-heroicons-identification' }
+]
+
+const searchPlaceholder = computed(() => {
+  if (searchType.value === 'isbn') {
+    return 'Enter ISBN (e.g., 9780131103627)...'
+  } else if (searchType.value === 'other') {
+    return 'Enter identifier (e.g., CORNELL:31924128804709)...'
+  }
+  return 'Enter book title, author, or ISBN...'
+})
 
 function openModal() {
   open.value = true
@@ -76,9 +103,20 @@ async function search() {
   try {
     pending.value = true
     hasSearched.value = true
+
+    // Format query based on search type
+    let queryParam = searchQuery.value.trim()
+    if (searchType.value === 'isbn') {
+      queryParam = `isbn:${queryParam}`
+    } else if (searchType.value === 'other') {
+      // For other identifiers, search using the full identifier string
+      // Google Books will attempt to match against various identifier systems
+      queryParam = `${queryParam}`
+    }
+
     const response = await $authedFetch<PagingResult<GoogleBookVolume>>('/google-books/search', {
       query: {
-        query: searchQuery.value
+        query: queryParam
       }
     })
 
@@ -94,13 +132,41 @@ async function search() {
   }
 }
 
+function getIsbnWithPriority(identifiers?: Array<{ type: string, identifier: string }>): string {
+  if (!identifiers || identifiers.length === 0) return ''
+
+  // Priority: ISBN_13 > ISBN_10 > OTHER
+  const isbn13 = identifiers.find(id => id.type === 'ISBN_13')
+  if (isbn13) return isbn13.identifier
+
+  const isbn10 = identifiers.find(id => id.type === 'ISBN_10')
+  if (isbn10) return isbn10.identifier
+
+  // Use any other identifier as fallback
+  return identifiers[0]?.identifier || ''
+}
+
+function mapGoogleBookToSelection(book: GoogleBookVolume): GoogleBooksSelection {
+  return {
+    title: book.volumeInfo.title || '',
+    isbn: getIsbnWithPriority(book.volumeInfo.industryIdentifiers),
+    authors: book.volumeInfo.authors?.join(', ') || '',
+    publishYear: book.volumeInfo.publishedDate?.substring(0, 4) || '',
+    category: book.volumeInfo.categories?.[0] || '',
+    page: book.volumeInfo.pageCount || 0,
+    resourceLink: book.volumeInfo.previewLink || book.volumeInfo.infoLink || '',
+    coverImageUri: book.volumeInfo.imageLinks?.thumbnail || book.volumeInfo.imageLinks?.smallThumbnail || ''
+  }
+}
+
 function selectBook(book: GoogleBookVolume) {
-  emit('select', book)
+  const selection = mapGoogleBookToSelection(book)
+  emit('select', selection)
   close()
 }
 
 function mapToRecommendationCard(book: GoogleBookVolume) {
-  const isbn = book.volumeInfo.industryIdentifiers?.find(id => id.type === 'ISBN_13' || id.type === 'ISBN_10')?.identifier || ''
+  const isbn = getIsbnWithPriority(book.volumeInfo.industryIdentifiers)
 
   return {
     id: 0,
@@ -130,9 +196,16 @@ function mapToRecommendationCard(book: GoogleBookVolume) {
           class="flex gap-2"
           @submit.prevent="search"
         >
+          <USelectMenu
+            v-model="searchType"
+            :items="searchTypeOptions"
+            value-key="value"
+            class="w-40"
+            size="lg"
+          />
           <UInput
             v-model="searchQuery"
-            placeholder="Enter book title, author, or ISBN..."
+            :placeholder="searchPlaceholder"
             class="flex-1"
             size="lg"
           />

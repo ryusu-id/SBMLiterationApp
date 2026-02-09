@@ -42,7 +42,7 @@ const useAuthedFetch = useNuxtApp().$useAuthedFetch
 const refreshCallback = ref<() => void>()
 
 defineExpose({
-  fetch: refreshCallback.value
+  fetch: computed(() => refreshCallback.value)
 })
 
 const { data, error, refresh } = await useAuthedFetch<{

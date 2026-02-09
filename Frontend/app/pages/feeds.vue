@@ -106,32 +106,6 @@ function getActivityIcon(activityType: string) {
   }
   return iconMap[activityType] || 'i-heroicons-star'
 }
-
-function getActionText(activityType: string): string {
-  const actionMap: Record<string, string> = {
-    DailyReadsExp: 'completed',
-    StreakExp: 'achieved',
-    ReadingExp: 'earned',
-    BookComplete: 'finished',
-    JournalComplete: 'completed'
-  }
-  return actionMap[activityType] || 'interacted with'
-}
-
-function parseActivityDescription(description: string): { title: string, details: string } {
-  // Extract the main subject from description
-  const match = description.match(/(?:completed|achieved|earned|finished)\s+(?:the\s+)?(.+?)(?:\s+and\s+earned|$)/i)
-  if (match && match[1]) {
-    return {
-      title: match[1].trim(),
-      details: description
-    }
-  }
-  return {
-    title: description,
-    details: description
-  }
-}
 </script>
 
 <template>
@@ -206,8 +180,7 @@ function parseActivityDescription(description: string): { title: string, details
               </p>
             </div>
             <p class="text-gray-600 dark:text-gray-400 text-sm mt-0.5">
-              <span class="text-gray-500 dark:text-gray-500">{{ getActionText(feed.activityType) }}</span>
-              <span class="font-medium text-gray-900 dark:text-white ml-1">{{ parseActivityDescription(feed.description).title }}</span>
+              <span class="font-medium text-gray-900 dark:text-white ml-1">{{ feed.description }}</span>
             </p>
           </div>
 

@@ -11,6 +11,7 @@ export interface LeaderboardEntry {
   rank: number
   exp: number
   username: string
+  pictureUrl: string
 }
 
 const pending = ref(false)

@@ -50,7 +50,7 @@ async function handleSubmit(
     <UContainer class="flex flex-col gap-y-4">
       <!-- TODO: Style below card to follow figma design -->
       <UCard
-        class="overflow-visible mb-[100px]"
+        class="overflow-visible"
         :ui="{
           header: ' border-0',
           root: 'bg-primary mx-[-16px] sm:mx-[-24px] lg:mx-[-32px] rounded-t-none rounded-b-3xl px-4 py-4'
@@ -86,27 +86,6 @@ async function handleSubmit(
                 class="size-6"
               />
             </div>
-          </div>
-        </template>
-
-        <template #footer>
-          <div
-            class="flex flex-row justify-center relative overflow-visible border-0 ring-0 text-white mb-12 md:mb-29"
-          >
-            <div
-              class="h-48 md:h-60 aspect-2/3 rounded-2xl absolute -top-12 flex justify-center items-center text-[#3566CD] bg-[#F5F5F7]"
-            >
-              <UIcon
-                name="i-heroicons-book-open"
-                class="size-14"
-              />
-            </div>
-
-            <h6
-              class="absolute bottom-[-175px] md:bottom-[-225px] left-1/2 -translate-x-1/2 text-[#737373] dark:text-white text-[14px]"
-            >
-              Cover
-            </h6>
           </div>
         </template>
       </UCard>

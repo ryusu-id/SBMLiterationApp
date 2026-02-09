@@ -20,7 +20,7 @@ defineProps<{
       :key="entry.rank"
       :position="entry.rank"
       :first-col="String(entry.rank)"
-      :profile-col="entry.picture"
+      :profile-col="entry.pictureUrl"
       :second-col="entry.username"
       :third-col="String(entry.exp)"
     />

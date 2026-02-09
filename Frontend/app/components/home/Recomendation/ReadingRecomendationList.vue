@@ -63,7 +63,7 @@ function handleRefresh() {
     </div>
 
     <div
-      v-if="loading"
+      v-if="loading && books.length === 0"
       class="flex items-center justify-center py-12"
     >
       <UIcon
