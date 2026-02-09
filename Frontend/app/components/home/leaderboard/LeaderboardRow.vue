@@ -15,11 +15,9 @@
         v-if="!header"
         class="w-[35px] h-[35px] rounded-full"
       >
-        <img
+        <UAvatar
           :src="profileCol"
-          class="w-full h-full"
-          alt=""
-        >
+        />
       </div>
       <span>
 
