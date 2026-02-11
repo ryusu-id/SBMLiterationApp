@@ -267,7 +267,7 @@ function toggleColorMode() {
 
             <div class="space-y-2">
               <p class="text-sm font-medium">
-                Program Study
+                Study Program
               </p>
               <p class="font-semibold">
                 {{ profile.programStudy }}
@@ -276,7 +276,7 @@ function toggleColorMode() {
 
             <div class="space-y-2">
               <p class="text-sm font-medium">
-                Faculty
+                Campus
               </p>
               <p class="font-semibold">
                 {{ profile.faculty }}
@@ -285,7 +285,7 @@ function toggleColorMode() {
 
             <div class="space-y-2">
               <p class="text-sm font-medium">
-                Generation Year
+                Class
               </p>
               <p class="font-semibold">
                 {{ profile.generationYear }}

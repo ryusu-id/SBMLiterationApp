@@ -17,9 +17,10 @@ const props = defineProps<{
 const schema = z.object({
   fullname: z.string().min(1, 'Full name is required'),
   nim: z.string().min(1, 'NIM is required').max(50, 'NIM must be at most 50 characters').regex(/^[a-zA-Z0-9]+$/, 'NIM must be alphanumeric'),
-  programStudy: z.string().min(1, 'Program study is required').max(100, 'Program study must be at most 100 characters'),
+  programStudy: z.string().min(1, 'Study program is required').max(100, 'Study program must be at most 100 characters'),
   faculty: z.string().min(1, 'Faculty is required').max(100, 'Faculty must be at most 100 characters'),
-  generationYear: z.string().min(4, 'Generation year must be 4 digits').max(4, 'Generation year must be 4 digits').regex(/^\d{4}$/, 'Generation year must be 4 digits')
+  generationYear: z.string().min(4, 'Class must be 4 digits')
+  // .max(4, 'Class must be 4 digits').regex(/^\d{4}$/, 'Class must be 4 digits')
 })
 
 export type ProfileFormSchema = z.output<typeof schema>
@@ -72,6 +73,11 @@ function open() {
 function close() {
   isOpen.value = false
 }
+
+const items = ref([
+  { label: 'International', value: 'International' },
+  { label: 'Reguler', value: 'Reguler' },
+])
 
 defineExpose({
   setState,
@@ -134,7 +140,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileFormSchema>) {
         <!-- Program Study and Faculty - responsive grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <UFormField
-            label="Program Study"
+            label="Study Program"
             name="programStudy"
             required
           >
@@ -148,7 +154,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileFormSchema>) {
           </UFormField>
 
           <UFormField
-            label="Faculty"
+            label="Campus"
             name="faculty"
             required
           >
@@ -164,17 +170,16 @@ async function onSubmit(event: FormSubmitEvent<ProfileFormSchema>) {
 
         <!-- Generation Year field -->
         <UFormField
-          label="Generation Year"
+          label="Class"
           name="generationYear"
           required
         >
-          <UInput
+          <USelect
             v-model="state.generationYear"
-            type="text"
-            placeholder="e.g., 2020"
-            size="lg"
-            class="w-full"
-            maxlength="4"
+            :items="items"
+            option-attribute="label"
+            value-attribute="value"
+            class="w-full h-[36px]"
           />
         </UFormField>
 
@@ -232,7 +237,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileFormSchema>) {
     <!-- Program Study and Faculty - responsive grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
       <UFormField
-        label="Program Study"
+        label="Study Program"
         name="programStudy"
         required
       >
@@ -262,17 +267,16 @@ async function onSubmit(event: FormSubmitEvent<ProfileFormSchema>) {
 
     <!-- Generation Year field -->
     <UFormField
-      label="Generation Year"
+      label="Class"
       name="generationYear"
       required
     >
-      <UInput
+      <USelect
         v-model="state.generationYear"
-        type="text"
-        placeholder="e.g., 2020"
-        size="lg"
-        class="w-full"
-        maxlength="4"
+        :items="items"
+        option-attribute="label"
+        value-attribute="value"
+        class="w-full h-[36px]"
       />
     </UFormField>
 
