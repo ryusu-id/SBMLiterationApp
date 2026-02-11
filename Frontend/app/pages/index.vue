@@ -11,7 +11,7 @@ definePageMeta({
   name: 'LandingPage',
   middleware: (to, from) => {
     // Only redirect on direct access (not from internal navigation)
-    if (!from.name) {
+    if (!from.path) {
       const auth = useAuth()
       if (auth.getToken()) {
         return navigateTo('/dashboard')
