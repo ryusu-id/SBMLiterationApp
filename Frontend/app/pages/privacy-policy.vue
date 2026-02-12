@@ -3,6 +3,10 @@ useSeoMeta({
   title: 'Privacy Policy - SIGMA',
   description: 'Privacy Policy for SIGMA reading progress tracking application'
 })
+
+definePageMeta({
+  layout: 'landing'
+})
 </script>
 
 <template>
@@ -259,9 +263,9 @@ useSeoMeta({
               </h2>
               <p>If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us at:</p>
               <ul class="list-none space-y-2 mt-3">
-                <li><strong>Email:</strong> jose.ryu.leonesta@gmail.com</li>
-                <li><strong>Address:</strong> Jl. Jeruk Raya No. 06</li>
-                <li><strong>Phone:</strong> +62896-4358-5873</li>
+                <li><strong>Email:</strong> info@pure-tco.com</li>
+                <li><strong>Address:</strong> GREEN LAKE CITY., CIPONDOH, TANGERANG, 15147, INDONESIA</li>
+                <li><strong>Phone:</strong> 0878-7719-8886</li>
               </ul>
             </section>
 
