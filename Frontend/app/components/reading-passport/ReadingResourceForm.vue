@@ -50,6 +50,7 @@ interface JournalDoiResponse {
 const props = defineProps<{
   loading?: boolean
   journal?: boolean
+  isEdit?: boolean
 }>()
 
 const schema = z.object({
@@ -364,6 +365,7 @@ async function onSubmit(event: FormSubmitEvent<ReadingResourceSchema>) {
         >
           <UInput
             v-model="state.isbn"
+            :disabled="isEdit"
             placeholder="Enter ISBN or other identifier"
             size="lg"
             class="w-full"
@@ -477,7 +479,7 @@ async function onSubmit(event: FormSubmitEvent<ReadingResourceSchema>) {
             :placeholder="journal ? 'Paste DOI link to auto-fill form' : 'https://example.com/resource'"
             size="lg"
             class="w-full"
-            :disabled="doiFetching"
+            :disabled="doiFetching || isEdit"
             @paste="journal ? handleDoiPaste($event) : undefined"
           />
           <div

@@ -114,6 +114,7 @@ async function handleSubmit(
       <ReadingResourceForm
         ref="formRef"
         :loading
+        is-edit
         @submit="handleSubmit"
       />
     </UContainer>
