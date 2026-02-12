@@ -24,6 +24,14 @@ interface JournalDoiResponse {
     created: {
       timestamp: number
     }
+    license?: Array<{
+      url: string
+      start: {
+        timestamp: number
+      }
+      delayInDays: number
+      contentVersion: string
+    }>
     page?: string
     issn?: string[]
     issnType?: Array<{
@@ -55,7 +63,7 @@ const schema = z.object({
   publishYear: z
     .string()
     .regex(/^\d{4}$/, 'Publish year must be a 4-digit year'),
-  readingCategory: z.string().min(1, 'Category is required'),
+  readingCategory: props.journal ? z.string().min(1, 'Category is required') : z.string().optional(),
   page: z.coerce.number().min(1, 'Page count must be at least 1'),
   resourceLink: z.url('Must be a valid URL').optional().or(z.literal('')),
   coverImageUri: z.url().optional().or(z.literal(''))
@@ -68,7 +76,7 @@ const state = reactive({
   isbn: '',
   authors: [''],
   publishYear: '',
-  readingCategory: '',
+  readingCategory: props.journal ? '' : undefined,
   page: NaN,
   resourceLink: '',
   coverImageUri: ''
@@ -113,7 +121,7 @@ function resetState() {
   state.isbn = ''
   state.authors = ['']
   state.publishYear = ''
-  state.readingCategory = ''
+  state.readingCategory = props.journal ? '' : undefined
   state.page = NaN
   state.resourceLink = ''
   state.coverImageUri = ''
@@ -236,15 +244,16 @@ async function handleDoiPaste(event: ClipboardEvent) {
       }
 
       // Fill publish year
-      console.log(data.created.timestamp, new Date(data.created.timestamp))
       const year
-        = data.issued?.timestamp
-          ? new Date(data.issued.timestamp).getFullYear()
-          : data.published?.timestamp
-            ? new Date(data.published.timestamp).getFullYear()
-            : data.created.timestamp
-              ? new Date(data.created.timestamp).getFullYear()
-              : null
+        = data.license && data.license.length > 0
+          ? new Date(data.license[data.license.length - 1]?.start.timestamp || '').getFullYear()
+          : data.issued?.timestamp
+            ? new Date(data.issued.timestamp).getFullYear()
+            : data.published?.timestamp
+              ? new Date(data.published.timestamp).getFullYear()
+              : data.created.timestamp
+                ? new Date(data.created.timestamp).getFullYear()
+                : null
 
       if (year) {
         state.publishYear = year.toString()
@@ -438,13 +447,13 @@ async function onSubmit(event: FormSubmitEvent<ReadingResourceSchema>) {
           v-model="state.readingCategory"
           name="readingCategory"
           size="lg"
-          required
+          :required="!journal"
         />
 
         <UFormField
           label="Page Count"
           name="page"
-          required
+          :required="!journal"
         >
           <UInput
             v-model="state.page"
