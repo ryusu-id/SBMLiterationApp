@@ -42,7 +42,7 @@
           <div class="w-full lg:w-fit lg:h-[90%]">
             <img
               class="w-full h-auto rounded-2xl"
-              src="https://goodmockups.com/wp-content/uploads/2017/05/Free-Hanging-T-Shirt-Clothing-Tag-Mockup-PSD.png"
+              src="/sigma-screens.png"
               alt="Program Preview"
             >
           </div>

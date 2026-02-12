@@ -193,14 +193,14 @@ function mapToRecommendationCard(book: GoogleBookVolume) {
     <template #body>
       <div class="space-y-6">
         <UForm
-          class="flex gap-2"
+          class="flex flex-col md:flex-row gap-2"
           @submit.prevent="search"
         >
           <USelectMenu
             v-model="searchType"
             :items="searchTypeOptions"
             value-key="value"
-            class="w-40"
+            class="w-full md:w-40"
             size="lg"
           />
           <UInput
@@ -213,6 +213,7 @@ function mapToRecommendationCard(book: GoogleBookVolume) {
             type="submit"
             :loading="pending"
             size="lg"
+            class="flex justify-center"
           >
             Search
           </UButton>
