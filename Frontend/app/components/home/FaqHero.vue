@@ -55,7 +55,7 @@
                   </p>
 
                   <!-- Jika answer berupa bullet object -->
-                  <div v-else>
+                  <div v-else-if="item.answer.bullets">
                     <p>{{ item.answer.intro }}</p>
 
                     <ul class="list-disc pl-6 space-y-1">
@@ -71,6 +71,12 @@
                       {{ item.answer.outro }}
                     </p>
                   </div>
+
+                  <!-- Jika answer berupa HTML dengan link -->
+                  <div
+                    v-else-if="item.answer.html"
+                    v-html="item.answer.html"
+                  />
                 </div>
               </div>
             </div>
@@ -147,6 +153,12 @@ const faqs = [
       ],
       outro:
         'The system is designed to encourage habit formation.'
+    }
+  },
+  {
+    question: 'How is my data and privacy protected?',
+    answer: {
+      html: 'We take your privacy seriously and only collect data necessary to provide the reading tracking service. Your reading data is stored securely and is never shared with third parties without your consent. For complete details about how we collect, use, and protect your information, please read our <a href="/privacy-policy" class="text-primary hover:underline font-medium">Privacy Policy</a> and <a href="/terms-of-service" class="text-primary hover:underline font-medium">Terms of Service</a>.'
     }
   }
 ]

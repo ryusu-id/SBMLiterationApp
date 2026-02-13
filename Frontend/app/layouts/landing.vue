@@ -90,7 +90,11 @@ function goToDashboard() {
     </UMain>
 
     <USeparator>
-      <img src="/3-short.png" class="h-auto w-6" alt="Logo" />
+      <img
+        src="/3-short.png"
+        class="h-auto w-6"
+        alt="Logo"
+      >
     </USeparator>
 
     <UFooter>
@@ -99,6 +103,23 @@ function goToDashboard() {
           PureTCO • © {{ new Date().getFullYear() }}
           by ryusu.id
         </p>
+      </template>
+
+      <template #right>
+        <div class="flex items-center gap-4">
+          <NuxtLink
+            to="/privacy-policy"
+            class="text-sm text-muted hover:text-primary transition-colors"
+          >
+            Privacy Policy
+          </NuxtLink>
+          <NuxtLink
+            to="/terms-of-service"
+            class="text-sm text-muted hover:text-primary transition-colors"
+          >
+            Terms of Service
+          </NuxtLink>
+        </div>
       </template>
     </UFooter>
   </UApp>
