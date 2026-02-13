@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import StarryBackground from '~/components/StarryBackground.vue';
+
 const route = useRoute()
 const navButtonClass = 'h-[48px] w-[48px] rounded-2xl flex flex-row items-center justify-center p-0'
 </script>
@@ -9,6 +11,7 @@ const navButtonClass = 'h-[48px] w-[48px] rounded-2xl flex flex-row items-center
       position: 'top-right'
     }"
   >
+    <StarryBackground />
     <UMain
       class="min-h-[calc(100vh-147px)] pb-[113px] overflow-x-hidden participant"
     >
