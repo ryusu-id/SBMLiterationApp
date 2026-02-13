@@ -1,8 +1,22 @@
 <template>
   <div :class="containerClass">
-    <div class="w-[25%] md:w-[10%]">
-      <span class="w-[20px] h-[20px]">{{ firstCol }}</span>
+    <div class="w-[25%] md:w-[10%] flex justify-start">
+      <div v-if="medalSrc" class="h-[30px]">
+        <img 
+          :src="medalSrc" 
+          class="w-full h-full rounded-full object-contain"
+        />
+      </div>
+
+      <span 
+        v-else 
+        class="w-[20px] h-[20px]"
+      >
+        {{ firstCol }}
+      </span>
     </div>
+
+
 
     <div class="w-full flex space-x-2 items-center">
       <div
@@ -48,5 +62,17 @@ const containerClass = computed(() => [
     ? 'bg-primary font-semibold rounded-t-xl'
     : ['font-medium', rankBgClass.value]
 ])
+
+const medalSrc = computed(() => {
+  if (props.header) return null
+
+  const medals: Record<number, string> = {
+    1: '/medals/gold.png',
+    2: '/medals/silver.png',
+    3: '/medals/bronze.png'
+  }
+
+  return medals[props.position ?? 0] || null
+})
 </script>
 

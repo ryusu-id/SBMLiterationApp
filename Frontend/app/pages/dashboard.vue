@@ -126,7 +126,7 @@ const tab = ref(0)
         </div>
         <div class="hidden md:flex sm:col-span-6 flex-row justify-center items-center">
           <nuxt-img
-            src="/breading-dash.png"
+            src="/book-dash.png"
             class="max-h-[450px]"
           />
         </div>
