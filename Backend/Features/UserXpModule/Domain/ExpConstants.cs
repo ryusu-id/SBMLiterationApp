@@ -2,7 +2,7 @@ namespace PureTCOWebApp.Features.UserXpModule.Domain;
 
 public static class ExpConstants
 {
-    public const decimal STREAK_7_DAYS_BONUS = 10m;
+    public const decimal STREAK_7_DAYS_BONUS = 2m;
     public const decimal READING_PER_PAGE = 0.1m;
     public const decimal DAILY_READ_QUIZ_PASSED = 10m;
     public const decimal BOOK_COMPLETED = 3m;

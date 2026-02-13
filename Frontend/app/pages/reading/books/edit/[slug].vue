@@ -40,13 +40,13 @@ async function handleSubmit(
     if (response.errorCode || response.errorDescription)
       toast.add({
         title: 'Error',
-        description: response.errorDescription || 'An error occurred while updating the journal.',
+        description: response.errorDescription || 'An error occurred while updating the book.',
         color: 'error'
       })
     else {
       toast.add({
-        title: 'Journal Updated',
-        description: 'The reading journal has been updated successfully.',
+        title: 'Book Updated',
+        description: 'The book has been updated successfully.',
         color: 'success'
       })
 
@@ -114,6 +114,7 @@ async function handleSubmit(
       <ReadingResourceForm
         ref="formRef"
         :loading
+        is-edit
         @submit="handleSubmit"
       />
     </UContainer>

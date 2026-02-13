@@ -74,9 +74,20 @@ function close() {
   isOpen.value = false
 }
 
+const programStudyItems = ref([
+  { label: 'Manajemen', value: 'Manajemen' },
+  { label: 'Kewirausahaan', value: 'Kewirausahaan' }
+])
+
+const campusItems = ref([
+  { label: 'Ganesha', value: 'Ganesha' },
+  { label: 'Jatinangor', value: 'Jatinangor' },
+  { label: 'Cirebon', value: 'Cirebon' }
+])
+
 const items = ref([
   { label: 'International', value: 'International' },
-  { label: 'Reguler', value: 'Reguler' },
+  { label: 'Reguler', value: 'Reguler' }
 ])
 
 defineExpose({
@@ -144,12 +155,12 @@ async function onSubmit(event: FormSubmitEvent<ProfileFormSchema>) {
             name="programStudy"
             required
           >
-            <UInput
+            <USelect
               v-model="state.programStudy"
-              placeholder="e.g., Computer Science"
-              size="lg"
-              class="w-full"
-              maxlength="100"
+              :items="programStudyItems"
+              option-attribute="label"
+              value-attribute="value"
+              class="w-full h-[36px]"
             />
           </UFormField>
 
@@ -158,12 +169,12 @@ async function onSubmit(event: FormSubmitEvent<ProfileFormSchema>) {
             name="faculty"
             required
           >
-            <UInput
+            <USelect
               v-model="state.faculty"
-              placeholder="e.g., Engineering"
-              size="lg"
-              class="w-full"
-              maxlength="100"
+              :items="campusItems"
+              option-attribute="label"
+              value-attribute="value"
+              class="w-full h-[36px]"
             />
           </UFormField>
         </div>
@@ -241,26 +252,26 @@ async function onSubmit(event: FormSubmitEvent<ProfileFormSchema>) {
         name="programStudy"
         required
       >
-        <UInput
+        <USelect
           v-model="state.programStudy"
-          placeholder="e.g., Computer Science"
-          size="lg"
-          class="w-full"
-          maxlength="100"
+          :items="programStudyItems"
+          option-attribute="label"
+          value-attribute="value"
+          class="w-full h-[36px]"
         />
       </UFormField>
 
       <UFormField
-        label="Faculty"
+        label="Campus"
         name="faculty"
         required
       >
-        <UInput
+        <USelect
           v-model="state.faculty"
-          placeholder="e.g., Engineering"
-          size="lg"
-          class="w-full"
-          maxlength="100"
+          :items="campusItems"
+          option-attribute="label"
+          value-attribute="value"
+          class="w-full h-[36px]"
         />
       </UFormField>
     </div>

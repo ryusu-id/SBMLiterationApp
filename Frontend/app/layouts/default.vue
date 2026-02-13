@@ -13,6 +13,31 @@ const navButtonClass = 'h-[48px] w-[48px] rounded-2xl flex flex-row items-center
       class="min-h-[calc(100vh-147px)] pb-[113px] overflow-x-hidden participant"
     >
       <slot />
+
+      <!-- Footer with legal links -->
+      <div class="mt-12 mb-20 py-6 border-t border-default">
+        <UContainer>
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted">
+            <p>
+              PureTCO • © {{ new Date().getFullYear() }} by ryusu.id
+            </p>
+            <div class="flex items-center gap-4">
+              <NuxtLink
+                to="/privacy-policy"
+                class="hover:text-primary transition-colors"
+              >
+                Privacy Policy
+              </NuxtLink>
+              <NuxtLink
+                to="/terms-of-service"
+                class="hover:text-primary transition-colors"
+              >
+                Terms of Service
+              </NuxtLink>
+            </div>
+          </div>
+        </UContainer>
+      </div>
       <UCard
         :ui="{
           body: 'p-[8px] sm:p-[8px] flex flex-row items-center justify-center gap-x-2'

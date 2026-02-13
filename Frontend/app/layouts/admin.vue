@@ -81,7 +81,32 @@ const items: NavigationMenuItem[] = [{
           <UserMenu :collapsed="collapsed" />
         </template>
       </UDashboardSidebar>
-      <slot />
+      <UDashboardPanel :grow="true">
+        <slot />
+
+        <!-- Footer with legal links -->
+        <div class="mt-auto pt-6 pb-4 border-t border-default">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted px-4">
+            <p>
+              PureTCO • © {{ new Date().getFullYear() }} by ryusu.id
+            </p>
+            <div class="flex items-center gap-4">
+              <NuxtLink
+                to="/privacy-policy"
+                class="hover:text-primary transition-colors"
+              >
+                Privacy Policy
+              </NuxtLink>
+              <NuxtLink
+                to="/terms-of-service"
+                class="hover:text-primary transition-colors"
+              >
+                Terms of Service
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+      </UDashboardPanel>
     </UDashboardGroup>
   </UApp>
 </template>

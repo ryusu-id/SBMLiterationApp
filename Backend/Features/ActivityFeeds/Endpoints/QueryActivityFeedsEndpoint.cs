@@ -64,7 +64,7 @@ public class GetUserStreakEndpoint(ApplicationDbContext context, UserExpDomainSe
         var roundedExp = (int)Math.Floor(exp);
         return eventName switch
         {
-            "ReadingExp" => $"Completed a reading session and earned {roundedExp} XP",
+            "ReadingExp" => roundedExp > 0 ? $"Completed a reading session and earned {roundedExp} XP" : "Completed a reading session",
             "DailyReadsExp" => $"Successfully completed the daily read quiz and earned {roundedExp} XP",
             "StreakExp" => $"Achieved a {ExpConstants.STREAK_BONUS_DAYS}-day streak and earned bonus {roundedExp} XP",
             _ => $"Earned {roundedExp} XP from {eventName}"

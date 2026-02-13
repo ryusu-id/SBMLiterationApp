@@ -4,22 +4,19 @@ import ExploreHero from '~/components/home/ExploreHero.vue'
 import FaqHero from '~/components/home/FaqHero.vue'
 import HighlightHero from '~/components/home/HighlightHero.vue'
 import HomeHero from '~/components/home/HomeHero.vue'
-import { usePWA } from '../composables/pwa'
 import { useAuth } from '~/apis/api'
 
 definePageMeta({
   layout: 'landing',
-  name: 'LandingPage'
+  name: 'LandingPage',
+  middleware: () => {
+    // Only redirect on direct access (not from internal navigation)
+    const auth = useAuth()
+    if (auth.getToken()) {
+      return navigateTo('/dashboard')
+    }
+  }
 })
-
-if (import.meta.client) {
-  const pwa = usePWA()
-  const router = useRouter()
-  const auth = useAuth()
-
-  if (pwa?.isPWA.value && auth.getToken())
-    router.replace('/dashboard')
-}
 </script>
 
 <template>

@@ -145,6 +145,7 @@ async function onSubmit(event: FormSubmitEvent<ReadingReportSchema>) {
           required
         >
           <USelectMenu
+            virtualize
             :model-value="pageOptions.find(opt => opt.value === state.currentPage)"
             :items="pageOptions"
             size="lg"

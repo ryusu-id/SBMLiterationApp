@@ -160,7 +160,7 @@ function goToReportPage() {
           {{ journal ? "Journal" : "Book" }}
         </div>
         <div class="text-[17px]">
-          {{ resource.pagesRead }}/{{ resource.page }} p.
+          {{ resource.lastReadPage }}/{{ resource.page }} p.
         </div>
       </div>
     </template>

@@ -76,7 +76,7 @@ async function addToReadList(book: { id: number }) {
           v-if="!googleBooks && book.xp"
           class="absolute right-3 top-3 tracking-tight font-semibold rounded-lg text-[12px] shadow-sm"
         >
-          +{{ book.xp }}xp
+          +{{ book.xp }} XP
         </UBadge>
         <img
           :src="book.imageUrl"

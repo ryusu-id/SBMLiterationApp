@@ -48,9 +48,6 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
-  routeRules: {
-    '/': { prerender: true }
-  },
   devServer: {
     host: '0.0.0.0',
     port: 3000
@@ -81,6 +78,7 @@ export default defineNuxtConfig({
   pwa: {
     manifest: {
       short_name: 'SIGMA',
+      name: 'SIGMA',
       lang: 'en',
       display: 'standalone',
       orientation: 'portrait',
@@ -110,40 +108,16 @@ export default defineNuxtConfig({
       ]
     },
     workbox: {
-      navigateFallback: '/',
-      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
       importScripts: ['/sw-custom.js'],
-      navigateFallbackDenylist: [/^\/auth/, /^\/api/, /\?code=/, /\?state=/],
-
-      runtimeCaching: [
-        {
-          // Don't cache auth/API routes
-          urlPattern: /^https:\/\/.*\/api\/.*/i,
-          handler: 'NetworkOnly'
-        },
-        {
-          // Don't cache OAuth callbacks
-          urlPattern: /\/(auth|callback|login)/,
-          handler: 'NetworkOnly'
-        },
-        {
-          // Cache pages (except auth)
-          urlPattern: /^https:\/\/.*/i,
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'pages-cache',
-            expiration: {
-              maxEntries: 50,
-              maxAgeSeconds: 24 * 60 * 60 // 24 hours
-            },
-            networkTimeoutSeconds: 10
-          }
-        }
+      additionalManifestEntries: [
+        { url: '/lottie/book-complete.lottie', revision: '1' },
+        { url: '/lottie/levelup.lottie', revision: '1' },
+        { url: '/lottie/streak.lottie', revision: '1' }
       ]
     },
     client: {
       installPrompt: true,
-      periodicSyncForUpdates: 3600 // Check for updates every hour
+      periodicSyncForUpdates: 15 * 60 * 1000 // Check for every 15 minutes
     }
     // devOptions: {
     //   enabled: true,

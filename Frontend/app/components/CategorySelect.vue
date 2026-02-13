@@ -7,7 +7,7 @@ interface ReadingCategory {
 }
 
 interface Props {
-  modelValue: string
+  modelValue?: string
   required?: boolean
   label?: string
   name?: string
@@ -51,10 +51,8 @@ const categoryOptions = computed(() => [
 
 const isCustomCategory = computed(() => selectedCategory.value === 'Other')
 
-function syncCategoryFromValue(value: string) {
+function syncCategoryFromValue(value: string | undefined) {
   if (!value) {
-    selectedCategory.value = ''
-    customCategory.value = ''
     return
   }
 

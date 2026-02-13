@@ -27,6 +27,7 @@ export interface ReadingResource {
   resourceLink: string
   coverImageUri: string
   cssClass: string
+  lastReadPage: number
 }
 
 const swiperInstance = ref<SwiperType>()

@@ -6,6 +6,8 @@ export const useSound = defineStore('sound', () => {
     streak: '/sounds/streak.wav'
   }
 
+  const lottie = useLottie()
+
   const preloadSound = (soundPath: string): Promise<void> => {
     return new Promise((resolve, reject) => {
       if (audioCache.has(soundPath)) {
@@ -35,10 +37,7 @@ export const useSound = defineStore('sound', () => {
   }
 
   const playSound = (soundPath: string, volume = 1.0) => {
-    console.log(soundPath)
     const audio = audioCache.get(soundPath)
-    console.log(audio)
-    console.log(audioCache)
     if (!audio) {
       console.warn(`Sound not preloaded: ${soundPath}`)
       return
@@ -52,14 +51,19 @@ export const useSound = defineStore('sound', () => {
 
   function playBookCompleteSound() {
     playSound(AUDIO_CONSTANT.bookComplete)
+    setTimeout(() => {
+      lottie.showAnimation(ANIMATION.BOOK_COMPLETE)
+    }, 800)
   }
 
   function playReportSound() {
     playSound(AUDIO_CONSTANT.report)
+    lottie.showAnimation(ANIMATION.LEVEL_UP)
   }
 
   function playStreakSound() {
     playSound(AUDIO_CONSTANT.streak)
+    lottie.showAnimation(ANIMATION.STREAK)
   }
 
   return {

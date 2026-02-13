@@ -71,3 +71,87 @@ self.addEventListener('push', (event) => {
     )
   }
 })
+
+// Periodic Background Sync for reminder notifications
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'reading-reminder-check') {
+    event.waitUntil(checkAndSendReminders())
+  }
+})
+
+// Check if any reminders need to be sent
+async function checkAndSendReminders() {
+  try {
+    const REMINDER_TIMES = [
+      { hour: 12, minute: 0 },
+      { hour: 20, minute: 0 },
+      { hour: 23, minute: 0 }
+    ]
+
+    const REMINDER_MESSAGES = [
+      'You\'re not behind. You\'re just here when you\'re here. 😊',
+      'Progress doesn\'t expire. 📈',
+      'Reading waits. No rush. 👍',
+      'Showing up late still counts as showing up. 🫶',
+      'Some books take time. Some take patience. 🌱',
+      'Slow reading is still reading. ☕️',
+      'This habit is taking shape. 💪',
+      'You\'re becoming your own kind of reader. 🥳',
+      'You can keep it simple today. 😎',
+      'This isn\'t about finishing books. It\'s about staying curious. 🚀'
+    ]
+
+    // Get cached data from IndexedDB or use storage API
+    const cache = await caches.open('reminder-cache')
+    const sentRemindersResponse = await cache.match('sent-reminders')
+    let sentData = { date: '', times: [] }
+    
+    if (sentRemindersResponse) {
+      sentData = await sentRemindersResponse.json()
+    }
+
+    const today = new Date().toDateString()
+    const now = new Date()
+    const currentHour = now.getHours()
+    const currentMinute = now.getMinutes()
+
+    // Reset if it's a new day
+    if (sentData.date !== today) {
+      sentData = { date: today, times: [] }
+    }
+
+    // Check each reminder time
+    for (const reminderTime of REMINDER_TIMES) {
+      const timeString = `${reminderTime.hour}:${reminderTime.minute.toString().padStart(2, '0')}`
+      
+      // Check if we're past this time and haven't sent it yet
+      const isPastTime = currentHour > reminderTime.hour 
+        || (currentHour === reminderTime.hour && currentMinute >= reminderTime.minute)
+      
+      if (isPastTime && !sentData.times.includes(timeString)) {
+        // Send notification
+        const randomIndex = Math.floor(Math.random() * REMINDER_MESSAGES.length)
+        const message = REMINDER_MESSAGES[randomIndex]
+        
+        await self.registration.showNotification('SIGMA 📚', {
+          body: message,
+          icon: '/icons/pwa-192x192.png',
+          badge: '/icons/pwa-64x64.png',
+          tag: 'reading-reminder',
+          requireInteraction: false,
+          vibrate: [200, 100, 200],
+          data: { url: '/' }
+        })
+
+        // Mark as sent
+        sentData.times.push(timeString)
+      }
+    }
+
+    // Save updated sent data
+    await cache.put('sent-reminders', new Response(JSON.stringify(sentData)))
+    
+  } catch (error) {
+    console.error('Error in checkAndSendReminders:', error)
+  }
+}
