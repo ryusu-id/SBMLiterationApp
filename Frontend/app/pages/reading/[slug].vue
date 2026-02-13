@@ -195,7 +195,7 @@ onMounted(async () => {
               class="flex flex-row justify-between relative overflow-visible border-0 ring-0 text-white"
             >
               <img
-              v-if="readingResource.coverImageUri"
+                v-if="readingResource.coverImageUri"
                 :src="readingResource?.coverImageUri"
                 class="h-48 md:h-60 aspect-2/3 rounded-2xl absolute -top-12"
               >

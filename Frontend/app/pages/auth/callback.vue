@@ -23,13 +23,14 @@ if (!code || !state) {
 
 try {
   // Send the authorization code and state to backend
-  const { data, status, execute } = await useBackendFetch<{ accessToken: string, refreshToken: string }>('auth/google/callback', {
+  const { data, status, execute } = useBackendFetch<{ accessToken: string, refreshToken: string }>('auth/google/callback', {
     method: 'POST',
     body: {
       code,
       state
     },
-    lazy: true
+    lazy: true,
+    immediate: false
   })
 
   // Handle successful authorization

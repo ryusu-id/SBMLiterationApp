@@ -331,11 +331,29 @@ function toggleColorMode() {
                     name="i-heroicons-book-open"
                     class="size-5 text-primary-600"
                   />
-                  <h3 class="font-medium">
+                  <p class="font-medium text-sm">
                     {{ report.title }}
-                  </h3>
+                  </p>
+                  <div class="flex gap-2 ml-auto">
+                    <UButton
+                      color="primary"
+                      variant="soft"
+                      @click="continueReport(report.slug)"
+                    >
+                      Continue
+                      <template #trailing>
+                        <UIcon name="i-heroicons-arrow-right" />
+                      </template>
+                    </UButton>
+                    <UButton
+                      color="error"
+                      variant="ghost"
+                      icon="i-heroicons-trash"
+                      @click="deleteReport(report.readingResourceId)"
+                    />
+                  </div>
                 </div>
-                <div class="flex items-center gap-4 text-sm text-gray-600">
+                <div class="flex items-center gap-4 text-xs text-gray-600">
                   <span>Page {{ report.currentPage }} / {{ report.maxPage }}</span>
                   <span>•</span>
                   <span v-if="report.timeSpent > 0">{{ report.timeSpent }} min</span>
@@ -353,28 +371,10 @@ function toggleColorMode() {
                 </div>
                 <div
                   v-if="report.insight.length > 0"
-                  class="mt-2 text-sm text-gray-500 truncate"
+                  class="mt-2 text-xs text-gray-500 truncate"
                 >
                   Draft: {{ report.insight.substring(0, 100) }}{{ report.insight.length > 100 ? '...' : '' }}
                 </div>
-              </div>
-              <div class="ml-4 flex gap-2">
-                <UButton
-                  color="primary"
-                  variant="soft"
-                  @click="continueReport(report.slug)"
-                >
-                  Continue
-                  <template #trailing>
-                    <UIcon name="i-heroicons-arrow-right" />
-                  </template>
-                </UButton>
-                <UButton
-                  color="error"
-                  variant="ghost"
-                  icon="i-heroicons-trash"
-                  @click="deleteReport(report.readingResourceId)"
-                />
               </div>
             </div>
           </div>
@@ -420,6 +420,24 @@ function toggleColorMode() {
                   <h3 class="font-medium">
                     {{ quiz.title || `Quiz: ${quiz.slug}` }}
                   </h3>
+                  <div class="ml-auto flex gap-2">
+                    <UButton
+                      color="primary"
+                      variant="soft"
+                      @click="continueQuiz(quiz.slug)"
+                    >
+                      Continue
+                      <template #trailing>
+                        <UIcon name="i-heroicons-arrow-right" />
+                      </template>
+                    </UButton>
+                    <UButton
+                      color="error"
+                      variant="ghost"
+                      icon="i-heroicons-trash"
+                      @click="deleteQuiz(quiz.slug)"
+                    />
+                  </div>
                 </div>
                 <div class="flex items-center gap-4 text-sm text-gray-600">
                   <span>{{ quiz.answeredQuestions }} / {{ quiz.totalQuestions }} answered</span>
@@ -434,24 +452,6 @@ function toggleColorMode() {
                     />
                   </div>
                 </div>
-              </div>
-              <div class="ml-4 flex gap-2">
-                <UButton
-                  color="primary"
-                  variant="soft"
-                  @click="continueQuiz(quiz.slug)"
-                >
-                  Continue
-                  <template #trailing>
-                    <UIcon name="i-heroicons-arrow-right" />
-                  </template>
-                </UButton>
-                <UButton
-                  color="error"
-                  variant="ghost"
-                  icon="i-heroicons-trash"
-                  @click="deleteQuiz(quiz.slug)"
-                />
               </div>
             </div>
           </div>

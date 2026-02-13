@@ -27,8 +27,9 @@ onMounted(() => {
           <DotLottieVue
             class="w-full h-full"
             :layout="{
-              fit: 'cover'
+              fit: 'contain'
             }"
+            :speed="lottie.speed"
             autoplay
             :src="lottie.animation"
           />

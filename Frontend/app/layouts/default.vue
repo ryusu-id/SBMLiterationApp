@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import StarryBackground from '~/components/StarryBackground.vue';
+import StarryBackground from '~/components/StarryBackground.vue'
 
 const route = useRoute()
 const navButtonClass = 'h-[48px] w-[48px] rounded-2xl flex flex-row items-center justify-center p-0'

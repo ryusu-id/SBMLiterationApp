@@ -114,6 +114,11 @@ public class GoogleAuthCallbackEndpoint : Endpoint<GoogleAuthCallbackRequest, Go
                 var logins = await _userManager.GetLoginsAsync(user);
                 var googleLogin = logins.FirstOrDefault(l => l.LoginProvider == "Google");
                 user.PictureUrl = userInfo.Picture;
+                if (string.IsNullOrEmpty(user.Fullname))
+                {
+                    user.Fullname = userInfo.Name;
+                    await _userManager.UpdateAsync(user);
+                }
                 
                 if (googleLogin == null)
                 {

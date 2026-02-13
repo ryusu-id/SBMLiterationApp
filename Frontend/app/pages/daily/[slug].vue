@@ -142,8 +142,8 @@ function startQuiz() {
           v-if="dailyRead.date === todayLocalDate"
           size="xl"
           icon="i-lucide-brain"
-          @click="startQuiz"
           class="cursor-pointer"
+          @click="startQuiz"
         >
           Take the Quiz
         </UButton>
