@@ -36,24 +36,20 @@ public class JournalPaper : ReadingResourceBase
 
     public new void Update(
         string title,
-        string isbn,
         string readingCategory,
         string authors,
         string publishYear,
         int page,
         string cssClass,
-        string? resourceLink = null,
         string? coverImageUri = null
     )
     {
         Title = title;
-        ISBN = isbn;
         ReadingCategory = readingCategory;
         Authors = authors;
         PublishYear = publishYear;
         Page = page;
         CssClass = cssClass;
-        ResourceLink = resourceLink;
         CoverImageUri = coverImageUri;
     }
 }

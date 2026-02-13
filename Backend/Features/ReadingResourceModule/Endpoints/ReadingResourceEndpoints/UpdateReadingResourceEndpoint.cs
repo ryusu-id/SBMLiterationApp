@@ -14,10 +14,6 @@ public class UpdateReadingResourceRequestValidator : AbstractValidator<UpdateRea
             .NotEmpty().WithMessage("Title is required.")
             .MaximumLength(200).WithMessage("Title must not exceed 200 characters.");
 
-        RuleFor(x => x.ISBN)
-            .NotEmpty().WithMessage("ISBN is required.")
-            .MaximumLength(50).WithMessage("ISBN must not exceed 50 characters.");
-
         RuleFor(x => x.ReadingCategory)
             .MaximumLength(100).WithMessage("Reading Category must not exceed 100 characters.");
 
@@ -36,10 +32,6 @@ public class UpdateReadingResourceRequestValidator : AbstractValidator<UpdateRea
         RuleFor(x => x.Page)
             .GreaterThan(0).WithMessage("Page must be greater than 0.");
 
-        RuleFor(x => x.ResourceLink)
-            .MaximumLength(500).WithMessage("Resource Link must not exceed 500 characters.")
-            .When(x => !string.IsNullOrEmpty(x.ResourceLink));
-
         RuleFor(x => x.CoverImageUri)
             .MaximumLength(500).WithMessage("Cover Image URI must not exceed 500 characters.")
             .When(x => !string.IsNullOrEmpty(x.CoverImageUri));
@@ -49,13 +41,11 @@ public class UpdateReadingResourceRequestValidator : AbstractValidator<UpdateRea
 public record UpdateReadingResourceRequest(
     int Id,
     string Title,
-    string ISBN,
     string ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,
     string CssClass,
-    string? ResourceLink,
     string? CoverImageUri
 );
 
@@ -63,13 +53,11 @@ public record UpdateReadingResourceResponse(
     int Id,
     int UserId,
     string Title,
-    string ISBN,
     string ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,
     string CssClass,
-    string? ResourceLink,
     string? CoverImageUri,
     string ResourceType
 );
@@ -106,7 +94,7 @@ public class UpdateReadingResourceEndpoint(
             }
             valCtx.ThrowIfAnyErrors();
             
-            book.Update(req.Title, req.ISBN, req.ReadingCategory, req.Authors, req.PublishYear, req.Page, req.CssClass, req.ResourceLink, req.CoverImageUri);
+            book.Update(req.Title, req.ReadingCategory, req.Authors, req.PublishYear, req.Page, req.CssClass, req.CoverImageUri);
             
             var result = await unitOfWork.SaveChangesAsync(ct);
             if (result.IsFailure)
@@ -116,8 +104,8 @@ public class UpdateReadingResourceEndpoint(
             }
 
             var response = new UpdateReadingResourceResponse(
-                book.Id, book.UserId, book.Title, book.ISBN, book.ReadingCategory,
-                book.Authors, book.PublishYear, book.Page, book.CssClass, book.ResourceLink, book.CoverImageUri, "BOOK"
+                book.Id, book.UserId, book.Title, book.ReadingCategory,
+                book.Authors, book.PublishYear, book.Page, book.CssClass, book.CoverImageUri, "BOOK"
             );
             await Send.OkAsync(Result.Success(response), cancellation: ct);
             return;
@@ -133,7 +121,7 @@ public class UpdateReadingResourceEndpoint(
                 return;
             }
             
-            journal.Update(req.Title, req.ISBN, req.ReadingCategory, req.Authors, req.PublishYear, req.Page, req.CssClass, req.ResourceLink, req.CoverImageUri);
+            journal.Update(req.Title, req.ReadingCategory, req.Authors, req.PublishYear, req.Page, req.CssClass, req.CoverImageUri);
             
             var result = await unitOfWork.SaveChangesAsync(ct);
             if (result.IsFailure)
@@ -143,8 +131,8 @@ public class UpdateReadingResourceEndpoint(
             }
 
             var response = new UpdateReadingResourceResponse(
-                journal.Id, journal.UserId, journal.Title, journal.ISBN, journal.ReadingCategory,
-                journal.Authors, journal.PublishYear, journal.Page, journal.CssClass, journal.ResourceLink, journal.CoverImageUri, "JOURNAL"
+                journal.Id, journal.UserId, journal.Title, journal.ReadingCategory,
+                journal.Authors, journal.PublishYear, journal.Page, journal.CssClass, journal.CoverImageUri, "JOURNAL"
             );
             await Send.OkAsync(Result.Success(response), cancellation: ct);
             return;
