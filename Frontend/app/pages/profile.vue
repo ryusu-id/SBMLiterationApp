@@ -201,12 +201,14 @@ function toggleColorMode() {
                 color="neutral"
                 :icon="color.value === 'dark' ? 'i-heroicons-moon' : 'i-heroicons-sun'"
                 @click="toggleColorMode"
+              class="cursor-pointer"
               />
             </ClientOnly>
             <UButton
               v-for="(link, index) in links"
               :key="index"
               v-bind="link"
+              class="cursor-pointer"
             />
             <UAvatar
               :src="profile?.pictureUrl"
@@ -240,6 +242,7 @@ function toggleColorMode() {
               icon="i-heroicons-pencil"
               color="primary"
               variant="soft"
+              class="cursor-pointer"
               @click="openEditForm"
             >
               Edit
@@ -339,6 +342,7 @@ function toggleColorMode() {
                       color="primary"
                       variant="soft"
                       @click="continueReport(report.slug)"
+                      class="cursor-pointer"
                     >
                       Continue
                       <template #trailing>
@@ -349,6 +353,7 @@ function toggleColorMode() {
                       color="error"
                       variant="ghost"
                       icon="i-heroicons-trash"
+                      class="cursor-pointer"
                       @click="deleteReport(report.readingResourceId)"
                     />
                   </div>
@@ -424,6 +429,7 @@ function toggleColorMode() {
                     <UButton
                       color="primary"
                       variant="soft"
+                      class="cursor-pointer"
                       @click="continueQuiz(quiz.slug)"
                     >
                       Continue
@@ -435,6 +441,7 @@ function toggleColorMode() {
                       color="error"
                       variant="ghost"
                       icon="i-heroicons-trash"
+                      class="cursor-pointer"
                       @click="deleteQuiz(quiz.slug)"
                     />
                   </div>
