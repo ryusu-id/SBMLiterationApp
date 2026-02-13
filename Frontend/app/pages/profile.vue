@@ -207,6 +207,7 @@ function toggleStarryMode() {
                 color="neutral"
                 :icon="color.value === 'dark' ? 'i-heroicons-moon' : 'i-heroicons-sun'"
                 @click="toggleColorMode"
+              class="cursor-pointer"
               />
               <UButton
                 variant="soft"
@@ -219,6 +220,7 @@ function toggleStarryMode() {
               v-for="(link, index) in links"
               :key="index"
               v-bind="link"
+              class="cursor-pointer"
             />
             <UAvatar
               :src="profile?.pictureUrl"
@@ -252,6 +254,7 @@ function toggleStarryMode() {
               icon="i-heroicons-pencil"
               color="primary"
               variant="soft"
+              class="cursor-pointer"
               @click="openEditForm"
             >
               Edit
@@ -351,6 +354,7 @@ function toggleStarryMode() {
                       color="primary"
                       variant="soft"
                       @click="continueReport(report.slug)"
+                      class="cursor-pointer"
                     >
                       Continue
                       <template #trailing>
@@ -361,6 +365,7 @@ function toggleStarryMode() {
                       color="error"
                       variant="ghost"
                       icon="i-heroicons-trash"
+                      class="cursor-pointer"
                       @click="deleteReport(report.readingResourceId)"
                     />
                   </div>
@@ -436,6 +441,7 @@ function toggleStarryMode() {
                     <UButton
                       color="primary"
                       variant="soft"
+                      class="cursor-pointer"
                       @click="continueQuiz(quiz.slug)"
                     >
                       Continue
@@ -447,6 +453,7 @@ function toggleStarryMode() {
                       color="error"
                       variant="ghost"
                       icon="i-heroicons-trash"
+                      class="cursor-pointer"
                       @click="deleteQuiz(quiz.slug)"
                     />
                   </div>

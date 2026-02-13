@@ -109,7 +109,7 @@ async function addToReadList(book: { id: number }) {
               Author
             </p>
             <p
-              class="font-semibold text-[11px] sm:text-[13px] line-clamp-1 max-w-[150px] text-left"
+              class="font-semibold text-[11px] sm:text-[13px] line-clamp-1 max-w-[120px] text-left"
             >
               {{ book.author }}
             </p>
