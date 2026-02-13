@@ -1,22 +1,23 @@
 <template>
   <div :class="containerClass">
     <div class="w-[25%] md:w-[10%] flex justify-start">
-      <div v-if="medalSrc" class="h-[30px]">
-        <img 
-          :src="medalSrc" 
+      <div
+        v-if="medalSrc"
+        class="h-[30px]"
+      >
+        <img
+          :src="medalSrc"
           class="w-full h-full rounded-full object-contain"
-        />
+        >
       </div>
 
-      <span 
-        v-else 
+      <span
+        v-else
         class="w-[20px] h-[20px]"
       >
         {{ firstCol }}
       </span>
     </div>
-
-
 
     <div class="w-full flex space-x-2 items-center">
       <div
@@ -50,7 +51,7 @@ const rankBgClass = computed(() =>
   props.header
     ? ''
     : ({
-      1: 'bg-[#F3E1A3] dark:text-inverted',
+        1: 'bg-[#F3E1A3] dark:text-inverted',
         2: 'bg-[#E2E5EA] dark:text-inverted',
         3: 'bg-[#E8C2A8] dark:text-inverted'
       } as Record<number, string>)[props.position ?? 0] || ''
@@ -75,4 +76,3 @@ const medalSrc = computed(() => {
   return medals[props.position ?? 0] || null
 })
 </script>
-

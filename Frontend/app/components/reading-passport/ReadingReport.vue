@@ -36,7 +36,7 @@ defineProps<{
           class="w-full h-full object-cover"
         >
         <div
-        v-else
+          v-else
           class="w-full h-full border-2 border-primary bg-accented rounded-[12px] flex items-center justify-center text-primary"
         >
           <UIcon

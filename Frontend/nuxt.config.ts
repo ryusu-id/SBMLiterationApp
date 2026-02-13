@@ -110,7 +110,7 @@ export default defineNuxtConfig({
     workbox: {
       importScripts: ['/sw-custom.js'],
       additionalManifestEntries: [
-        { url: '/lottie/book-complete.lottie', revision: '1' },
+        { url: '/lottie/book-complete.lottie', revision: '2' },
         { url: '/lottie/levelup.lottie', revision: '1' },
         { url: '/lottie/streak.lottie', revision: '1' }
       ]
