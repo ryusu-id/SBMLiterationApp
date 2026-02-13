@@ -21,16 +21,9 @@ let lastTime = 0
 const STAR_COUNT = 160
 const STAR_DRIFT_SPEED = -8
 
+const color = useColorMode()
 function getStarColor() {
-  const bg = getComputedStyle(document.documentElement)
-    .getPropertyValue('--ui-bg')
-    .trim()
-
-  const match = bg.match(/(\d+)%\)$/)
-  const lightness = match ? parseInt(match[1] || '50') : 50
-  const isDark = lightness < 50
-
-  if (isDark) {
+  if (color.value === 'dark') {
     starRGB = '255, 251, 238'
   } else {
     starRGB = '35, 35, 34'
