@@ -12,9 +12,10 @@ export function useReminder() {
 
   const SENT_REMINDERS_KEY = 'sentRemindersToday'
   const REMINDER_TIMES = [
+    { hour: 9, minute: 0 },
     { hour: 12, minute: 0 },
-    { hour: 20, minute: 0 }, // 20:00 (8 PM)
-    { hour: 23, minute: 0 } // 23:00 (11 PM)
+    { hour: 15, minute: 0 },
+    { hour: 20, minute: 0 }
   ]
 
   const REMINDER_MESSAGES = [
@@ -74,7 +75,7 @@ export function useReminder() {
         // Browser will decide actual interval based on user engagement
         const syncRegistration = registration as ServiceWorkerRegistrationWithSync
         await syncRegistration.periodicSync.register('reading-reminder-check', {
-          minInterval: 12 * 60 * 60 * 1000 // 12 hours in milliseconds
+          minInterval: 15 * 60 * 1000 // 15 minutes in milliseconds
         })
         console.log('Periodic background sync registered')
       }
@@ -235,8 +236,7 @@ export function useReminder() {
         type: 'SHOW_REMINDER',
         title: 'SIGMA 📚',
         body: message,
-        icon: '/icons/pwa-192x192.png',
-        badge: '/icons/pwa-64x64.png',
+        icon: '/3-short.png',
         tag: 'reading-reminder',
         data: {
           url: '/'
@@ -246,8 +246,7 @@ export function useReminder() {
       // Fallback to regular notification if service worker is not available
       new Notification('SIGMA 📚', {
         body: message,
-        icon: '/icons/pwa-192x192.png',
-        badge: '/icons/pwa-64x64.png',
+        icon: `${window.location.origin}/icons/pwa-192x192.png`,
         tag: 'reading-reminder',
         data: {
           url: '/'

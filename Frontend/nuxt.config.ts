@@ -77,6 +77,7 @@ export default defineNuxtConfig({
   },
   pwa: {
     manifest: {
+      id: 'com.pure-tco.sigma',
       short_name: 'SIGMA',
       name: 'SIGMA',
       lang: 'en',
