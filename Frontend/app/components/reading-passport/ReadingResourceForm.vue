@@ -64,7 +64,7 @@ const schema = z.object({
   publishYear: z
     .string()
     .regex(/^\d{4}$/, 'Publish year must be a 4-digit year'),
-  readingCategory: props.journal ? z.string().min(1, 'Category is required') : z.string().optional(),
+  readingCategory: !props.journal ? z.string().min(1, 'Category is required') : z.string().optional(),
   page: z.coerce.number().min(1, 'Page count must be at least 1'),
   resourceLink: z.url('Must be a valid URL').optional().or(z.literal('')),
   coverImageUri: z.url().optional().or(z.literal(''))
