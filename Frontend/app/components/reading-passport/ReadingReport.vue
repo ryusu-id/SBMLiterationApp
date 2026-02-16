@@ -13,6 +13,7 @@ defineProps<{
   }
   withImage?: boolean
 }>()
+
 </script>
 
 <template>
@@ -65,11 +66,37 @@ defineProps<{
         >
           Insight
         </UBadge>
-        <p
-          class="mt-2 text-wrap line-clamp-2 font-medium tracking-tight text-[11px] sm:text-[13px]"
+        <div class="flex gap-x-2">
+          <p
+            class="mt-2 text-wrap line-clamp-2 font-medium tracking-tight text-[11px] sm:text-[13px]"
+          >
+            {{ report.insight }}
+          </p>
+          
+          <UModal
+          :title="report.resourceTitle"
+          :close="{
+            color: 'primary',
+            variant: 'outline',
+            class: 'rounded-full'
+          }"
+          :ui="{
+            title: 'line-clamp-1 max-w-[90%]',
+             body: 'p-0'
+          }"
         >
-          {{ report.insight }}
-        </p>
+        
+  <UButton icon="i-heroicons-chevron-right" color="primary" class="mt-[8px] rounded-full cursor-pointer" variant="subtle" :ui="{
+    base: '!rounded-full'
+  }" />
+
+          <template #body>
+            <div class="!p-4 sm:!p-0 text-sm text-justify">
+              {{ report.insight }}
+            </div>
+          </template>
+        </UModal>
+        </div>
 
         <USeparator
           class="my-2"
