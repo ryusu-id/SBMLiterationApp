@@ -40,7 +40,11 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favico.ico' }
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'icon', type: 'image/png', href: '/favicon-96x96.png', sizes: '96x96' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'shortcut icon', href: '/favicon.ico' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }
       ],
       title: 'SIGMA'
     }
@@ -86,22 +90,13 @@ export default defineNuxtConfig({
       background_color: '#ffffff',
       icons: [
         {
-          src: '/icons/pwa-64x64.png',
-          sizes: '64x64',
-          type: 'image/png'
-        },
-        {
-          src: '/icons/pwa-192x192.png',
+          src: '/web-app-manifest-192x192.png',
           sizes: '192x192',
-          type: 'image/png'
+          type: 'image/png',
+          purpose: 'maskable'
         },
         {
-          src: '/icons/pwa-512x512.png',
-          sizes: '512x512',
-          type: 'image/png'
-        },
-        {
-          src: '/icons/maskable-icon-512x512.png',
+          src: '/web-app-manifest-512x512.png',
           sizes: '512x512',
           type: 'image/png',
           purpose: 'maskable'
