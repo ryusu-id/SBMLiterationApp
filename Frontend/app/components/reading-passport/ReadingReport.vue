@@ -91,7 +91,7 @@ defineProps<{
   }" />
 
           <template #body>
-            <div class="!p-4 sm:!p-0 text-sm">
+            <div class="!p-4 sm:!p-0 text-sm text-justify">
               {{ report.insight }}
             </div>
           </template>
