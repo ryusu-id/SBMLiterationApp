@@ -178,6 +178,12 @@ const links = ref<ButtonProps[]>([
 function toggleColorMode() {
   color.preference = color.value === 'dark' ? 'light' : 'dark'
 }
+
+const starry = useStarryNight()
+function toggleStarryMode() {
+  // This function can be used to toggle starry mode if needed
+  starry.enabled = !starry.enabled
+}
 </script>
 
 <template>
@@ -202,6 +208,12 @@ function toggleColorMode() {
                 :icon="color.value === 'dark' ? 'i-heroicons-moon' : 'i-heroicons-sun'"
                 @click="toggleColorMode"
               class="cursor-pointer"
+              />
+              <UButton
+                variant="soft"
+                :color="starry.enabled ? 'primary' : 'neutral'"
+                icon="i-lucide-sparkle"
+                @click="toggleStarryMode"
               />
             </ClientOnly>
             <UButton

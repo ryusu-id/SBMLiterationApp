@@ -11,6 +11,7 @@ const shootingStars: any[] = []
 let animationFrame = 0
 let width = 0
 let height = 0
+let dpr = 1
 let starRGB = '255,255,255'
 let observer: MutationObserver | null = null
 let resizeTimeoutId: number | null = null
@@ -21,16 +22,9 @@ let lastTime = 0
 const STAR_COUNT = 160
 const STAR_DRIFT_SPEED = -8
 
+const color = useColorMode()
 function getStarColor() {
-  const bg = getComputedStyle(document.documentElement)
-    .getPropertyValue('--ui-bg')
-    .trim()
-
-  const match = bg.match(/(\d+)%\)$/)
-  const lightness = match ? parseInt(match[1] || '50') : 50
-  const isDark = lightness < 50
-
-  if (isDark) {
+  if (color.value === 'dark') {
     starRGB = '255, 251, 238'
   } else {
     starRGB = '35, 35, 34'
@@ -40,10 +34,20 @@ function getStarColor() {
 function resize() {
   width = window.innerWidth
   height = window.innerHeight
+  dpr = window.devicePixelRatio || 1
   const canvas = canvasRef.value
   if (!canvas) return
-  canvas.width = width
-  canvas.height = height
+
+  // Set canvas resolution to match physical pixels
+  canvas.width = width * dpr
+  canvas.height = height * dpr
+
+  // Set display size via CSS
+  canvas.style.width = `${width}px`
+  canvas.style.height = `${height}px`
+
+  // Scale context to match device pixel ratio
+  ctx.scale(dpr, dpr)
 }
 
 function resizeAndRebuild() {
