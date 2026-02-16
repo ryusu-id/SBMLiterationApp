@@ -236,7 +236,7 @@ export function useReminder() {
         type: 'SHOW_REMINDER',
         title: 'SIGMA 📚',
         body: message,
-        icon: '/3-short.png',
+        icon: '/favicon.svg',
         tag: 'reading-reminder',
         data: {
           url: '/'
@@ -246,7 +246,7 @@ export function useReminder() {
       // Fallback to regular notification if service worker is not available
       new Notification('SIGMA 📚', {
         body: message,
-        icon: `${window.location.origin}/icons/pwa-192x192.png`,
+        icon: `${window.location.origin}/favicon.svg`,
         tag: 'reading-reminder',
         data: {
           url: '/'
