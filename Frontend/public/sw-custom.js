@@ -57,7 +57,7 @@ self.addEventListener('push', (event) => {
     
     const options = {
       body: data.body || 'You have a new notification',
-      badge: `${self.location.origin}${data.badge || '/favicon-96x96.png'}`,
+      icon: `${self.location.origin}${data.icon || '/favicon.svg'}`,
       tag: data.tag || 'general-notification',
       data: data.data || {},
       requireInteraction: false,
@@ -134,7 +134,7 @@ async function checkAndSendReminders() {
         
         await self.registration.showNotification('SIGMA 📚', {
           body: message,
-          badge: `${self.location.origin}/favicon-96x96.png`,
+          icon: `${self.location.origin}/favicon.svg`,
           tag: 'reading-reminder',
           requireInteraction: false,
           vibrate: [200, 100, 200],
