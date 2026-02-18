@@ -10,7 +10,7 @@ public class JournalPaper : ReadingResourceBase
         int userId,
         string title,
         string isbn,
-        string readingCategory,
+        string? readingCategory,
         string authors,
         string publishYear,
         int page,
@@ -36,7 +36,7 @@ public class JournalPaper : ReadingResourceBase
 
     public new void Update(
         string title,
-        string readingCategory,
+        string? readingCategory,
         string authors,
         string publishYear,
         int page,

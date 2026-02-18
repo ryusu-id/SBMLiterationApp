@@ -12,7 +12,7 @@ public class Book : ReadingResourceBase
         int userId,
         string title,
         string isbn,
-        string readingCategory,
+        string? readingCategory,
         string authors,
         string publishYear,
         int page,
@@ -42,7 +42,7 @@ public class Book : ReadingResourceBase
 
     public new void Update(
         string title,
-        string readingCategory,
+        string? readingCategory,
         string authors,
         string publishYear,
         int page,
