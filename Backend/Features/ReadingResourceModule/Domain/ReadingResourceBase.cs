@@ -10,7 +10,7 @@ public class ReadingResourceBase : AuditableEntity
     public int UserId { get; protected set; }
     public string Title { get; protected set; }
     public string ISBN { get; protected set; }
-    public string ReadingCategory { get; protected set; }
+    public string? ReadingCategory { get; protected set; }
     public string Authors { get; protected set; }
     public string PublishYear { get; protected set; }
     public int Page { get; protected set; }
@@ -31,7 +31,7 @@ public class ReadingResourceBase : AuditableEntity
         int userId,
         string title,
         string isbn,
-        string readingCategory,
+        string? readingCategory,
         string authors,
         string publishYear,
         int page,
@@ -58,7 +58,7 @@ public class ReadingResourceBase : AuditableEntity
     public void Update(
         string title,
         string isbn,
-        string readingCategory,
+        string? readingCategory,
         string authors,
         string publishYear,
         int page,

@@ -37,7 +37,6 @@ public partial class ReadingResourceConfiguration : IEntityTypeConfiguration<Rea
             .HasColumnName("isbn");
 
         builder.Property(e => e.ReadingCategory)
-            .IsRequired()
             .HasMaxLength(100)
             .IsUnicode(false)
             .HasColumnName("reading_category");
