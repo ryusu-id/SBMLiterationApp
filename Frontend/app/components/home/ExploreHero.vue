@@ -32,8 +32,9 @@
           </ol>
 
           <UButton
-            class="px-8 py-4 w-fit rounded-full font-[700]"
+            class="px-8 py-4 w-fit rounded-full font-[700] cursor-pointer"
             label="Start Reading Now"
+            @click="router.push('/signin')"
           />
         </div>
 
@@ -53,6 +54,7 @@
 </template>
 
 <script setup lang="ts">
+const router = useRouter()
 const datas = [
   {
     title: 'Choose What You Want to Read',
