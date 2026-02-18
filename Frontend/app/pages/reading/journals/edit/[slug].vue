@@ -115,6 +115,7 @@ async function handleSubmit(
       <ReadingResourceForm
         ref="formRef"
         is-edit
+        journal
         :loading
         @submit="handleSubmit"
       />

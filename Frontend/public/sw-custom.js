@@ -2,12 +2,11 @@
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SHOW_REMINDER') {
-    const { title, body, icon, badge, tag, data } = event.data
+    const { title, body, icon, tag, data } = event.data
     
     self.registration.showNotification(title, {
       body,
-      icon,
-      badge,
+      icon: icon ? `${self.location.origin}${icon}` : undefined,
       tag,
       data,
       requireInteraction: false,
@@ -58,8 +57,7 @@ self.addEventListener('push', (event) => {
     
     const options = {
       body: data.body || 'You have a new notification',
-      icon: data.icon || '/icons/pwa-192x192.png',
-      badge: data.badge || '/icons/pwa-64x64.png',
+      icon: `${self.location.origin}${data.icon || '/favicon.svg'}`,
       tag: data.tag || 'general-notification',
       data: data.data || {},
       requireInteraction: false,
@@ -83,9 +81,10 @@ self.addEventListener('periodicsync', (event) => {
 async function checkAndSendReminders() {
   try {
     const REMINDER_TIMES = [
+      { hour: 9, minute: 0 },
       { hour: 12, minute: 0 },
+      { hour: 15, minute: 0 },
       { hour: 20, minute: 0 },
-      { hour: 23, minute: 0 }
     ]
 
     const REMINDER_MESSAGES = [
@@ -135,8 +134,7 @@ async function checkAndSendReminders() {
         
         await self.registration.showNotification('SIGMA 📚', {
           body: message,
-          icon: '/icons/pwa-192x192.png',
-          badge: '/icons/pwa-64x64.png',
+          icon: `${self.location.origin}/favicon.svg`,
           tag: 'reading-reminder',
           requireInteraction: false,
           vibrate: [200, 100, 200],
