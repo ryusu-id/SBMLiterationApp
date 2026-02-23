@@ -1,58 +1,43 @@
 # LLM Context: SBMLiterationApp (SIGMA)
 
-> **For Copilot (@copilot / antigravity):** Before reading any further, see **Section 0** for mandatory rules you must follow.
-
 ---
 
-## 0. Rules for Copilot (antigravity) — MANDATORY
+## 0. Rules for Copilot (antigravity) — READ THIS FIRST
 
-> ⚠️ These rules **override** all default behavior. They apply to every session on this repository.
+> **These rules are non-negotiable and apply in every session.**
 
-### Rule 0.1 — Design Log Before Implementation
+### Rule 1 — Write Before You Build
+Before implementing ANY change, Copilot MUST:
+1. Write a design log file in `./DesignLogs/` following the naming convention `yyyyMMddHHmmss_snake_case_name.md`
+2. Present the design log to the user (ryusu-id) and explicitly ask for approval
+3. Wait for approval (e.g. "go ahead", "approved", "yes", "proceed") before touching any code
 
-A `./DesignLogs/` folder exists at the root of this repository. It contains chronological markdown files documenting every design decision.
+No code changes, no pull requests, no file modifications — until the design log is approved.
 
-**Before implementing anything of LOW significance or above, you must:**
-1. Create a new design log file in `./DesignLogs/` using the naming convention: `yyyyMMddHHmmss_design_log_name.md`
-2. Write the proposed change, rationale, affected modules, and any relevant Mermaid diagrams
-3. Set the status to `🟡 Pending Approval`
-4. **Stop and wait** for explicit approval from `ryusu-id` before writing any code
+### Rule 2 — Significance Levels
+| Level | Trigger | Required Sections |
+|-------|---------|-------------------|
+| 🟢 Minor | Small bug fix, copy change, style tweak | Summary, Files Affected |
+| 🟡 Moderate | New endpoint, new component, schema change | Summary, Motivation, Design Decision, Files Affected |
+| 🔴 Major | New feature, architectural change, new module | Summary, Motivation, Design Decision, Diagrams, Files Affected, Risks & Mitigations |
 
-**Significance levels:**
+### Rule 3 — Diagrams for Major Changes
+For Major significance, include at least one Mermaid diagram:
+- **Class Diagram** — new/changed domain entities
+- **Sequence Diagram** — new multi-step flows
+- **Flowchart** — event chains or process flows
+- **ER Diagram** — database schema changes
 
-| Significance | Examples | Action |
-|---|---|---|
-| **HIGH** | New module, architectural change, new domain event chain, new DB table/migration | Create a new design log |
-| **MEDIUM** | New API endpoint, new frontend page, new entity field | Create a new design log |
-| **LOW** | Bug fix, copy/style change, renaming | Amend an existing log with a note, or skip if truly trivial |
+### Rule 4 — Update the Log Index
+After every design log creation or modification, update the index table in `DesignLogs/README.md`.
 
-### Rule 0.2 — Design Log Status Lifecycle
+### Rule 5 — Session Startup
+At the start of every new session, read:
+1. This file (`SBMLiterationApp_LLM_Context.md`) — full system context
+2. `DesignLogs/README.md` — rules and log index
+3. The most recent 3 design logs — current state of the system
 
-Every design log file must carry one of these statuses:
-
-| Status | Meaning |
-|---|---|
-| `🟡 Pending Approval` | Written, awaiting review from `ryusu-id` |
-| `✅ Approved` | Approved — safe to implement |
-| `❌ Rejected` | Rejected — do not implement |
-| `🔄 In Progress` | Approved and currently being implemented |
-| `✔️ Completed` | Fully implemented and verified |
-
-### Rule 0.3 — Diagram Requirements
-
-Include Mermaid diagrams in design logs where relevant:
-- `classDiagram` — for new/changed domain entities
-- `flowchart` — for new domain event chains (event storming)
-- `sequenceDiagram` — for new API or auth flows
-- `erDiagram` — for new DB schema changes
-
-### Rule 0.4 — Amend Existing Logs When Appropriate
-
-If an implementation significantly modifies an existing design (e.g., adds a field to an existing entity, adds a handler to an existing event), update the relevant existing design log with a dated amendment note at the bottom rather than creating a new file.
-
-### Rule 0.5 — Design Logs Index
-
-The `./DesignLogs/README.md` file serves as the index. When creating a new design log, always add an entry to the index table in `README.md`.
+> Full rules are in [`DesignLogs/README.md`](./DesignLogs/README.md)
 
 ---
 
@@ -110,11 +95,13 @@ The `./DesignLogs/README.md` file serves as the index. When creating a new desig
 
 ```
 SBMLiterationApp/
-├── DesignLogs/                 # ← Design decision logs (read Rule 0 above)
-│   ├── README.md               # Log index + copilot rules
+├── DesignLogs/                 # Chronological design decision logs (see rules in Section 0)
+│   ├── README.md               # Index + Copilot rules
 │   ├── 20260223000000_initial_system_architecture.md
 │   └── 20260223000001_event_storming.md
-│   
+│
+├── SBMLiterationApp_LLM_Context.md   # This file
+│
 ├── Backend/                    # ASP.NET Core API (C#)
 │   ├── Program.cs              # App bootstrap, DI registration
 │   ├── Data/
@@ -133,7 +120,7 @@ SBMLiterationApp/
 │   │   ├── FileSystem/         # MinIO file upload
 │   │   └── Data/               # DB migration endpoint
 │   └── Migrations/             # EF Core migrations
-│   
+│
 └── Frontend/                   # Nuxt 3 application (Vue/TypeScript)
     └── app/
         ├── pages/              # File-based routing
@@ -213,6 +200,13 @@ There is **no password-based login**. The **only** authentication method is **Go
 - `profile` — name, picture, given_name, family_name
 - `email` — email address
 
+### Auth-Specific Endpoints
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/api/auth/google/url` | Get the Google OAuth authorization URL |
+| POST | `/api/auth/google/callback` | Exchange OAuth code for JWT tokens |
+| POST | `/api/auth/refresh` | Refresh JWT access token |
+
 ---
 
 ## 5. Core Features
@@ -225,35 +219,33 @@ There is **no password-based login**. The **only** authentication method is **Go
 
 ### 5.2 Reading Resources (Books & Journals)
 - Participants can add **Books** and **Journal Papers** to their personal reading list
-- Each resource has: `Title`, `Authors`, `PublishYear`, `Page`, `ReadingCategory`, `CssClass`, `CoverImageUri`
-- Books additionally have: `ISBN`
-- Journal Papers can have a `ResourceLink`
-- Resources support full CRUD for participants (a resource with existing reports cannot be deleted)
-- Stored in a single table `mt_reading_resource` using EF Core TPH (Table Per Hierarchy) with a `resource_type` discriminator column (`BOOK` or `JOURNAL`)
+- Both types share the `mt_reading_resource` table via TPH discriminator (`BOOK` | `JOURNAL`)
+- Each resource has: `Title`, `Authors`, `PublishYear`, `Page`, `ReadingCategory`, `CssClass`, `CoverImageUri`, `ISBN`, optional `ResourceLink`
+- Resources support full CRUD for participants — a resource with existing reports **cannot** be deleted (`CanBeDeleted()` guard)
 
 ### 5.3 Reading Reports (Progress Tracking)
 - A **Reading Report** tracks one reading session on a resource
 - Tracks: `CurrentPage`, `MaxPage`, `TimeSpent`, `Insight` (reflection text, max 200 chars), `LastUpdated`
 - Progress is **persisted locally** (localStorage) via the `usePersistedReadingReport` composable before being submitted to the backend
 - localStorage state is cleared when the authenticated user changes (keyed by fullname)
-- Submitting a report **triggers domain events**: `ReadingReportCreatedEvent` + `BookCompletedEvent`
+- Submitting a report raises `ReadingReportCreatedEvent` and `BookCompletedEvent` → triggers XP and streak side effects (see Section 6)
 
 ### 5.4 Daily Reads (Daily Challenges)
 - Admin creates **Daily Read** entries (articles/content in Markdown) with: `Title`, `CoverImg`, `Content`, `Date`, `Category`, `Exp`, `MinimalCorrectAnswer`
 - Each Daily Read can have attached **Quiz Questions** with multiple-choice answers
 - Participants read the content, then answer the quiz
-- Passing the quiz (≥ `MinimalCorrectAnswer` correct) awards `10 XP` and triggers a streak log (`DailyReadsExpEventHandler` + `StreakLogFromQuizAnswerEventHandler`)
-- Quiz supports retry attempts; only the latest attempt per question is counted
+- Passing the quiz raises `QuizAnsweredEvent` → triggers XP and streak side effects
+- Quiz supports retry attempts (`RetrySeq`); only the latest attempt per question is counted
 
 ### 5.5 Streaks
-- The system tracks **daily reading streaks** via `StreakLog` entries
-- A streak log is created from **either** a reading report submission or a passed daily quiz (idempotent — once per day per user)
+- The system tracks **daily reading streaks** via `StreakLog` entries (one per user per day — idempotent)
+- Streaks can be created by: submitting a reading report OR passing a daily read quiz
 - API returns `CurrentStreakDays`, `TotalExp`, and `WeeklyStatus` (7-day Mon–Sun calendar)
-- A **7-day streak bonus** of `2 XP` is awarded upon completing a 7-day streak (and every multiple of 7 thereafter)
+- A **7-day streak bonus** of `2 XP` is awarded every 7-day milestone (7th, 14th, 21st day, etc.)
 
 ### 5.6 XP / Experience Points System
-- **Event sourcing-like** approach: every XP gain is stored as a `UserExpEvent` (append-only)
-- A periodic **snapshot** mechanism (`UserExpSnapshot`) avoids full table scans (snapshot taken every 7 events)
+- **Event sourcing-like** approach: every XP gain is stored as an immutable `UserExpEvent`
+- A periodic **snapshot** mechanism (`UserExpSnapshot`) avoids full table scans — snapshot every 7 events
 - A PostgreSQL **view** (`user_exp_leaderboard`) efficiently computes total XP per user
 - **XP constants:**
   - `0.1 XP` per page read (`READING_PER_PAGE`)
@@ -263,53 +255,54 @@ There is **no password-based login**. The **only** authentication method is **Go
   - Book completion has a **7-day cooldown** (`BOOK_COMPLETION_COOLDOWN_DAYS`)
 - **XP Event Types:** `ReadingExp`, `DailyReadsExp`, `StreakExp`, `BookCompleted`, `RecommendedBookCompleted`
 
+> See [`DesignLogs/20260223000001_event_storming.md`](./DesignLogs/20260223000001_event_storming.md) for the full event chain diagram.
+
 ### 5.7 Leaderboard
 - Paginated leaderboard endpoint (`GET /leaderboard`) returning ranked users by total XP
 - Each entry shows: `Rank`, `Exp`, `Username`, `PictureUrl`
 
 ### 5.8 Reading Recommendations
 - Admins create curated reading recommendations with: `Title`, `ISBN`, `ReadingCategory`, `Authors`, `PublishYear`, `Page`, `ResourceLink`, `CoverImageUri`, `Exp`
-- Participants see recommendations on their dashboard as a Swiper carousel
-- Completing a recommended book grants a `RecommendedBookCompleted` XP event
+- Displayed on the participant dashboard as a Swiper carousel
+- Completing a recommended book grants `RecommendedBookCompleted` XP event
 
 ### 5.9 Reading Categories
 - Admin-managed taxonomy for categorizing reading resources
 
 ### 5.10 Activity Feeds
-- Paginated feed of user activity (reading sessions, daily reads completed)
+- Paginated feed of user activity (reading sessions, daily reads completed) with natural-language descriptions generated from `UserExpEvent.EventName`
 
 ---
 
-## 6. Domain Event Chain (Summary)
+## 6. Domain Event Map (Summary)
 
-See `./DesignLogs/20260223000001_event_storming.md` for the full event storming diagram.
+> Full event storming diagram: [`DesignLogs/20260223000001_event_storming.md`](./DesignLogs/20260223000001_event_storming.md)
 
-| Domain Event | Raised By | Handled By | Side Effect |
-|---|---|---|---|
-| `ReadingReportCreatedEvent` | `ReadingReport.Create()` | `ReadingExpEventHandler` | Creates `UserExpEvent` (ReadingExp) |
-| `ReadingReportCreatedEvent` | `ReadingReport.Create()` | `StreakLogFromReadingReportEventHandler` | Creates `StreakLog` (once per day) |
-| `BookCompletedEvent` | `ReadingReport.Create()` | `BookCompletedExpEventHandler` | Creates `UserExpEvent` (BookCompleted), 7-day cooldown |
-| `StreakLogCreatedEvent` | `StreakLog.Create()` | `StreakExpEventHandler` | Creates `UserExpEvent` (StreakExp) if multiple of 7 days |
-| `QuizAnsweredEvent` | Quiz submission endpoint | `DailyReadsExpEventHandler` | Creates `UserExpEvent` (DailyReadsExp) if quiz passed |
-| `QuizAnsweredEvent` | Quiz submission endpoint | `StreakLogFromQuizAnswerEventHandler` | Creates `StreakLog` (once per day) if quiz passed |
-| `UserExpCreatedEvent` | `UserExpEvent.Create()` | `UserExpSnapshotEventHandler` | Creates `UserExpSnapshot` every 7 events |
+| Domain Event | Raised By | Key Side Effects |
+|-------------|-----------|-----------------|
+| `ReadingReportCreatedEvent` | `ReadingReport.Create()` | XP (page × 0.1) + StreakLog for today |
+| `BookCompletedEvent` | `ReadingReport.Create()` | XP (3, 7-day cooldown) |
+| `StreakLogCreatedEvent` | `StreakLog.Create()` | XP (2) if streak % 7 == 0 |
+| `QuizAnsweredEvent` | Quiz answer endpoint | XP (10) if passing + StreakLog for today |
+| `UserExpCreatedEvent` | `UserExpEvent.Create()` | Snapshot every 7 events |
+| `ReadingBookCreatedEvent` | `Book.Create()` | No handlers yet |
+| `ReadingRecommendationCreatedEvent` | `ReadingRecommendation.Create()` | No handlers yet |
 
 ---
 
 ## 7. Frontend Design
 
 ### Layouts
-| Layout      | Used For                                           |
-|-------------|----------------------------------------------------|
-| `landing`   | Home/index, sign-in, OAuth callback, onboarding, legal pages |
-| `default`   | Participant-facing pages (dashboard, profile, reading, leaderboard) |
-| `admin`     | Admin panel with collapsible sidebar               |
+| Layout | Used For |
+|--------|---------|
+| `landing` | Home/index, sign-in, OAuth callback, onboarding, legal pages |
+| `default` | Participant-facing pages (dashboard, profile, reading, leaderboard) |
+| `admin` | Admin panel with collapsible sidebar |
 
 ### Navigation & Route Guards
-- **Middleware:**
-  - `auth` — redirects unauthenticated users to `/signin`
-  - `admin-only` — redirects non-admins to `/dashboard`
-  - `participant-only` — redirects admins to `/admin`
+- `auth` middleware — redirects unauthenticated users to `/signin`
+- `admin-only` middleware — redirects non-admins to `/dashboard`
+- `participant-only` middleware — redirects admins to `/admin`
 - Login auto-redirects: admins → `/admin`, participants → `/dashboard`
 - Authenticated users visiting `/` are redirected to `/dashboard`
 
@@ -322,14 +315,13 @@ See `./DesignLogs/20260223000001_event_storming.md` for the full event storming 
 
 ### Participant Pages
 - `/dashboard` — Main hub: streak widget, tabs for reading resources, recommendations, daily reads, reading reports in progress
-- `/profile` — User profile editing, in-progress reading reports list
+- `/profile` — User profile editing + in-progress reading reports list
 - `/reading/books/create` & `/reading/journals/create` — Add new reading resources
 - `/leaderboard` — View leaderboard
 - `/auth/callback` — Google OAuth redirect handler
-- Daily reads detail page — Read content + take quiz
 
 ### Gamification UI
-- Lottie animation overlays triggered on: level up, streak milestone, book completion
+- Lottie animation overlays: level up, streak milestone, book completion
 - Starry animated background (togglable)
 
 ---
@@ -351,60 +343,67 @@ Each feature is self-contained under `Backend/Features/<FeatureName>/`:
 - Paging uses `PagingQuery` request + `PagingResult<T>` response
 
 ### Endpoint Groups (Route Prefixes)
-| Group                          | Prefix                         | Auth           |
-|--------------------------------|--------------------------------|----------------|
-| `GlobalApiEndpointGroup`       | `/api`                         | —              |
-| `ReadingResourceEndpointGroup` | `/api/reading-resources`       | Bearer JWT     |
-| `AdminEndpointGroup`           | `/api/users`                   | Role: `admin`  |
-| `StreakEndpointGroup`          | `/api/streaks`                 | —              |
-| `ReadingCategoryEndpointGroup` | `/api/reading-categories`      | —              |
-| Reading Recommendations        | `/api/reading-recommendations` | —              |
-| `DailyReadsModule`             | `/api/daily-reads`             | —              |
-
-### Auth-Specific Endpoints
-| Method | Path                        | Purpose                               |
-|--------|-----------------------------|---------------------------------------|
-| GET    | `/api/auth/google/url`      | Get the Google OAuth authorization URL |
-| POST   | `/api/auth/google/callback` | Exchange OAuth code for JWT tokens    |
-| POST   | `/api/auth/refresh`         | Refresh JWT access token              |
+| Group | Prefix | Auth |
+|-------|--------|------|
+| `GlobalApiEndpointGroup` | `/api` | — |
+| `ReadingResourceEndpointGroup` | `/api/reading-resources` | Bearer JWT |
+| `AdminEndpointGroup` | `/api/users` | Role: `admin` |
+| `StreakEndpointGroup` | `/api/streaks` | — |
+| `ReadingCategoryEndpointGroup` | `/api/reading-categories` | — |
+| Reading Recommendations | `/api/reading-recommendations` | — |
+| `DailyReadsModule` | `/api/daily-reads` | — |
 
 ---
 
-## 9. Database Entities
+## 9. Database Entities (EF Core DbSets)
 
-| Entity                  | Purpose                                          |
-|-------------------------|--------------------------------------------------|
-| `User`                  | Extended IdentityUser — no password, login via Google only |
-| `RefreshToken`          | JWT refresh token rotation store (linked to JTI) |
-| `Book`                  | Book resource (TPH child of ReadingResourceBase, discriminator=BOOK) |
-| `JournalPaper`          | Journal resource (TPH child of ReadingResourceBase, discriminator=JOURNAL) |
-| `ReadingReport`         | Per-user reading session progress                |
-| `StreakLog`             | Daily streak tracking records                    |
-| `ReadingCategory`       | Admin-managed reading categories                 |
-| `ReadingRecommendation` | Curated book recommendations                     |
-| `DailyRead`             | Daily reading challenge content (Markdown)       |
-| `QuizQuestion`          | Quiz questions for a DailyRead                   |
-| `QuizChoice`            | Multiple-choice options for a QuizQuestion       |
-| `QuizAnswer`            | User quiz submissions (latest retry per question) |
-| `UserExpEvent`          | Append-only XP event log                         |
-| `UserExpSnapshot`       | Periodic XP aggregate snapshot                   |
-| `UserExpLeaderboard`    | PostgreSQL view for leaderboard queries          |
+> Full class diagram: [`DesignLogs/20260223000000_initial_system_architecture.md`](./DesignLogs/20260223000000_initial_system_architecture.md)
 
-See `./DesignLogs/20260223000000_initial_system_architecture.md` for the full class diagram.
+| Entity | Purpose |
+|--------|---------|
+| `User` | Extended IdentityUser — Google OAuth only, no password |
+| `RefreshToken` | JWT refresh token rotation store (linked to JTI) |
+| `Book` | Book reading resource (TPH: `BOOK`) |
+| `JournalPaper` | Academic journal resource (TPH: `JOURNAL`) |
+| `ReadingReport` | Per-user reading session progress |
+| `StreakLog` | Daily streak tracking records |
+| `ReadingCategory` | Admin-managed reading categories |
+| `ReadingRecommendation` | Curated book recommendations |
+| `DailyRead` | Daily reading challenge content |
+| `QuizQuestion` | Quiz questions for a DailyRead |
+| `QuizChoice` | Multiple-choice options for a QuizQuestion |
+| `QuizAnswer` | User quiz answer (with retry seq) |
+| `UserExpEvent` | Append-only XP event log |
+| `UserExpSnapshot` | Periodic XP aggregate snapshot |
+| `UserExpLeaderboard` | PostgreSQL view for leaderboard queries |
 
 ---
 
 ## 10. Key Business Rules
 
-1. **Authentication is exclusively via Google OAuth 2.0.** No email/password login exists.
-2. **New users** are auto-created on first Google login with empty `NIM`, `ProgramStudy`, `Faculty`, `GenerationYear` → redirected to `/onboarding`.
+1. **Authentication is exclusively via Google OAuth 2.0.** No email/password login exists. ASP.NET Identity is used only for user storage and role management.
+2. **New users** are auto-created on first Google login with empty `NIM`, `ProgramStudy`, `Faculty`, `GenerationYear`. They are redirected to `/onboarding` to complete their profile.
 3. **Profile picture and fullname** are synced from Google on every login if missing locally.
-4. **Participants** manage their own reading resources and reports. **Admins** manage categories, recommendations, and daily reads.
-5. **XP is immutable and append-only** — no XP is ever deleted.
+4. **Participants** can only manage their own reading resources and reports. **Admins** manage categories, recommendations, and daily reads.
+5. **XP is immutable and append-only** — no XP record is ever deleted.
 6. **Book completion** has a **7-day cooldown** to prevent XP farming.
-7. **Quiz retries** are allowed; only the latest attempt per question counts.
-8. **Streak logs** are idempotent — only one per user per day, regardless of source (reading report or quiz).
-9. **NIM** is a required profile field for student identification by admins.
-10. **Onboarding is enforced** — incomplete profiles are redirected before dashboard access.
-11. **Token refresh** uses a single in-flight promise to prevent duplicate refresh calls.
-12. **Locked accounts** are rejected at the OAuth callback stage before any token is issued.
+7. **Quiz retries** are allowed; only the latest attempt per question counts toward the score.
+8. **Streak creation is idempotent** — only one `StreakLog` per user per day, regardless of how many reading reports or quiz passes occur.
+9. **Streak XP bonus** is awarded on every multiple of 7 consecutive days (7th, 14th, 21st, etc.), with an idempotency check on `StreakLog.Id`.
+10. **NIM** is a required profile field collected at onboarding for academic identification.
+11. **Reading resources with existing reports cannot be deleted** — enforced by `CanBeDeleted()` on `ReadingResourceBase`.
+12. **Token refresh** is handled transparently client-side; if a refresh is in-flight, duplicate requests wait on the same promise.
+13. **Locked accounts** are rejected at the OAuth callback stage via `IsLockedOutAsync()` — they never receive a JWT.
+
+---
+
+## 11. Legal & Branding
+
+- App is branded **SIGMA**, developed by **ryusu.id** under **PureTCO**
+- Company contact: info@pure-tco.com, Green Lake City, Cipondoh, Tangerang, Indonesia
+- The app has a **Privacy Policy** and **Terms of Service** built into the frontend
+- Google OAuth is the only auth method; scopes: `openid profile email`
+- Users can revoke SIGMA's Google access at https://myaccount.google.com/permissions
+- Student data (NIM, faculty, program study, generation year) is collected for academic organization
+- Profile picture, name, and leaderboard rank are **visible to other users**
+- All other data is restricted to the individual user and admins
