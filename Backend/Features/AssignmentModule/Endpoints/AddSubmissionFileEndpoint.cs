@@ -108,7 +108,7 @@ public class AddSubmissionFileEndpoint(
         }
 
         await Send.OkAsync(Result.Success(
-            new AddSubmissionFileResponse(file.Id, file.FileName, file.FileUri, file.ExternalLink, file.UploadedAt)
+            new AddSubmissionFileResponse(file.Id, file.FileName, file.FileUri, file.ExternalLink, file.CreateTime)
         ), cancellation: ct);
     }
 }

@@ -28,11 +28,16 @@ public class AssignmentEntityConfiguration : IEntityTypeConfiguration<Assignment
             .HasColumnType("timestamp with time zone")
             .HasColumnName("due_date");
 
+        builder.Ignore(e => e.CreateByStr);
+        builder.Ignore(e => e.UpdateByStr);
+
+        builder.Property(e => e.Status).HasDefaultValue(0).HasColumnName("status");
+        builder.Property(e => e.CreateBy).HasColumnName("create_by");
         builder.Property(e => e.CreateTime)
             .HasDefaultValueSql("now()")
             .HasColumnType("timestamp with time zone")
             .HasColumnName("create_time");
-
+        builder.Property(e => e.UpdateBy).HasColumnName("update_by");
         builder.Property(e => e.UpdateTime)
             .HasColumnType("timestamp with time zone")
             .HasColumnName("update_time");
@@ -66,10 +71,19 @@ public class AssignmentSubmissionEntityConfiguration : IEntityTypeConfiguration<
             .HasColumnType("timestamp with time zone")
             .HasColumnName("completed_at");
 
+        builder.Ignore(e => e.CreateByStr);
+        builder.Ignore(e => e.UpdateByStr);
+
+        builder.Property(e => e.Status).HasDefaultValue(0).HasColumnName("status");
+        builder.Property(e => e.CreateBy).HasColumnName("create_by");
         builder.Property(e => e.CreateTime)
             .HasDefaultValueSql("now()")
             .HasColumnType("timestamp with time zone")
             .HasColumnName("create_time");
+        builder.Property(e => e.UpdateBy).HasColumnName("update_by");
+        builder.Property(e => e.UpdateTime)
+            .HasColumnType("timestamp with time zone")
+            .HasColumnName("update_time");
 
         // One submission per group per assignment
         builder.HasIndex(e => new { e.AssignmentId, e.GroupId })
@@ -123,10 +137,19 @@ public class AssignmentSubmissionFileEntityConfiguration : IEntityTypeConfigurat
             .IsUnicode(false)
             .HasColumnName("external_link");
 
-        builder.Property(e => e.UploadedAt)
+        builder.Ignore(e => e.CreateByStr);
+        builder.Ignore(e => e.UpdateByStr);
+
+        builder.Property(e => e.Status).HasDefaultValue(0).HasColumnName("status");
+        builder.Property(e => e.CreateBy).HasColumnName("create_by");
+        builder.Property(e => e.CreateTime)
             .HasDefaultValueSql("now()")
             .HasColumnType("timestamp with time zone")
-            .HasColumnName("uploaded_at");
+            .HasColumnName("create_time");
+        builder.Property(e => e.UpdateBy).HasColumnName("update_by");
+        builder.Property(e => e.UpdateTime)
+            .HasColumnType("timestamp with time zone")
+            .HasColumnName("update_time");
 
         builder.HasOne(e => e.UploadedBy)
             .WithMany()
