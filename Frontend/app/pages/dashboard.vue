@@ -65,6 +65,12 @@ const tabs = ref<TabsItem[]>([
     icon: 'i-lucide-calendar',
     slot: 'daily-reading',
     value: 2
+  },
+  {
+    label: 'Assignments',
+    icon: 'i-lucide-clipboard-list',
+    slot: 'assignments',
+    value: 3
   }
 ])
 
@@ -114,14 +120,42 @@ const tab = ref(0)
           />
           <div class="min-h-[495px] flex items-start justify-center">
             <ReadingResources
-              v-if="tab !== 2"
+              v-if="tab !== 2 && tab !== 3"
               ref="readingResource"
               :journal="tab === 1"
               @refresh="fetchRecommendation"
             />
             <DailyReads
-              v-else
+              v-else-if="tab === 2"
             />
+            <div
+              v-else
+              class="w-full"
+            >
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold">
+                  Assignments
+                </h2>
+                <UButton
+                  icon="i-lucide-arrow-right"
+                  color="neutral"
+                  variant="ghost"
+                  size="sm"
+                  label="View all"
+                  to="/assignments"
+                />
+              </div>
+              <p class="text-sm text-muted">
+                View and manage your group's assignments.
+              </p>
+              <UButton
+                class="mt-4"
+                icon="i-lucide-clipboard-list"
+                to="/assignments"
+              >
+                Go to Assignments
+              </UButton>
+            </div>
           </div>
         </div>
         <div class="hidden md:flex sm:col-span-6 flex-row justify-center items-center">
