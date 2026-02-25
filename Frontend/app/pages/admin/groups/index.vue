@@ -135,6 +135,31 @@ async function uploadTemplateA() {
     uploadALoading.value = false
   }
 }
+
+async function downloadTemplateA() {
+  try {
+    const response = await $authedFetch('/groups/templates/master', {
+      responseType: 'blob'
+    })
+
+    // Create download link
+    const url = window.URL.createObjectURL(new Blob([response as Blob]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'group-template.xlsx')
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+
+    toast.add({
+      title: 'Template downloaded',
+      color: 'success'
+    })
+  } catch (error) {
+    handleResponseError(error)
+  }
+}
 </script>
 
 <template>
@@ -157,10 +182,17 @@ async function uploadTemplateA() {
             @click="form?.create()"
           />
           <UButton
+            icon="i-lucide-download"
+            color="neutral"
+            variant="subtle"
+            label="Groups Template"
+            @click="downloadTemplateA"
+          />
+          <UButton
             icon="i-lucide-upload"
             color="neutral"
             variant="subtle"
-            label="Upload Members (with Group)"
+            label="Groups"
             @click="uploadAModalOpen = true"
           />
         </div>

@@ -62,7 +62,15 @@ defineExpose({
 })
 
 async function onSubmit(event: FormSubmitEvent<AssignmentSchema>) {
-  emit('submit', { action: action.value, data: event.data, id: id.value })
+  emit('submit', {
+    action: action.value,
+    data:
+    {
+      ...event.data,
+      dueDate: event.data.dueDate ? new Date(event.data.dueDate).toISOString() : undefined
+    },
+    id: id.value
+  })
 }
 </script>
 

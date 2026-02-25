@@ -9,16 +9,10 @@ definePageMeta({
   middleware: ['auth', 'admin-only']
 })
 
-interface GroupMemberUser {
-  id: number
-  name: string
-  nim: string
-}
-
 interface GroupMember {
-  id: number
   userId: number
-  user: GroupMemberUser
+  fullname: string
+  nim: string
 }
 
 interface GroupDetail {
@@ -128,14 +122,39 @@ const memberColumns: TableColumn<GroupMember>[] = [
   {
     id: 'name',
     header: 'Name',
-    cell: ({ row }) => row.original.user?.name || h('span', { class: 'text-muted' }, '-')
+    cell: ({ row }) => row.original.fullname || h('span', { class: 'text-muted' }, '-')
   },
   {
     id: 'nim',
     header: 'NIM',
-    cell: ({ row }) => row.original.user?.nim || h('span', { class: 'text-muted' }, '-')
+    cell: ({ row }) => row.original.nim || h('span', { class: 'text-muted' }, '-')
   }
 ]
+
+async function downloadTemplate() {
+  try {
+    const response = await $authedFetch('/groups/templates/members', {
+      responseType: 'blob'
+    })
+
+    // Create download link
+    const url = window.URL.createObjectURL(new Blob([response as Blob]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'members-template.xlsx')
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+
+    toast.add({
+      title: 'Template downloaded',
+      color: 'success'
+    })
+  } catch (error) {
+    handleResponseError(error)
+  }
+}
 </script>
 
 <template>
@@ -221,14 +240,24 @@ const memberColumns: TableColumn<GroupMember>[] = [
                 <h2 class="text-lg font-semibold">
                   Members ({{ group.members?.length || 0 }})
                 </h2>
-                <UButton
-                  icon="i-lucide-upload"
-                  color="neutral"
-                  variant="subtle"
-                  size="sm"
-                  label="Upload Members"
-                  @click="uploadOpen = true"
-                />
+                <div class="gap-2 flex">
+                  <UButton
+                    icon="i-lucide-download"
+                    color="neutral"
+                    variant="subtle"
+                    size="sm"
+                    label="Members Template"
+                    @click="downloadTemplate"
+                  />
+                  <UButton
+                    icon="i-lucide-upload"
+                    color="neutral"
+                    variant="subtle"
+                    size="sm"
+                    label="Members"
+                    @click="uploadOpen = true"
+                  />
+                </div>
               </div>
             </template>
             <UTable
