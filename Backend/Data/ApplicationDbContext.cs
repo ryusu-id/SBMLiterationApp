@@ -12,6 +12,8 @@ using PureTCOWebApp.Features.DailyReadsModule.Domain;
 using PureTCOWebApp.Features.DailyReadsModule.Domain.Entities;
 using PureTCOWebApp.Features.UserXpModule.Domain;
 using PureTCOWebApp.Core.Events;
+using PureTCOWebApp.Features.GroupModule.Domain;
+using PureTCOWebApp.Features.AssignmentModule.Domain;
 
 namespace PureTCOWebApp.Data;
 public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
@@ -40,6 +42,15 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     public DbSet<UserExpEvent> UserExpEvents { get; set; }
     public DbSet<UserExpSnapshot> UserExpSnapshots { get; set; }
     public DbSet<UserExpLeaderboard> UserExpLeaderboard { get; set; }
+
+    // Group module
+    public DbSet<Group> Groups { get; set; }
+    public DbSet<GroupMember> GroupMembers { get; set; }
+
+    // Assignment module
+    public DbSet<Assignment> Assignments { get; set; }
+    public DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; }
+    public DbSet<AssignmentSubmissionFile> AssignmentSubmissionFiles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
