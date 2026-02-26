@@ -33,8 +33,7 @@ public class UploadGroupMembersRequest
 
 public record UploadGroupMembersResponse(
     int ImportedCount,
-    List<string> UnmatchedNims,
-    List<string> MovedSummary);
+    List<string> UnmatchedNims);
 
 public class UploadGroupMembersEndpoint(
     ApplicationDbContext dbContext,
@@ -141,6 +140,29 @@ public class UploadGroupMembersEndpoint(
             .Where(u => nims.Contains(u.Nim))
             .ToDictionaryAsync(u => u.Nim, ct);
 
+        // Batch-detect all cross-group conflicts BEFORE any DB writes
+        var foundUserIds = usersByNim.Values.Select(u => u.Id).ToList();
+        var conflictingMemberships = await dbContext.GroupMembers
+            .Include(m => m.Group)
+            .Include(m => m.User)
+            .Where(m => foundUserIds.Contains(m.UserId) && m.GroupId != req.Id)
+            .ToListAsync(ct);
+
+        if (conflictingMemberships.Count > 0)
+        {
+            var conflictErrors = conflictingMemberships
+                .Select(m => new Error("Member.AlreadyInGroup",
+                    $"The student {m.User.Fullname} with NIM {m.User.Nim} is already on group {m.Group.Name}."))
+                .ToArray();
+
+            var conflictResult = BulkResult
+                .Failure(new Error("Upload.Conflicts", "One or more students are already assigned to another group."))
+                .SetErrors(conflictErrors);
+
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(conflictResult));
+            return;
+        }
+
         // Full replace: delete all existing members of this group
         var existingMembers = await dbContext.GroupMembers
             .Where(m => m.GroupId == req.Id)
@@ -148,7 +170,6 @@ public class UploadGroupMembersEndpoint(
         dbContext.GroupMembers.RemoveRange(existingMembers);
 
         var unmatchedNims = new List<string>();
-        var movedSummary = new List<string>();
         int importedCount = 0;
 
         foreach (var nim in nims)
@@ -157,17 +178,6 @@ public class UploadGroupMembersEndpoint(
             {
                 unmatchedNims.Add(nim);
                 continue;
-            }
-
-            // Remove user from any other group if needed
-            var otherMembership = await dbContext.GroupMembers
-                .Include(m => m.Group)
-                .FirstOrDefaultAsync(m => m.UserId == user.Id && m.GroupId != req.Id, ct);
-
-            if (otherMembership is not null)
-            {
-                movedSummary.Add($"{user.Nim} moved from '{otherMembership.Group.Name}' to group #{req.Id}");
-                dbContext.GroupMembers.Remove(otherMembership);
             }
 
             var member = GroupMember.Create(req.Id, user.Id);
@@ -184,7 +194,7 @@ public class UploadGroupMembersEndpoint(
         }
 
         await Send.OkAsync(Result.Success(
-            new UploadGroupMembersResponse(importedCount, unmatchedNims, movedSummary)
+            new UploadGroupMembersResponse(importedCount, unmatchedNims)
         ), cancellation: ct);
     }
 
