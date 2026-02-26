@@ -5,7 +5,7 @@ using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.AssignmentModule.Domain;
 
-namespace PureTCOWebApp.Features.AssignmentModule.Endpoints;
+namespace PureTCOWebApp.Features.AssignmentModule.Endpoints.AssignmentEndpoints;
 
 public class EmptyRequest { }
 

@@ -4,7 +4,7 @@ using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
 
-namespace PureTCOWebApp.Features.AssignmentModule.Endpoints;
+namespace PureTCOWebApp.Features.AssignmentModule.Endpoints.SubmissionEndpoints;
 
 public record RemoveSubmissionFileRequest(int Id, int SubmissionId, int FileId);
 

@@ -4,23 +4,23 @@ using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
 
-namespace PureTCOWebApp.Features.AssignmentModule.Endpoints;
+namespace PureTCOWebApp.Features.AssignmentModule.Endpoints.SubmissionEndpoints;
 
-public record UnmarkSubmissionCompleteRequest(int Id, int SubmissionId);
+public record MarkSubmissionCompleteRequest(int Id, int SubmissionId);
 
-public class UnmarkSubmissionCompleteEndpoint(
+public class MarkSubmissionCompleteEndpoint(
     ApplicationDbContext dbContext,
     UnitOfWork unitOfWork
-) : Endpoint<UnmarkSubmissionCompleteRequest, ApiResponse>
+) : Endpoint<MarkSubmissionCompleteRequest, ApiResponse>
 {
     public override void Configure()
     {
-        Delete("{id}/submissions/{submissionId}/complete");
+        Post("{id}/submissions/{submissionId}/complete");
         Group<AssignmentEndpointGroup>();
         Roles("participant");
     }
 
-    public override async Task HandleAsync(UnmarkSubmissionCompleteRequest req, CancellationToken ct)
+    public override async Task HandleAsync(MarkSubmissionCompleteRequest req, CancellationToken ct)
     {
         var userId = int.Parse(User.FindFirst("sub")!.Value);
 
@@ -43,7 +43,7 @@ public class UnmarkSubmissionCompleteEndpoint(
             return;
         }
 
-        submission.MarkAsIncomplete();
+        submission.MarkAsComplete();
 
         var result = await unitOfWork.SaveChangesAsync(ct);
 

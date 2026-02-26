@@ -4,7 +4,7 @@ using PureTCOWebApp.Core.Paging;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.AssignmentModule.Domain;
 
-namespace PureTCOWebApp.Features.AssignmentModule.Endpoints;
+namespace PureTCOWebApp.Features.AssignmentModule.Endpoints.SubmissionEndpoints;
 
 public record QueryAssignmentSubmissionsRequest(int Id) : PagingQuery;
 
