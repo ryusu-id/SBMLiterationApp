@@ -1,3 +1,4 @@
+using ClosedXML.Excel;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -79,7 +80,22 @@ public class UploadGroupMembersEndpoint(
             await stream.ReadExactlyAsync(fileBytes, 0, (int)req.File.Length, ct);
         }
 
-        var structureResult = ExcelHelper.ValidateColumnStructure<GroupMembersUploadDto>(fileBytes);
+        // Validate group name in B1 matches the target group
+        using (var ms = new MemoryStream(fileBytes))
+        using (var wb = new XLWorkbook(ms))
+        {
+            var ws = wb.Worksheets.FirstOrDefault();
+            var templateGroupName = ws?.Cell(1, 2).GetString().Trim() ?? string.Empty;
+            if (!templateGroupName.Equals(group.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
+                    (Result)new Error("GroupName.Mismatch",
+                        $"Template group name '{templateGroupName}' does not match the target group '{group.Name}'.")));
+                return;
+            }
+        }
+
+        var structureResult = ExcelHelper.ValidateColumnStructure<GroupMembersUploadDto>(fileBytes, hasHeaderRow: false);
         if (structureResult.IsFailure)
         {
             await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(structureResult));
@@ -89,7 +105,8 @@ public class UploadGroupMembersEndpoint(
         List<GroupMembersUploadDto> rows;
         try
         {
-            rows = ExcelHelper.ParseExcelData<GroupMembersUploadDto>(fileBytes);
+            // Header is at row 3, data starts at row 4
+            rows = ExcelHelper.ParseExcelData<GroupMembersUploadDto>(fileBytes, startRow: 3);
         }
         catch (Exception ex)
         {

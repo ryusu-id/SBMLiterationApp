@@ -42,17 +42,24 @@ public class DownloadGroupMembersTemplateEndpoint(ApplicationDbContext dbContext
         using var workbook = new XLWorkbook();
         var sheet = workbook.Worksheets.Add("Members");
 
-        // Header row
-        sheet.Cell(1, 1).Value = "NIM";
-        sheet.Row(1).Style.Font.Bold = true;
+        // Row 1: Group Name label + value
+        sheet.Cell(1, 1).Value = "Group Name";
+        sheet.Cell(1, 1).Style.Font.Bold = true;
+        sheet.Cell(1, 2).Value = group.Name;
 
-        // Data rows
+        // Row 2: empty
+        // Row 3: NIM column header
+        sheet.Cell(3, 1).Value = "NIM";
+        sheet.Cell(3, 1).Style.Font.Bold = true;
+
+        // Data rows starting at row 4
         for (int i = 0; i < members.Count; i++)
         {
-            sheet.Cell(i + 2, 1).Value = members[i];
+            sheet.Cell(i + 4, 1).Value = members[i];
         }
 
         sheet.Column(1).AdjustToContents();
+        sheet.Column(2).AdjustToContents();
 
         using var stream = new MemoryStream();
         workbook.SaveAs(stream);
