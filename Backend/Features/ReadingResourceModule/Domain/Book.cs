@@ -40,7 +40,7 @@ public class Book : ReadingResourceBase
         return entity;
     }
 
-    public new void Update(
+    public void Update(
         string title,
         string? readingCategory,
         string authors,
