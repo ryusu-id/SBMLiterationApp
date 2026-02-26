@@ -10,7 +10,7 @@ namespace PureTCOWebApp.Features.AssignmentModule.Endpoints;
 public class EmptyRequest { }
 
 public record MyAssignmentItem(
-    int AssignmentId,
+    int Id,
     string Title,
     string? Description,
     DateTime? DueDate,
@@ -28,7 +28,6 @@ public class GetMyAssignmentsEndpoint(
     {
         Get("my");
         Group<AssignmentEndpointGroup>();
-        Roles("participant");
     }
 
     public override async Task HandleAsync(CancellationToken ct)

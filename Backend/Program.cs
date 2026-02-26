@@ -160,10 +160,9 @@ if (app.Environment.IsDevelopment())
 else 
 {
     app.UseCors(policy =>
-        policy.WithOrigins(["https://staging.ryusu.id", "http://localhost:3000", "https://sigmasbm.pure-tco.com"])
+        policy.WithOrigins(["https://staging.ryusu.id", "https://sigmasbm.pure-tco.com"])
               .AllowAnyHeader()
               .AllowAnyMethod());
-
 }
 
 app.UseAuthentication();
