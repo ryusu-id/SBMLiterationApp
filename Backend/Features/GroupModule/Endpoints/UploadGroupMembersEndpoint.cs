@@ -1,12 +1,28 @@
-using ClosedXML.Excel;
 using FastEndpoints;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
+using PureTCOWebApp.Core.Upload;
+using PureTCOWebApp.Core.Upload.Attributes;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.GroupModule.Domain;
 
 namespace PureTCOWebApp.Features.GroupModule.Endpoints;
+
+public class GroupMembersUploadDtoValidator : AbstractValidator<GroupMembersUploadDto>
+{
+    public GroupMembersUploadDtoValidator()
+    {
+        RuleFor(x => x.Nim)
+            .NotEmpty().WithMessage("NIM is required.");
+    }
+}
+
+public class GroupMembersUploadDto
+{
+    [ExcelColumn("A", "NIM")] public string? Nim { get; set; }
+}
 
 public class UploadGroupMembersRequest
 {
@@ -43,25 +59,58 @@ public class UploadGroupMembersEndpoint(
             return;
         }
 
-        if (req.File is null || req.File.Length == 0)
+        if (req.File is null)
         {
             await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
                 (Result)new Error("FileRequired", "An Excel file is required.")));
             return;
         }
 
-        // Parse Excel
-        List<string> nims;
+        var validateResult = ExcelHelper.ValidateExcelFile(req.File);
+        if (validateResult.IsFailure)
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(validateResult));
+            return;
+        }
+
+        var fileBytes = new byte[req.File.Length];
+        using (var stream = req.File.OpenReadStream())
+        {
+            await stream.ReadExactlyAsync(fileBytes, 0, (int)req.File.Length, ct);
+        }
+
+        var structureResult = ExcelHelper.ValidateColumnStructure<GroupMembersUploadDto>(fileBytes);
+        if (structureResult.IsFailure)
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(structureResult));
+            return;
+        }
+
+        List<GroupMembersUploadDto> rows;
         try
         {
-            nims = ParseTemplateB(req.File);
+            rows = ExcelHelper.ParseExcelData<GroupMembersUploadDto>(fileBytes);
         }
         catch (Exception ex)
         {
-            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
-                (Result)new Error("InvalidFile", $"Failed to parse Excel file: {ex.Message}")));
+            var parseError = BulkResult.Failure(ExcelDomainError.OneOrMoreValidationError)
+                .SetErrors([new Error("ExcelParseError", $"Invalid Excel File: {ex.Message}")]);
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(parseError));
             return;
         }
+
+        var validationResult = ValidateRows(rows);
+        if (validationResult.IsFailure)
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(validationResult));
+            return;
+        }
+
+        var nims = rows
+            .Where(r => !string.IsNullOrWhiteSpace(r.Nim))
+            .Select(r => r.Nim!.Trim())
+            .Distinct()
+            .ToList();
 
         if (nims.Count == 0)
         {
@@ -69,8 +118,6 @@ public class UploadGroupMembersEndpoint(
                 (Result)new Error("EmptyFile", "No NIM rows found in the uploaded file.")));
             return;
         }
-
-        nims = nims.Distinct().ToList();
 
         // Batch-load all users by NIM
         var usersByNim = await dbContext.Users
@@ -124,33 +171,42 @@ public class UploadGroupMembersEndpoint(
         ), cancellation: ct);
     }
 
-    private static List<string> ParseTemplateB(IFormFile file)
+    private static BulkResult ValidateRows(ICollection<GroupMembersUploadDto> rows)
     {
-        using var stream = file.OpenReadStream();
-        using var workbook = new XLWorkbook(stream);
-        var ws = workbook.Worksheets.First();
+        ICollection<Result> results = [];
+        var idx = 2;
+        var validator = new GroupMembersUploadDtoValidator();
 
-        var headers = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        var headerRow = ws.Row(1);
-        foreach (var cell in headerRow.CellsUsed())
+        foreach (var row in rows)
         {
-            headers[cell.GetString().Trim()] = cell.Address.ColumnNumber;
+            var validation = validator.Validate(row);
+
+            foreach (var failure in validation.Errors)
+            {
+                var cell = ResolveExcelColumn(failure.PropertyName, idx);
+                results.Add(ExcelDomainError.ValidationError(cell, failure.ErrorMessage));
+            }
+
+            idx++;
         }
 
-        if (!headers.ContainsKey("NIM"))
-            throw new InvalidOperationException("Excel must contain a 'NIM' column.");
-
-        var nimCol = headers["NIM"];
-        var nims = new List<string>();
-        var lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
-
-        for (int r = 2; r <= lastRow; r++)
+        if (results.Any(r => r.IsFailure))
         {
-            var nim = ws.Cell(r, nimCol).GetString().Trim();
-            if (!string.IsNullOrEmpty(nim))
-                nims.Add(nim);
+            return BulkResult
+                .Failure(ExcelDomainError.OneOrMoreValidationError)
+                .SetErrors([.. results.Where(e => e.IsFailure).Select(e => e.Error)]);
         }
 
-        return nims;
+        return BulkResult.Success();
     }
+
+    private static string ResolveExcelColumn(string? propertyName, int rowIndex)
+    {
+        var prop = propertyName?.ToLowerInvariant() ?? "";
+
+        if (prop.Contains("nim")) return $"A{rowIndex}";
+
+        return $"Unknown{rowIndex}";
+    }
+
 }

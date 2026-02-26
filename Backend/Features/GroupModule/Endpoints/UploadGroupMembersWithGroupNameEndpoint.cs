@@ -1,12 +1,32 @@
-using ClosedXML.Excel;
 using FastEndpoints;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
+using PureTCOWebApp.Core.Upload;
+using PureTCOWebApp.Core.Upload.Attributes;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.GroupModule.Domain;
 
 namespace PureTCOWebApp.Features.GroupModule.Endpoints;
+
+public class GroupMasterUploadDtoValidator : AbstractValidator<GroupMasterUploadDto>
+{
+    public GroupMasterUploadDtoValidator()
+    {
+        RuleFor(x => x.GroupName)
+            .NotEmpty().WithMessage("Group Name is required.");
+
+        RuleFor(x => x.Nim)
+            .NotEmpty().WithMessage("NIM is required.");
+    }
+}
+
+public class GroupMasterUploadDto
+{
+    [ExcelColumn("A", "GroupName")] public string? GroupName { get; set; }
+    [ExcelColumn("B", "NIM")] public string? Nim { get; set; }
+}
 
 public class UploadGroupMembersWithGroupNameRequest
 {
@@ -33,25 +53,57 @@ public class UploadGroupMembersWithGroupNameEndpoint(
 
     public override async Task HandleAsync(UploadGroupMembersWithGroupNameRequest req, CancellationToken ct)
     {
-        if (req.File is null || req.File.Length == 0)
+        if (req.File is null)
         {
             await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
                 (Result)new Error("FileRequired", "An Excel file is required.")));
             return;
         }
 
-        // Parse Excel
-        List<(string GroupName, string Nim)> rows;
+        var validateResult = ExcelHelper.ValidateExcelFile(req.File);
+        if (validateResult.IsFailure)
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(validateResult));
+            return;
+        }
+
+        var fileBytes = new byte[req.File.Length];
+        using (var stream = req.File.OpenReadStream())
+        {
+            await stream.ReadExactlyAsync(fileBytes, 0, (int)req.File.Length, ct);
+        }
+
+        var structureResult = ExcelHelper.ValidateColumnStructure<GroupMasterUploadDto>(fileBytes);
+        if (structureResult.IsFailure)
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(structureResult));
+            return;
+        }
+
+        List<GroupMasterUploadDto> parsedRows;
         try
         {
-            rows = ParseTemplateA(req.File);
+            parsedRows = ExcelHelper.ParseExcelData<GroupMasterUploadDto>(fileBytes);
         }
         catch (Exception ex)
         {
-            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
-                (Result)new Error("InvalidFile", $"Failed to parse Excel file: {ex.Message}")));
+            var parseError = BulkResult.Failure(ExcelDomainError.OneOrMoreValidationError)
+                .SetErrors([new Error("ExcelParseError", $"Invalid Excel File: {ex.Message}")]);
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(parseError));
             return;
         }
+
+        var validationResult = ValidateRows(parsedRows);
+        if (validationResult.IsFailure)
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(validationResult));
+            return;
+        }
+
+        var rows = parsedRows
+            .Where(r => !string.IsNullOrWhiteSpace(r.GroupName) && !string.IsNullOrWhiteSpace(r.Nim))
+            .Select(r => (GroupName: r.GroupName!.Trim(), Nim: r.Nim!.Trim()))
+            .ToList();
 
         if (rows.Count == 0)
         {
@@ -158,38 +210,43 @@ public class UploadGroupMembersWithGroupNameEndpoint(
         ), cancellation: ct);
     }
 
-    private static List<(string GroupName, string Nim)> ParseTemplateA(IFormFile file)
+    private static BulkResult ValidateRows(ICollection<GroupMasterUploadDto> rows)
     {
-        using var stream = file.OpenReadStream();
-        using var workbook = new XLWorkbook(stream);
-        var ws = workbook.Worksheets.First();
+        ICollection<Result> results = [];
+        var idx = 2;
+        var validator = new GroupMasterUploadDtoValidator();
 
-        var headers = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        var headerRow = ws.Row(1);
-        foreach (var cell in headerRow.CellsUsed())
+        foreach (var row in rows)
         {
-            headers[cell.GetString().Trim()] = cell.Address.ColumnNumber;
+            var validation = validator.Validate(row);
+
+            foreach (var failure in validation.Errors)
+            {
+                var cell = ResolveExcelColumn(failure.PropertyName, idx);
+                results.Add(ExcelDomainError.ValidationError(cell, failure.ErrorMessage));
+            }
+
+            idx++;
         }
 
-        if (!headers.ContainsKey("GroupName") || !headers.ContainsKey("NIM"))
-            throw new InvalidOperationException("Excel must contain 'GroupName' and 'NIM' columns.");
-
-        var groupNameCol = headers["GroupName"];
-        var nimCol = headers["NIM"];
-
-        var rows = new List<(string, string)>();
-        var lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
-
-        for (int r = 2; r <= lastRow; r++)
+        if (results.Any(r => r.IsFailure))
         {
-            var groupName = ws.Cell(r, groupNameCol).GetString().Trim();
-            var nim = ws.Cell(r, nimCol).GetString().Trim();
-
-            if (string.IsNullOrEmpty(groupName) || string.IsNullOrEmpty(nim)) continue;
-
-            rows.Add((groupName, nim));
+            return BulkResult
+                .Failure(ExcelDomainError.OneOrMoreValidationError)
+                .SetErrors([.. results.Where(e => e.IsFailure).Select(e => e.Error)]);
         }
 
-        return rows;
+        return BulkResult.Success();
     }
+
+    private static string ResolveExcelColumn(string? propertyName, int rowIndex)
+    {
+        var prop = propertyName?.ToLowerInvariant() ?? "";
+
+        if (prop.Contains("groupname")) return $"A{rowIndex}";
+        if (prop.Contains("nim")) return $"B{rowIndex}";
+
+        return $"Unknown{rowIndex}";
+    }
+
 }
