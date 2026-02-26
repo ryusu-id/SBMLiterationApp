@@ -118,11 +118,12 @@ const memberColumns: TableColumn<GroupMember>[] = [
     id: 'picture',
     header: '',
     meta: { class: { th: 'w-[52px]' } },
-    cell: ({ row }) => h(resolveComponent('UAvatar'), {
-      src: row.original.pictureUrl || undefined,
-      icon: 'i-lucide-user',
-      size: 'sm'
-    })
+    cell: ({ row }) =>
+      h(resolveComponent('UAvatar'), {
+        src: row.original.pictureUrl,
+        alt: row.original.fullname,
+        size: 'sm'
+      })
   },
   {
     id: 'userId',

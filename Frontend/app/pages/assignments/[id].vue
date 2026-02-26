@@ -26,7 +26,7 @@ interface MyAssignment {
   title: string
   description?: string
   dueDate?: string
-  submission: AssignmentSubmission
+  submission?: AssignmentSubmission
 }
 
 const route = useRoute()
@@ -195,24 +195,33 @@ async function toggleComplete() {
         <!-- Assignment Info -->
         <UCard>
           <template #header>
-            <h2 class="text-lg font-semibold">
-              Assignment Details
-            </h2>
+            <div class="flex flex-col sm:flex-row sm:justify-between gap-2">
+              <h2 class="text-lg font-semibold">
+                Assignment Details
+              </h2>
+
+              <div>
+                <p class="text-sm text-muted">
+                  Due Date
+                </p>
+                <p class="font-medium">
+                  {{ assignment.dueDate ? new Date(assignment.dueDate).toLocaleString() : 'No due date' }}
+                </p>
+              </div>
+            </div>
           </template>
           <div class="space-y-3">
             <div v-if="assignment.description">
-              <p class="text-sm text-muted">
-                Description
-              </p>
-              <p>{{ assignment.description }}</p>
-            </div>
-            <div>
-              <p class="text-sm text-muted">
-                Due Date
-              </p>
-              <p class="font-medium">
-                {{ assignment.dueDate ? new Date(assignment.dueDate).toLocaleString() : 'No due date' }}
-              </p>
+              <UEditor
+                :model-value="assignment.description"
+                content-type="markdown"
+                readonly
+                :editable="false"
+                class="custom-prose"
+                :ui="{
+                  content: 'p-0 sm:px-0'
+                }"
+              />
             </div>
           </div>
         </UCard>
@@ -225,10 +234,10 @@ async function toggleComplete() {
                 Your Group's Submission
               </h2>
               <UBadge
-                :color="assignment.submission.isCompleted ? 'success' : 'neutral'"
+                :color="assignment.submission?.isCompleted ? 'success' : 'neutral'"
                 variant="subtle"
               >
-                {{ assignment.submission.isCompleted ? 'Completed' : 'In Progress' }}
+                {{ assignment.submission?.isCompleted ? 'Completed' : 'In Progress' }}
               </UBadge>
             </div>
           </template>
@@ -246,13 +255,13 @@ async function toggleComplete() {
                   color="neutral"
                   variant="subtle"
                   label="Add File"
-                  :disabled="assignment.submission.isCompleted"
+                  :disabled="assignment.submission?.isCompleted"
                   @click="openAddFile"
                 />
               </div>
 
               <div
-                v-if="!assignment.submission.files?.length"
+                v-if="!assignment.submission?.files?.length"
                 class="text-sm text-muted py-6 text-center border border-dashed border-default rounded-lg"
               >
                 No files attached yet
@@ -263,7 +272,7 @@ async function toggleComplete() {
                 class="space-y-2"
               >
                 <div
-                  v-for="file in assignment.submission.files"
+                  v-for="file in assignment.submission?.files"
                   :key="file.id"
                   class="flex items-center justify-between p-3 rounded-lg border border-default"
                 >
@@ -305,7 +314,7 @@ async function toggleComplete() {
                       size="xs"
                       color="error"
                       variant="ghost"
-                      :disabled="assignment.submission.isCompleted"
+                      :disabled="assignment.submission?.isCompleted"
                       @click="removeFile(file.id)"
                     />
                   </div>
@@ -321,18 +330,18 @@ async function toggleComplete() {
                     Submission Status
                   </p>
                   <p
-                    v-if="assignment.submission.completedAt"
+                    v-if="assignment.submission?.completedAt"
                     class="text-sm text-muted"
                   >
-                    Completed at {{ new Date(assignment.submission.completedAt).toLocaleString() }}
+                    Completed at {{ new Date(assignment.submission?.completedAt).toLocaleString() }}
                   </p>
                 </div>
                 <UButton
-                  :icon="assignment.submission.isCompleted ? 'i-lucide-x-circle' : 'i-lucide-check-circle'"
-                  :color="assignment.submission.isCompleted ? 'neutral' : 'success'"
-                  :variant="assignment.submission.isCompleted ? 'subtle' : 'solid'"
+                  :icon="assignment.submission?.isCompleted ? 'i-lucide-x-circle' : 'i-lucide-check-circle'"
+                  :color="assignment.submission?.isCompleted ? 'neutral' : 'success'"
+                  :variant="assignment.submission?.isCompleted ? 'subtle' : 'solid'"
                   :loading="completeLoading"
-                  :label="assignment.submission.isCompleted ? 'Unmark Complete' : 'Mark as Complete'"
+                  :label="assignment.submission?.isCompleted ? 'Unmark Complete' : 'Mark as Complete'"
                   @click="toggleComplete"
                 />
               </div>
@@ -428,3 +437,9 @@ async function toggleComplete() {
     </div>
   </UContainer>
 </template>
+
+<style scoped>
+.custom-prose :deep(.ProseMirror) {
+    padding: 0
+}
+</style>

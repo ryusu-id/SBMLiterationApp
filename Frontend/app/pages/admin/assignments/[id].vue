@@ -143,27 +143,38 @@ const submissionColumns: TableColumn<AssignmentSubmission>[] = [
               </h2>
             </template>
             <div class="space-y-3">
-              <div>
-                <p class="text-sm text-muted">
-                  Title
-                </p>
-                <p class="font-medium">
-                  {{ assignment.title }}
-                </p>
+              <div class="flex flex-row flex-wrap justify-between">
+                <div>
+                  <p class="text-2xl mb-2 text-muted">
+                    Title
+                  </p>
+                  <p class="font-medium">
+                    {{ assignment.title }}
+                  </p>
+                </div>
+                <div>
+                  <p class="text-2xl mb-2 text-muted">
+                    Due Date
+                  </p>
+                  <p class="font-medium">
+                    {{ assignment.dueDate ? new Date(assignment.dueDate).toLocaleString() : 'No due date' }}
+                  </p>
+                </div>
               </div>
               <div v-if="assignment.description">
-                <p class="text-sm text-muted">
+                <p class="text-2xl mb-2 text-muted">
                   Description
                 </p>
-                <p>{{ assignment.description }}</p>
-              </div>
-              <div>
-                <p class="text-sm text-muted">
-                  Due Date
-                </p>
-                <p class="font-medium">
-                  {{ assignment.dueDate ? new Date(assignment.dueDate).toLocaleString() : 'No due date' }}
-                </p>
+                <UEditor
+                  :model-value="assignment.description"
+                  content-type="markdown"
+                  readonly
+                  :editable="false"
+                  class="custom-prose"
+                  :ui="{
+                    content: 'p-0 sm:px-0'
+                  }"
+                />
               </div>
             </div>
           </UCard>
@@ -185,3 +196,9 @@ const submissionColumns: TableColumn<AssignmentSubmission>[] = [
     </template>
   </UDashboardPanel>
 </template>
+
+<style scoped>
+.custom-prose :deep(.ProseMirror) {
+    padding: 0
+}
+</style>

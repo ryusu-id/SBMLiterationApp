@@ -15,8 +15,7 @@ const schema = z.object({
     .max(200, 'Title must be 200 characters or less'),
   description: z
     .string()
-    .max(2000, 'Description must be 2000 characters or less')
-    .optional(),
+    .nonoptional(),
   dueDate: z.string().optional()
 })
 

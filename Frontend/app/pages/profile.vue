@@ -224,8 +224,8 @@ function toggleStarryMode() {
                 variant="soft"
                 color="neutral"
                 :icon="color.value === 'dark' ? 'i-heroicons-moon' : 'i-heroicons-sun'"
+                class="cursor-pointer"
                 @click="toggleColorMode"
-              class="cursor-pointer"
               />
               <UButton
                 variant="soft"
@@ -419,8 +419,8 @@ function toggleStarryMode() {
                     <UButton
                       color="primary"
                       variant="soft"
-                      @click="continueReport(report.slug)"
                       class="cursor-pointer"
+                      @click="continueReport(report.slug)"
                     >
                       Continue
                       <template #trailing>
