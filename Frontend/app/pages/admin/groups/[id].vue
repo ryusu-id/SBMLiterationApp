@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h } from 'vue'
+import { h, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { $authedFetch, handleResponseError } from '~/apis/api'
 import DashboardNavbar from '~/components/layout/DashboardNavbar.vue'
@@ -13,6 +13,7 @@ interface GroupMember {
   userId: number
   fullname: string
   nim: string
+  pictureUrl?: string
 }
 
 interface GroupDetail {
@@ -113,6 +114,16 @@ async function uploadMembers() {
 }
 
 const memberColumns: TableColumn<GroupMember>[] = [
+  {
+    id: 'picture',
+    header: '',
+    meta: { class: { th: 'w-[52px]' } },
+    cell: ({ row }) => h(resolveComponent('UAvatar'), {
+      src: row.original.pictureUrl || undefined,
+      icon: 'i-lucide-user',
+      size: 'sm'
+    })
+  },
   {
     id: 'userId',
     accessorKey: 'userId',

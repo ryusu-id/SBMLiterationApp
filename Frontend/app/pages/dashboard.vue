@@ -26,9 +26,56 @@ const { data: readingReports, pending: reportPending, error } = await useAuthedF
   }
 })
 
+interface MyAssignmentItem {
+  id: number
+  title: string
+  description?: string
+  dueDate?: string
+  submissionId: number
+  isCompleted: boolean
+  completedAt?: string
+  fileCount: number
+}
+
+const { data: assignmentsData, error: assignmentsError } = await useAuthedFetch<{ data: MyAssignmentItem[] }>('/assignments/my')
+
 watch(error, (err) => {
   if (err) handleResponseError(err)
 })
+
+watch(assignmentsError, (err) => {
+  if (err) handleResponseError(err)
+})
+
+const activeAssignments = computed(() => {
+  return (assignmentsData.value?.data || []).filter(a => !a.isCompleted)
+})
+
+function getRemainingTime(dueDate?: string): string {
+  if (!dueDate) return 'No due date'
+  const now = new Date()
+  const due = new Date(dueDate)
+  const diff = due.getTime() - now.getTime()
+  if (diff <= 0) return 'Overdue'
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  if (days > 0) return `${days}d ${hours}h remaining`
+  if (hours > 0) return `${hours}h ${minutes}m remaining`
+  return `${minutes}m remaining`
+}
+
+function getRemainingTimeColor(dueDate?: string): 'error' | 'warning' | 'success' | 'neutral' {
+  if (!dueDate) return 'neutral'
+  const now = new Date()
+  const due = new Date(dueDate)
+  const diff = due.getTime() - now.getTime()
+  if (diff <= 0) return 'error'
+  const hours = diff / (1000 * 60 * 60)
+  if (hours <= 24) return 'error'
+  if (hours <= 72) return 'warning'
+  return 'success'
+}
 
 function fetchReadingResources() {
   if (!readingResource.value?.fetch) return
@@ -163,6 +210,58 @@ const tab = ref(0)
             src="/book-dash.png"
             class="max-h-[450px]"
           />
+        </div>
+      </div>
+
+      <div
+        v-if="activeAssignments.length > 0"
+        class="space-y-3"
+      >
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold tracking-tight">
+            Active Assignments
+          </h2>
+          <UButton
+            icon="i-lucide-arrow-right"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            label="View all"
+            to="/assignments"
+          />
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <NuxtLink
+            v-for="assignment in activeAssignments"
+            :key="assignment.id"
+            :to="`/assignments/${assignment.id}`"
+          >
+            <UCard class="hover:ring-1 hover:ring-primary transition-shadow cursor-pointer h-full">
+              <div class="flex flex-col gap-2">
+                <h3 class="font-semibold truncate">
+                  {{ assignment.title }}
+                </h3>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <UBadge
+                    :color="getRemainingTimeColor(assignment.dueDate)"
+                    variant="subtle"
+                    size="sm"
+                    icon="i-lucide-clock"
+                  >
+                    {{ getRemainingTime(assignment.dueDate) }}
+                  </UBadge>
+                  <UBadge
+                    color="neutral"
+                    variant="subtle"
+                    size="sm"
+                    icon="i-lucide-paperclip"
+                  >
+                    {{ assignment.fileCount }} file{{ assignment.fileCount !== 1 ? 's' : '' }}
+                  </UBadge>
+                </div>
+              </div>
+            </UCard>
+          </NuxtLink>
         </div>
       </div>
 
