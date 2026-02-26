@@ -4,7 +4,7 @@ using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
 
-namespace PureTCOWebApp.Features.AssignmentModule.Endpoints;
+namespace PureTCOWebApp.Features.AssignmentModule.Endpoints.AssignmentEndpoints;
 
 public record GetAssignmentDetailRequest(int Id);
 

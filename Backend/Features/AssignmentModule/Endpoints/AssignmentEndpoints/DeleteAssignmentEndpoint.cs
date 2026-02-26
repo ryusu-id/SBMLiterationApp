@@ -4,7 +4,7 @@ using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
 
-namespace PureTCOWebApp.Features.AssignmentModule.Endpoints;
+namespace PureTCOWebApp.Features.AssignmentModule.Endpoints.AssignmentEndpoints;
 
 public record DeleteAssignmentRequest(int Id);
 
@@ -31,7 +31,6 @@ public class DeleteAssignmentEndpoint(
             return;
         }
 
-        // Guard: cannot delete if any submission has files or is completed
         var hasBlockingSubmissions = await dbContext.AssignmentSubmissions
             .AnyAsync(s => s.AssignmentId == req.Id && (s.IsCompleted || s.Files.Any()), ct);
 

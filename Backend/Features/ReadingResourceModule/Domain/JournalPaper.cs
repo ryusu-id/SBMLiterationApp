@@ -34,7 +34,7 @@ public class JournalPaper : ReadingResourceBase
         };
     }
 
-    public new void Update(
+    public void Update(
         string title,
         string? readingCategory,
         string authors,

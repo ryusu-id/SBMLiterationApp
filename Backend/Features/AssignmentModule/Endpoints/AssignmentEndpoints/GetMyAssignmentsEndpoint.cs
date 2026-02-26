@@ -5,7 +5,7 @@ using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.AssignmentModule.Domain;
 
-namespace PureTCOWebApp.Features.AssignmentModule.Endpoints;
+namespace PureTCOWebApp.Features.AssignmentModule.Endpoints.AssignmentEndpoints;
 
 public class EmptyRequest { }
 
@@ -34,21 +34,18 @@ public class GetMyAssignmentsEndpoint(
     {
         var userId = int.Parse(User.FindFirst("sub")!.Value);
 
-        // Find the user's group
         var membership = await dbContext.GroupMembers
             .AsNoTracking()
             .FirstOrDefaultAsync(m => m.UserId == userId, ct);
 
         if (membership is null)
         {
-            // User not in any group — return empty
             await Send.OkAsync(Result.Success(new List<MyAssignmentItem>()), cancellation: ct);
             return;
         }
 
         var groupId = membership.GroupId;
 
-        // Get all assignments
         var assignments = await dbContext.Assignments
             .AsNoTracking()
             .OrderByDescending(a => a.CreateTime)
@@ -62,7 +59,6 @@ public class GetMyAssignmentsEndpoint(
 
         var assignmentIds = assignments.Select(a => a.Id).ToList();
 
-        // Get existing submissions for this group
         var existingSubmissions = await dbContext.AssignmentSubmissions
             .Include(s => s.Files)
             .Where(s => s.GroupId == groupId && assignmentIds.Contains(s.AssignmentId))
@@ -70,7 +66,6 @@ public class GetMyAssignmentsEndpoint(
 
         var submissionByAssignment = existingSubmissions.ToDictionary(s => s.AssignmentId);
 
-        // Create missing submissions
         var missingAssignmentIds = assignmentIds.Except(submissionByAssignment.Keys).ToList();
         if (missingAssignmentIds.Count > 0)
         {
@@ -90,7 +85,6 @@ public class GetMyAssignmentsEndpoint(
                 }
                 else
                 {
-                    // Unique constraint hit (race) — re-fetch
                     var refetched = await dbContext.AssignmentSubmissions
                         .Include(s => s.Files)
                         .Where(s => s.GroupId == groupId && missingAssignmentIds.Contains(s.AssignmentId))
@@ -101,7 +95,6 @@ public class GetMyAssignmentsEndpoint(
             }
             catch
             {
-                // Re-fetch on any failure
                 var refetched = await dbContext.AssignmentSubmissions
                     .Include(s => s.Files)
                     .Where(s => s.GroupId == groupId && missingAssignmentIds.Contains(s.AssignmentId))

@@ -3,7 +3,7 @@ using PureTCOWebApp.Core.Paging;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.AssignmentModule.Domain;
 
-namespace PureTCOWebApp.Features.AssignmentModule.Endpoints;
+namespace PureTCOWebApp.Features.AssignmentModule.Endpoints.AssignmentEndpoints;
 
 public record QueryAssignmentsRequest(string? Title = null) : PagingQuery;
 
@@ -28,8 +28,6 @@ public class QueryAssignmentsEndpoint(ApplicationDbContext dbContext)
             query = query.Where(a => a.Title.Contains(req.Title));
         }
 
-        // Sort on the entity (Assignment.CreateTime) before mapping to avoid
-        // EF Core untranslatable projected-constructor expression.
         var result = await PagingService.PaginateQueryAsync<Assignment, AssignmentListItem>(
             query,
             req,

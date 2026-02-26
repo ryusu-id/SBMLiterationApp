@@ -1,11 +1,7 @@
 using FastEndpoints;
-using Microsoft.EntityFrameworkCore;
-using PureTCOWebApp.Core;
-using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Core.Paging;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.Auth.Domain;
-using PureTCOWebApp.Features.UserXpModule;
 using PureTCOWebApp.Features.UserXpModule.Domain;
 
 namespace PureTCOWebApp.Features.ActivityFeeds.Endpoints;
@@ -16,7 +12,7 @@ public record ActivityFeedDto(
     DateTime ActivityDate,
     string Description);
 
-public class GetUserStreakEndpoint(ApplicationDbContext context, UserExpDomainService userExpService)
+public class GetUserStreakEndpoint(ApplicationDbContext context)
     : Endpoint<PagingQuery, PagingResult<ActivityFeedDto>>
 {
     public override void Configure()

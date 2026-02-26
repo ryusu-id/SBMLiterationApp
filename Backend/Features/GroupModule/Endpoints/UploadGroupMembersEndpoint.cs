@@ -1,12 +1,29 @@
 using ClosedXML.Excel;
 using FastEndpoints;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
+using PureTCOWebApp.Core.Upload;
+using PureTCOWebApp.Core.Upload.Attributes;
 using PureTCOWebApp.Data;
 using PureTCOWebApp.Features.GroupModule.Domain;
 
 namespace PureTCOWebApp.Features.GroupModule.Endpoints;
+
+public class GroupMembersUploadDtoValidator : AbstractValidator<GroupMembersUploadDto>
+{
+    public GroupMembersUploadDtoValidator()
+    {
+        RuleFor(x => x.Nim)
+            .NotEmpty().WithMessage("NIM is required.");
+    }
+}
+
+public class GroupMembersUploadDto
+{
+    [ExcelColumn("A", "NIM")] public string? Nim { get; set; }
+}
 
 public class UploadGroupMembersRequest
 {
@@ -16,8 +33,7 @@ public class UploadGroupMembersRequest
 
 public record UploadGroupMembersResponse(
     int ImportedCount,
-    List<string> UnmatchedNims,
-    List<string> MovedSummary);
+    List<string> UnmatchedNims);
 
 public class UploadGroupMembersEndpoint(
     ApplicationDbContext dbContext,
@@ -43,25 +59,72 @@ public class UploadGroupMembersEndpoint(
             return;
         }
 
-        if (req.File is null || req.File.Length == 0)
+        if (req.File is null)
         {
             await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
                 (Result)new Error("FileRequired", "An Excel file is required.")));
             return;
         }
 
-        // Parse Excel
-        List<string> nims;
+        var validateResult = ExcelHelper.ValidateExcelFile(req.File);
+        if (validateResult.IsFailure)
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(validateResult));
+            return;
+        }
+
+        var fileBytes = new byte[req.File.Length];
+        using (var stream = req.File.OpenReadStream())
+        {
+            await stream.ReadExactlyAsync(fileBytes, 0, (int)req.File.Length, ct);
+        }
+
+        using (var ms = new MemoryStream(fileBytes))
+        using (var wb = new XLWorkbook(ms))
+        {
+            var ws = wb.Worksheets.FirstOrDefault();
+            var templateGroupName = ws?.Cell(1, 2).GetString().Trim() ?? string.Empty;
+            if (!templateGroupName.Equals(group.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
+                    (Result)new Error("GroupName.Mismatch",
+                        $"Template group name '{templateGroupName}' does not match the target group '{group.Name}'.")));
+                return;
+            }
+        }
+
+        var structureResult = ExcelHelper.ValidateColumnStructure<GroupMembersUploadDto>(fileBytes, hasHeaderRow: false);
+        if (structureResult.IsFailure)
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(structureResult));
+            return;
+        }
+
+        List<GroupMembersUploadDto> rows;
         try
         {
-            nims = ParseTemplateB(req.File);
+            rows = ExcelHelper.ParseExcelData<GroupMembersUploadDto>(fileBytes, startRow: 3);
         }
         catch (Exception ex)
         {
-            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
-                (Result)new Error("InvalidFile", $"Failed to parse Excel file: {ex.Message}")));
+            var parseError = BulkResult.Failure(ExcelDomainError.OneOrMoreValidationError)
+                .SetErrors([new Error("ExcelParseError", $"Invalid Excel File: {ex.Message}")]);
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(parseError));
             return;
         }
+
+        var validationResult = ValidateRows(rows);
+        if (validationResult.IsFailure)
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(validationResult));
+            return;
+        }
+
+        var nims = rows
+            .Where(r => !string.IsNullOrWhiteSpace(r.Nim))
+            .Select(r => r.Nim!.Trim())
+            .Distinct()
+            .ToList();
 
         if (nims.Count == 0)
         {
@@ -70,21 +133,38 @@ public class UploadGroupMembersEndpoint(
             return;
         }
 
-        nims = nims.Distinct().ToList();
-
-        // Batch-load all users by NIM
         var usersByNim = await dbContext.Users
             .Where(u => nims.Contains(u.Nim))
             .ToDictionaryAsync(u => u.Nim, ct);
 
-        // Full replace: delete all existing members of this group
+        var foundUserIds = usersByNim.Values.Select(u => u.Id).ToList();
+        var conflictingMemberships = await dbContext.GroupMembers
+            .Include(m => m.Group)
+            .Include(m => m.User)
+            .Where(m => foundUserIds.Contains(m.UserId) && m.GroupId != req.Id)
+            .ToListAsync(ct);
+
+        if (conflictingMemberships.Count > 0)
+        {
+            var conflictErrors = conflictingMemberships
+                .Select(m => new Error("Member.AlreadyInGroup",
+                    $"The student {m.User.Fullname} with NIM {m.User.Nim} is already on group {m.Group.Name}."))
+                .ToArray();
+
+            var conflictResult = BulkResult
+                .Failure(new Error("Upload.Conflicts", "One or more students are already assigned to another group."))
+                .SetErrors(conflictErrors);
+
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(conflictResult));
+            return;
+        }
+
         var existingMembers = await dbContext.GroupMembers
             .Where(m => m.GroupId == req.Id)
             .ToListAsync(ct);
         dbContext.GroupMembers.RemoveRange(existingMembers);
 
         var unmatchedNims = new List<string>();
-        var movedSummary = new List<string>();
         int importedCount = 0;
 
         foreach (var nim in nims)
@@ -93,17 +173,6 @@ public class UploadGroupMembersEndpoint(
             {
                 unmatchedNims.Add(nim);
                 continue;
-            }
-
-            // Remove user from any other group if needed
-            var otherMembership = await dbContext.GroupMembers
-                .Include(m => m.Group)
-                .FirstOrDefaultAsync(m => m.UserId == user.Id && m.GroupId != req.Id, ct);
-
-            if (otherMembership is not null)
-            {
-                movedSummary.Add($"{user.Nim} moved from '{otherMembership.Group.Name}' to group #{req.Id}");
-                dbContext.GroupMembers.Remove(otherMembership);
             }
 
             var member = GroupMember.Create(req.Id, user.Id);
@@ -120,37 +189,45 @@ public class UploadGroupMembersEndpoint(
         }
 
         await Send.OkAsync(Result.Success(
-            new UploadGroupMembersResponse(importedCount, unmatchedNims, movedSummary)
+            new UploadGroupMembersResponse(importedCount, unmatchedNims)
         ), cancellation: ct);
     }
 
-    private static List<string> ParseTemplateB(IFormFile file)
+    private static BulkResult ValidateRows(ICollection<GroupMembersUploadDto> rows)
     {
-        using var stream = file.OpenReadStream();
-        using var workbook = new XLWorkbook(stream);
-        var ws = workbook.Worksheets.First();
+        ICollection<Result> results = [];
+        var idx = 2;
+        var validator = new GroupMembersUploadDtoValidator();
 
-        var headers = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        var headerRow = ws.Row(1);
-        foreach (var cell in headerRow.CellsUsed())
+        foreach (var row in rows)
         {
-            headers[cell.GetString().Trim()] = cell.Address.ColumnNumber;
+            var validation = validator.Validate(row);
+
+            foreach (var failure in validation.Errors)
+            {
+                var cell = ResolveExcelColumn(failure.PropertyName, idx);
+                results.Add(ExcelDomainError.ValidationError(cell, failure.ErrorMessage));
+            }
+
+            idx++;
         }
 
-        if (!headers.ContainsKey("NIM"))
-            throw new InvalidOperationException("Excel must contain a 'NIM' column.");
-
-        var nimCol = headers["NIM"];
-        var nims = new List<string>();
-        var lastRow = ws.LastRowUsed()?.RowNumber() ?? 1;
-
-        for (int r = 2; r <= lastRow; r++)
+        if (results.Any(r => r.IsFailure))
         {
-            var nim = ws.Cell(r, nimCol).GetString().Trim();
-            if (!string.IsNullOrEmpty(nim))
-                nims.Add(nim);
+            return BulkResult
+                .Failure(ExcelDomainError.OneOrMoreValidationError)
+                .SetErrors([.. results.Where(e => e.IsFailure).Select(e => e.Error)]);
         }
 
-        return nims;
+        return BulkResult.Success();
+    }
+
+    private static string ResolveExcelColumn(string? propertyName, int rowIndex)
+    {
+        var prop = propertyName?.ToLowerInvariant() ?? "";
+
+        if (prop.Contains("nim")) return $"A{rowIndex}";
+
+        return $"Unknown{rowIndex}";
     }
 }

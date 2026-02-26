@@ -4,7 +4,7 @@ using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
 
-namespace PureTCOWebApp.Features.AssignmentModule.Endpoints;
+namespace PureTCOWebApp.Features.AssignmentModule.Endpoints.SubmissionEndpoints;
 
 public record GetAssignmentSubmissionDetailRequest(int Id, int SubmissionId);
 
@@ -54,7 +54,7 @@ public class GetAssignmentSubmissionDetailEndpoint(ApplicationDbContext dbContex
 
         var files = submission.Files.Select(f => new SubmissionFileDetail(
             f.Id, f.FileName, f.FileUri, f.ExternalLink,
-            f.UploadedByUserId, f.UploadedBy.Fullname, f.UploadedAt)).ToList();
+            f.UploadedByUserId, f.UploadedBy.Fullname, f.CreateTime)).ToList();
 
         var response = new SubmissionDetail(
             submission.Id,

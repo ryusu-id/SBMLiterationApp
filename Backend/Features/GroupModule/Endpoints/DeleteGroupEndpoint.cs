@@ -31,7 +31,6 @@ public class DeleteGroupEndpoint(
             return;
         }
 
-        // Guard: cannot delete if any submission has files or is completed
         var hasBlockingSubmissions = await dbContext.AssignmentSubmissions
             .AnyAsync(s => s.GroupId == req.Id && (s.IsCompleted || s.Files.Any()), ct);
 
@@ -42,7 +41,6 @@ public class DeleteGroupEndpoint(
             return;
         }
 
-        // Delete clean (empty, incomplete) submissions first — FK is Restrict so they block the group delete
         var cleanSubmissions = await dbContext.AssignmentSubmissions
             .Where(s => s.GroupId == req.Id)
             .ToListAsync(ct);

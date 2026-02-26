@@ -30,7 +30,7 @@ public record CreateReadingResourceFromRecommendationResponse(
     int UserId,
     string Title,
     string ISBN,
-    string ReadingCategory,
+    string? ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,

@@ -22,10 +22,8 @@ public class QueryGroupsEndpoint(ApplicationDbContext dbContext)
 
     public override async Task HandleAsync(QueryGroupsRequest req, CancellationToken ct)
     {
-        // Sort on the entity query (DomainGroup.CreateTime) to avoid EF Core translation
-        // issues when sorting a projected record constructor type.
         var query = dbContext.Groups
-            .Include(g => g.Members)  // loaded so .Count works after materialization
+            .Include(g => g.Members)
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(req.Name))
@@ -33,7 +31,6 @@ public class QueryGroupsEndpoint(ApplicationDbContext dbContext)
             query = query.Where(g => g.Name.Contains(req.Name));
         }
 
-        // PaginateQueryAsync<DomainGroup, GroupListItem> sorts on the entity, then maps
         var result = await PagingService.PaginateQueryAsync<DomainGroup, GroupListItem>(
             query,
             req,

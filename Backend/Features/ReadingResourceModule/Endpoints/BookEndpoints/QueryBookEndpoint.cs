@@ -11,7 +11,7 @@ public record BookWithProgress(
     int UserId,
     string Title,
     string ISBN,
-    string ReadingCategory,
+    string? ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,
@@ -48,27 +48,27 @@ public class QueryBookEndpoint(ApplicationDbContext dbContext)
 
         if (!string.IsNullOrWhiteSpace(req.Title))
         {
-            predicate = predicate.And(x => x.Title.Contains(req.Title));
+            predicate = predicate.And(x => x.Title != null && x.Title.Contains(req.Title));
         }
 
         if (!string.IsNullOrWhiteSpace(req.ISBN))
         {
-            predicate = predicate.And(x => x.ISBN.Contains(req.ISBN));
+            predicate = predicate.And(x => x.ISBN != null && x.ISBN.Contains(req.ISBN));
         }
 
         if (!string.IsNullOrWhiteSpace(req.ReadingCategory))
         {
-            predicate = predicate.And(x => x.ReadingCategory.Contains(req.ReadingCategory));
+            predicate = predicate.And(x => x.ReadingCategory != null && x.ReadingCategory.Contains(req.ReadingCategory));
         }
 
         if (!string.IsNullOrWhiteSpace(req.Authors))
         {
-            predicate = predicate.And(x => x.Authors.Contains(req.Authors));
+            predicate = predicate.And(x => x.Authors != null && x.Authors.Contains(req.Authors));
         }
 
         if (!string.IsNullOrWhiteSpace(req.PublishYear))
         {
-            predicate = predicate.And(x => x.PublishYear.Contains(req.PublishYear));
+            predicate = predicate.And(x => x.PublishYear != null && x.PublishYear.Contains(req.PublishYear));
         }
 
         query = query.Where(predicate);
