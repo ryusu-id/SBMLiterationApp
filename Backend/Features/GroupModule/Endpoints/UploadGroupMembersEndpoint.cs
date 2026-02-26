@@ -79,7 +79,6 @@ public class UploadGroupMembersEndpoint(
             await stream.ReadExactlyAsync(fileBytes, 0, (int)req.File.Length, ct);
         }
 
-        // Validate group name in B1 matches the target group
         using (var ms = new MemoryStream(fileBytes))
         using (var wb = new XLWorkbook(ms))
         {
@@ -104,7 +103,6 @@ public class UploadGroupMembersEndpoint(
         List<GroupMembersUploadDto> rows;
         try
         {
-            // Header is at row 3, data starts at row 4
             rows = ExcelHelper.ParseExcelData<GroupMembersUploadDto>(fileBytes, startRow: 3);
         }
         catch (Exception ex)
@@ -135,12 +133,10 @@ public class UploadGroupMembersEndpoint(
             return;
         }
 
-        // Batch-load all users by NIM
         var usersByNim = await dbContext.Users
             .Where(u => nims.Contains(u.Nim))
             .ToDictionaryAsync(u => u.Nim, ct);
 
-        // Batch-detect all cross-group conflicts BEFORE any DB writes
         var foundUserIds = usersByNim.Values.Select(u => u.Id).ToList();
         var conflictingMemberships = await dbContext.GroupMembers
             .Include(m => m.Group)
@@ -163,7 +159,6 @@ public class UploadGroupMembersEndpoint(
             return;
         }
 
-        // Full replace: delete all existing members of this group
         var existingMembers = await dbContext.GroupMembers
             .Where(m => m.GroupId == req.Id)
             .ToListAsync(ct);
@@ -235,5 +230,4 @@ public class UploadGroupMembersEndpoint(
 
         return $"Unknown{rowIndex}";
     }
-
 }

@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PureTCOWebApp.Features.GroupModule.Domain;
 
-namespace PureTCOWebApp.Features.GroupModule;
+namespace PureTCOWebApp.Features.GroupModule.Domain;
 
 public class GroupEntityConfiguration : IEntityTypeConfiguration<Group>
 {

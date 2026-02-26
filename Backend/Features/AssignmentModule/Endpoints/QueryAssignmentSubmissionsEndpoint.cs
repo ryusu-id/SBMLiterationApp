@@ -41,13 +41,13 @@ public class QueryAssignmentSubmissionsEndpoint(ApplicationDbContext dbContext)
             query,
             req,
             x => new SubmissionListItem(
-                x.Submission != null ? x.Submission.Id : null,
+                x.Submission?.Id,
                 x.Group.Id,
                 x.Group.Name,
-                x.Submission != null && x.Submission.IsCompleted,
-                x.Submission != null ? x.Submission.CompletedAt : null,
-                x.Submission != null ? x.Submission.Files.Count : 0,
-                x.Submission != null ? x.Submission.CreateTime : null),
+                x.Submission?.IsCompleted ?? false,
+                x.Submission?.CompletedAt,
+                x.Submission?.Files.Count ?? 0,
+                x.Submission?.CreateTime),
             ct);
 
         await Send.OkAsync(result, ct);

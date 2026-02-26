@@ -31,7 +31,6 @@ public class DeleteAssignmentEndpoint(
             return;
         }
 
-        // Guard: cannot delete if any submission has files or is completed
         var hasBlockingSubmissions = await dbContext.AssignmentSubmissions
             .AnyAsync(s => s.AssignmentId == req.Id && (s.IsCompleted || s.Files.Any()), ct);
 

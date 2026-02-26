@@ -85,7 +85,6 @@ public class AssignmentSubmissionEntityConfiguration : IEntityTypeConfiguration<
             .HasColumnType("timestamp with time zone")
             .HasColumnName("update_time");
 
-        // One submission per group per assignment
         builder.HasIndex(e => new { e.AssignmentId, e.GroupId })
             .IsUnique()
             .HasDatabaseName("uq_assignment_submissions_assignment_group");

@@ -112,18 +112,15 @@ public class UploadGroupMembersWithGroupNameEndpoint(
             return;
         }
 
-        // Group rows by group name
         var rowsByGroupName = rows
             .GroupBy(r => r.GroupName.Trim(), StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => g.Select(r => r.Nim.Trim()).Distinct().ToList());
 
-        // Load existing groups matching mentioned names
         var groupNames = rowsByGroupName.Keys.ToList();
         var existingGroups = await dbContext.Groups
             .Where(g => groupNames.Contains(g.Name))
             .ToDictionaryAsync(g => g.Name, StringComparer.OrdinalIgnoreCase, ct);
 
-        // Find or create each group entity, track all
         var groupEntities = new Dictionary<string, Domain.Group>(StringComparer.OrdinalIgnoreCase);
         foreach (var groupName in rowsByGroupName.Keys)
         {
@@ -135,7 +132,6 @@ public class UploadGroupMembersWithGroupNameEndpoint(
             groupEntities[groupName] = g;
         }
 
-        // Batch delete existing members of affected groups (full replace)
         var affectedGroupIds = existingGroups.Values.Select(g => g.Id).ToList();
         if (affectedGroupIds.Count > 0)
         {
@@ -145,7 +141,6 @@ public class UploadGroupMembersWithGroupNameEndpoint(
             dbContext.GroupMembers.RemoveRange(membersToRemove);
         }
 
-        // Phase 1 save: persist new groups (gets real IDs) and removes old members
         var phase1Result = await unitOfWork.SaveChangesAsync(ct);
         if (phase1Result.IsFailure)
         {
@@ -153,17 +148,14 @@ public class UploadGroupMembersWithGroupNameEndpoint(
             return;
         }
 
-        // Batch-load all users by NIM
         var allNims = rows.Select(r => r.Nim.Trim()).Distinct().ToList();
         var usersByNim = await dbContext.Users
             .Where(u => allNims.Contains(u.Nim))
             .ToDictionaryAsync(u => u.Nim, ct);
 
-        // Load all found user IDs to detect cross-group moves
         var foundUserIds = usersByNim.Values.Select(u => u.Id).ToList();
         var allNewGroupIds = groupEntities.Values.Select(g => g.Id).ToList();
 
-        // Find users who still have membership in OTHER groups not touched by this upload
         var crossGroupMembers = await dbContext.GroupMembers
             .Include(m => m.Group)
             .Where(m => foundUserIds.Contains(m.UserId) && !allNewGroupIds.Contains(m.GroupId))
@@ -175,7 +167,6 @@ public class UploadGroupMembersWithGroupNameEndpoint(
 
         dbContext.GroupMembers.RemoveRange(crossGroupMembers);
 
-        // Phase 2: insert new members
         var unmatchedNims = new List<string>();
         int importedCount = 0;
 

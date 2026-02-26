@@ -34,7 +34,6 @@ public class MarkSubmissionCompleteEndpoint(
             return;
         }
 
-        // Verify requester is a member of the submission's group
         var isMember = await dbContext.GroupMembers
             .AnyAsync(m => m.UserId == userId && m.GroupId == submission.GroupId, ct);
 

@@ -42,7 +42,6 @@ public class AddSubmissionFileEndpoint(
     {
         var userId = int.Parse(User.FindFirst("sub")!.Value);
 
-        // Validate exactly one of file / external link
         bool hasFile = req.File is { Length: > 0 };
         bool hasExternalLink = !string.IsNullOrWhiteSpace(req.ExternalLink);
 
@@ -63,7 +62,6 @@ public class AddSubmissionFileEndpoint(
             return;
         }
 
-        // Verify requester is a member of the submission's group
         var isMember = await dbContext.GroupMembers
             .AnyAsync(m => m.UserId == userId && m.GroupId == submission.GroupId, ct);
 
@@ -78,7 +76,6 @@ public class AddSubmissionFileEndpoint(
 
         if (hasFile)
         {
-            // Upload to MinIO
             var ext = Path.GetExtension(req.File!.FileName);
             var objectName = $"submissions/{req.SubmissionId}/{Guid.NewGuid()}{ext}";
 
