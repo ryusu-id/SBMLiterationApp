@@ -8,7 +8,15 @@ namespace PureTCOWebApp.Features.GroupModule.Endpoints;
 
 public record GetGroupDetailRequest(int Id);
 
-public record GroupMemberDetail(int UserId, string Fullname, string Nim, string? PictureUrl);
+public record GroupMemberDetail(
+    int UserId,
+    string Fullname,
+    string Nim,
+    string? Email,
+    string ProgramStudy,
+    string Faculty,
+    string GenerationYear,
+    string? PictureUrl);
 
 public record GetGroupDetailResponse(
     int Id,
@@ -43,7 +51,15 @@ public class GetGroupDetailEndpoint(ApplicationDbContext dbContext)
         }
 
         var members = group.Members
-            .Select(m => new GroupMemberDetail(m.UserId, m.User.Fullname, m.User.Nim, m.User.PictureUrl))
+            .Select(m => new GroupMemberDetail(
+                m.UserId,
+                m.User.Fullname,
+                m.User.Nim,
+                m.User.Email,
+                m.User.ProgramStudy,
+                m.User.Faculty,
+                m.User.GenerationYear,
+                m.User.PictureUrl))
             .ToList();
 
         var response = new GetGroupDetailResponse(
