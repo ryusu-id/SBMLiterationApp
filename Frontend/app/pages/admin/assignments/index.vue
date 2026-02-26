@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { $authedFetch, handleResponseError } from '~/apis/api'
 import AssignmentsTable from '~/components/assignments/AssignmentsTable.vue'
-import AssignmentForm from '~/components/assignments/AssignmentForm.vue'
 import DashboardNavbar from '~/components/layout/DashboardNavbar.vue'
 
 definePageMeta({
@@ -16,59 +15,12 @@ export interface Assignment {
   dueDate?: string
 }
 
-const form = useTemplateRef<typeof AssignmentForm>('form')
-const formLoading = ref(false)
 const table = useTemplateRef<typeof AssignmentsTable>('table')
 const toast = useToast()
-
-async function onSubmit(param: {
-  action: 'Create' | 'Update'
-  data: { title: string, description?: string, dueDate?: string }
-  id: number | null
-}) {
-  try {
-    formLoading.value = true
-    const body = {
-      title: param.data.title,
-      description: param.data.description || null,
-      dueDate: param.data.dueDate || null
-    }
-    if (param.action === 'Create') {
-      await $authedFetch('/assignments', {
-        method: 'POST',
-        body
-      })
-      table.value?.refresh()
-      toast.add({
-        title: 'Assignment created successfully',
-        color: 'success'
-      })
-    } else if (param.action === 'Update' && param.id !== null) {
-      await $authedFetch('/assignments/' + param.id, {
-        method: 'PUT',
-        body
-      })
-      toast.add({
-        title: 'Assignment updated successfully',
-        color: 'success'
-      })
-      table.value?.refresh()
-    }
-    form.value?.close()
-  } catch (error) {
-    handleResponseError(error)
-  } finally {
-    formLoading.value = false
-  }
-}
+const router = useRouter()
 
 function onUpdate(assignment: Assignment) {
-  form.value?.update({
-    id: assignment.id,
-    title: assignment.title,
-    description: assignment.description,
-    dueDate: assignment.dueDate
-  })
+  router.push(`/admin/assignments/edit/${assignment.id}`)
 }
 
 function onDelete(assignment: Assignment) {
@@ -113,18 +65,13 @@ function onDelete(assignment: Assignment) {
             class="mb-4"
             label="Create New Assignment"
             variant="subtle"
-            @click="form?.create()"
+            to="/admin/assignments/create"
           />
         </div>
         <AssignmentsTable
           ref="table"
           @delete="onDelete"
           @edit="onUpdate"
-        />
-        <AssignmentForm
-          ref="form"
-          :loading="formLoading"
-          @submit="onSubmit"
         />
       </div>
     </template>

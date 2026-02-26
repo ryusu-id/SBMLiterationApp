@@ -20,6 +20,13 @@ export interface UserProfile {
   pictureUrl?: string
 }
 
+interface MyGroup {
+  id: number
+  name: string
+  description?: string
+  memberCount: number
+}
+
 const profile = ref<UserProfile | null>(null)
 const pending = ref(false)
 const form = useTemplateRef<typeof ProfileForm>('form')
@@ -29,6 +36,7 @@ const quizComposable = usePersistedQuiz()
 const unfinishedQuizzes = ref<PersistedQuizState[]>([])
 const reportComposable = usePersistedReadingReport()
 const unfinishedReports = ref<PersistedReadingReportState[]>([])
+const myGroup = ref<MyGroup | null>(null)
 
 async function fetchProfile() {
   try {
@@ -43,6 +51,15 @@ async function fetchProfile() {
     handleResponseError(err)
   } finally {
     pending.value = false
+  }
+}
+
+async function fetchMyGroup() {
+  try {
+    const response = await $authedFetch<ApiResponse<MyGroup | null>>('/groups/my')
+    myGroup.value = response.data ?? null
+  } catch {
+    // silently ignore — not being in a group is valid
   }
 }
 
@@ -148,6 +165,7 @@ async function onSubmit(data: ProfileFormSchema) {
 
 onMounted(() => {
   fetchProfile()
+  fetchMyGroup()
   loadUnfinishedQuizzes()
   loadUnfinishedReports()
 })
@@ -304,6 +322,54 @@ function toggleStarryMode() {
               </p>
               <p class="font-semibold">
                 {{ profile.generationYear }}
+              </p>
+            </div>
+          </div>
+        </UCard>
+
+        <!-- Group Information Section -->
+        <UCard
+          v-if="myGroup"
+          :ui="{
+            body: 'space-y-4'
+          }"
+        >
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">
+              Participant Group
+            </h2>
+            <UBadge
+              color="primary"
+              variant="subtle"
+              size="lg"
+            >
+              {{ myGroup.memberCount }} member{{ myGroup.memberCount !== 1 ? 's' : '' }}
+            </UBadge>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <p class="text-sm font-medium">
+                Group Name
+              </p>
+              <p class="font-semibold flex items-center gap-2">
+                <UIcon
+                  name="i-lucide-users"
+                  class="size-4 text-primary"
+                />
+                {{ myGroup.name }}
+              </p>
+            </div>
+
+            <div
+              v-if="myGroup.description"
+              class="space-y-2"
+            >
+              <p class="text-sm font-medium">
+                Description
+              </p>
+              <p class="font-semibold">
+                {{ myGroup.description }}
               </p>
             </div>
           </div>
