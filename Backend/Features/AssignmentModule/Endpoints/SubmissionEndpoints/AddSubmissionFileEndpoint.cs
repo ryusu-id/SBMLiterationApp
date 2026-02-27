@@ -10,14 +10,14 @@ namespace PureTCOWebApp.Features.AssignmentModule.Endpoints.SubmissionEndpoints;
 
 public class AddSubmissionFileRequest
 {
-    public int Id { get; set; }
-    public int SubmissionId { get; set; }
+    public int AssignmentId { get; set; }
     public string? FileName { get; set; }
     public IFormFile? File { get; set; }
     public string? ExternalLink { get; set; }
 }
 
 public record AddSubmissionFileResponse(
+    int SubmissionId,
     int FileId,
     string FileName,
     string? FileUri,
@@ -32,7 +32,7 @@ public class AddSubmissionFileEndpoint(
 {
     public override void Configure()
     {
-        Post("{id}/submissions/{submissionId}/files");
+        Post("{assignmentId}/submission/my/files");
         Group<AssignmentEndpointGroup>();
         Roles("participant");
         AllowFileUploads();
@@ -52,23 +52,43 @@ public class AddSubmissionFileEndpoint(
             return;
         }
 
-        var submission = await dbContext.AssignmentSubmissions
-            .FirstOrDefaultAsync(s => s.Id == req.SubmissionId && s.AssignmentId == req.Id, ct);
+        var assignmentExists = await dbContext.Assignments
+            .AsNoTracking()
+            .AnyAsync(a => a.Id == req.AssignmentId, ct);
 
-        if (submission is null)
+        if (!assignmentExists)
         {
             await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
-                (Result)CrudDomainError.NotFound("Submission", req.SubmissionId)));
+                (Result)CrudDomainError.NotFound("Assignment", req.AssignmentId)));
             return;
         }
 
-        var isMember = await dbContext.GroupMembers
-            .AnyAsync(m => m.UserId == userId && m.GroupId == submission.GroupId, ct);
+        var groupId = await dbContext.GroupMembers
+            .AsNoTracking()
+            .Where(m => m.UserId == userId)
+            .Select(m => m.GroupId)
+            .FirstOrDefaultAsync(ct);
 
-        if (!isMember)
+        if (groupId == default)
         {
             await Send.ResultAsync(TypedResults.Forbid());
             return;
+        }
+
+        var submission = await dbContext.AssignmentSubmissions
+            .FirstOrDefaultAsync(s => s.AssignmentId == req.AssignmentId && s.GroupId == groupId, ct);
+
+        if (submission is null)
+        {
+            submission = AssignmentSubmission.Create(req.AssignmentId, groupId);
+            await dbContext.AssignmentSubmissions.AddAsync(submission, ct);
+            var createResult = await unitOfWork.SaveChangesAsync(ct);
+
+            if (createResult.IsFailure)
+            {
+                await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(createResult));
+                return;
+            }
         }
 
         string? fileUri = null;
@@ -77,7 +97,7 @@ public class AddSubmissionFileEndpoint(
         if (hasFile)
         {
             var ext = Path.GetExtension(req.File!.FileName);
-            var objectName = $"submissions/{req.SubmissionId}/{Guid.NewGuid()}{ext}";
+            var objectName = $"submissions/{submission.Id}/{Guid.NewGuid()}{ext}";
 
             using var stream = req.File.OpenReadStream();
             fileUri = await minioService.UploadFileAsync(stream, objectName, req.File.ContentType, ct);
@@ -105,7 +125,7 @@ public class AddSubmissionFileEndpoint(
         }
 
         await Send.OkAsync(Result.Success(
-            new AddSubmissionFileResponse(file.Id, file.FileName, file.FileUri, file.ExternalLink, file.CreateTime)
+            new AddSubmissionFileResponse(submission.Id, file.Id, file.FileName, file.FileUri, file.ExternalLink, file.CreateTime)
         ), cancellation: ct);
     }
 }
