@@ -1,12 +1,27 @@
 using FastEndpoints;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
 
 namespace PureTCOWebApp.Features.GroupModule.Endpoints;
 
-public record MyGroupResponse(int Id, string Name, string? Description, int MemberCount);
+public record GroupMemberResponse(
+    string Fullname,
+    string Nim,
+    string ProgramStudy,
+    string Campus,
+    string Class,
+    string? PictureUrl
+);
+
+public record MyGroupResponse(
+    int Id,
+    string Name,
+    string? Description,
+    IEnumerable<GroupMemberResponse> Members
+);
 
 public class GetMyGroupEndpoint(ApplicationDbContext dbContext)
     : EndpointWithoutRequest<ApiResponse<MyGroupResponse?>>
@@ -28,7 +43,15 @@ public class GetMyGroupEndpoint(ApplicationDbContext dbContext)
                 m.Group.Id,
                 m.Group.Name,
                 m.Group.Description,
-                m.Group.Members.Count))
+                m.Group.Members.Select(e => new GroupMemberResponse(
+                    e.User.Fullname,
+                    e.User.Nim,
+                    e.User.ProgramStudy,
+                    e.User.Faculty,
+                    e.User.GenerationYear,
+                    e.User.PictureUrl
+                ))
+            ))
             .FirstOrDefaultAsync(ct);
 
         await Send.OkAsync(Result.Success<MyGroupResponse?>(response), cancellation: ct);
