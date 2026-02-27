@@ -21,24 +21,15 @@ public class GetMyGroupEndpoint(ApplicationDbContext dbContext)
     {
         var userId = int.Parse(User.FindFirst("sub")!.Value);
 
-        var membership = await dbContext.GroupMembers
+        var response = await dbContext.GroupMembers
             .AsNoTracking()
-            .Include(m => m.Group)
-                .ThenInclude(g => g.Members)
-            .FirstOrDefaultAsync(m => m.UserId == userId, ct);
-
-        if (membership is null)
-        {
-            await Send.OkAsync(Result.Success<MyGroupResponse?>(null), cancellation: ct);
-            return;
-        }
-
-        var group = membership.Group;
-        var response = new MyGroupResponse(
-            group.Id,
-            group.Name,
-            group.Description,
-            group.Members.Count);
+            .Where(m => m.UserId == userId)
+            .Select(m => new MyGroupResponse(
+                m.Group.Id,
+                m.Group.Name,
+                m.Group.Description,
+                m.Group.Members.Count))
+            .FirstOrDefaultAsync(ct);
 
         await Send.OkAsync(Result.Success<MyGroupResponse?>(response), cancellation: ct);
     }
