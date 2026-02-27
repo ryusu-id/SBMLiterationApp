@@ -394,3 +394,74 @@ flowchart TD
 | `GET /api/assignments/my` lazy-creates `AssignmentSubmission` rows — concurrent requests could insert duplicates | Unique constraint on `(assignment_id, group_id)` at DB level; use `INSERT ... ON CONFLICT DO NOTHING` or catch unique violation and re-fetch |
 | `file_uri` / `external_link` check constraint — EF Core does not natively generate `CHECK` constraints from annotations | Add the `CHECK` constraint explicitly in the EF migration's `Up()` method via `migrationBuilder.Sql(...)` |
 | MinIO file is uploaded by the client but the `AssignmentSubmissionFile` record is never created (client crash) | Orphaned MinIO objects are acceptable; a future cleanup job can purge unreferenced objects. Not in scope this sprint. |
+
+---
+
+## Revision — 2026-02-27: Assignment Submission Endpoint Redesign
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-02-27 |
+| **Author** | Copilot (antigravity) |
+| **Significance** | 🟡 Minor |
+| **Status** | ✅ APPROVED |
+
+### Motivation
+
+The original design used `/submissions/{submissionId}/` path segments for participant routes, requiring the client to know the submission ID to attach files or toggle completion. This is awkward — participants always operate on *their own group's* submission for a given assignment. The submission can be identified purely from the JWT user → group membership lookup, making `submissionId` in the path redundant.
+
+Additionally, a standalone `POST /api/assignments/{id}/submission` endpoint for creating a bare submission record was planned but never needed — submission creation is implicitly handled the first time a file is attached.
+
+### Changes
+
+#### Removed
+| Method | Route | Reason |
+|--------|-------|--------|
+| `POST` | `/api/assignments/{id}/submission` | Standalone submission creation is unnecessary. The `AssignmentSubmission` row is auto-created on the first file upload. |
+
+#### Changed (Participant routes only — Admin routes unchanged)
+
+| Old Route | New Route | Change |
+|-----------|-----------|--------|
+| `POST /api/assignments/{id}/submissions/{submissionId}/complete` | `POST /api/assignments/{assignmentId}/submission/my/complete` | Removed `submissionId`; group found via JWT claim. Singular `submission`. |
+| `DELETE /api/assignments/{id}/submissions/{submissionId}/complete` | `DELETE /api/assignments/{assignmentId}/submission/my/complete` | Same as above. |
+| `POST /api/assignments/{id}/submissions/{submissionId}/files` | `POST /api/assignments/{assignmentId}/submission/my/files` | Removed `submissionId`; group found via JWT claim. Singular `submission`. |
+| `DELETE /api/assignments/{id}/submissions/{submissionId}/files/{fileId}` | `DELETE /api/assignments/{assignmentId}/submission/my/files/{fileId}` | Removed `submissionId`; group found via JWT claim. Singular `submission`. |
+
+#### Added
+| Method | Route | Role | Purpose |
+|--------|-------|------|---------|
+| `GET` | `/api/assignments/{assignmentId}/submission/my` | participant | Retrieve the calling user's group submission (with files) for a given assignment. Returns `null` data if no submission exists yet. Group resolved from JWT claim. |
+
+### Key Design Rules (Revised)
+
+- All participant submission routes use `/submission/my/` (singular, no `submissionId` in path).
+- The participant's group is always resolved server-side via `GroupMember` lookup using the JWT `sub` claim. Clients never pass a submission ID or group ID.
+- Admin submission routes (`GET /api/assignments/{id}/submissions` and `GET /api/assignments/{id}/submissions/{submissionId}`) **retain** the plural `submissions` path and are unchanged.
+
+### Updated API Route Table — Submission (Participant)
+
+| Method | Route | Purpose |
+|--------|-------|---------|
+| `GET` | `/api/assignments/{assignmentId}/submission/my` | Get own group's submission + files |
+| `POST` | `/api/assignments/{assignmentId}/submission/my/files` | Upload file or external link (auto-creates submission on first call) |
+| `DELETE` | `/api/assignments/{assignmentId}/submission/my/files/{fileId}` | Remove attachment |
+| `POST` | `/api/assignments/{assignmentId}/submission/my/complete` | Mark submission as complete |
+| `DELETE` | `/api/assignments/{assignmentId}/submission/my/complete` | Revert to incomplete |
+
+### Updated API Route Table — Submission (Admin, unchanged)
+
+| Method | Route | Purpose |
+|--------|-------|---------|
+| `GET` | `/api/assignments/{id}/submissions` | All group submissions for an assignment |
+| `GET` | `/api/assignments/{id}/submissions/{submissionId}` | Submission detail + files |
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `Backend/Features/AssignmentModule/Endpoints/SubmissionEndpoints/AddSubmissionFileEndpoint.cs` | Route `{id}/submissions/files` → `{assignmentId}/submission/my/files`; request property `Id` → `AssignmentId` |
+| `Backend/Features/AssignmentModule/Endpoints/SubmissionEndpoints/RemoveSubmissionFileEndpoint.cs` | Route `{id}/submissions/my/files/{fileId}` → `{assignmentId}/submission/my/files/{fileId}`; request property `Id` → `AssignmentId` |
+| `Backend/Features/AssignmentModule/Endpoints/SubmissionEndpoints/MarkSubmissionCompleteEndpoint.cs` | Route `{id}/submissions/my/complete` → `{assignmentId}/submission/my/complete`; request property `Id` → `AssignmentId` |
+| `Backend/Features/AssignmentModule/Endpoints/SubmissionEndpoints/UnmarkSubmissionCompleteEndpoint.cs` | Route `{id}/submissions/my/complete` → `{assignmentId}/submission/my/complete`; request property `Id` → `AssignmentId` |
+| `Backend/Features/AssignmentModule/Endpoints/SubmissionEndpoints/GetMySubmissionEndpoint.cs` | Route `{id}/submissions/my` → `{assignmentId}/submission/my`; request property `Id` → `AssignmentId` |
