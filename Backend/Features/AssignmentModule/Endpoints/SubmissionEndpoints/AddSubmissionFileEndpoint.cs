@@ -34,7 +34,6 @@ public class AddSubmissionFileEndpoint(
     {
         Post("{assignmentId}/submission/my/files");
         Group<AssignmentEndpointGroup>();
-        Roles("participant");
         AllowFileUploads();
     }
 

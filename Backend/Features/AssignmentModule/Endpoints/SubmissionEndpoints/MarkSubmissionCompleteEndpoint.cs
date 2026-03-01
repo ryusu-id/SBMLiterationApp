@@ -17,7 +17,6 @@ public class MarkSubmissionCompleteEndpoint(
     {
         Post("{assignmentId}/submission/my/complete");
         Group<AssignmentEndpointGroup>();
-        Roles("participant");
     }
 
     public override async Task HandleAsync(MarkSubmissionCompleteRequest req, CancellationToken ct)

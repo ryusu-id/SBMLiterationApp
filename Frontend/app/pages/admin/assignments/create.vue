@@ -23,7 +23,7 @@ type AssignmentSchema = z.output<typeof schema>
 
 const state = reactive({
   title: '',
-  description: '',
+  description: 'Assignment description...',
   dueDate: ''
 })
 

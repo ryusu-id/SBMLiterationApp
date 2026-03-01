@@ -17,7 +17,6 @@ public class UnmarkSubmissionCompleteEndpoint(
     {
         Delete("{assignmentId}/submission/my/complete");
         Group<AssignmentEndpointGroup>();
-        Roles("participant");
     }
 
     public override async Task HandleAsync(UnmarkSubmissionCompleteRequest req, CancellationToken ct)
