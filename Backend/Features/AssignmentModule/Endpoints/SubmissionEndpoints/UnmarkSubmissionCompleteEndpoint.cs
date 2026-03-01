@@ -6,7 +6,7 @@ using PureTCOWebApp.Data;
 
 namespace PureTCOWebApp.Features.AssignmentModule.Endpoints.SubmissionEndpoints;
 
-public record UnmarkSubmissionCompleteRequest(int Id, int SubmissionId);
+public record UnmarkSubmissionCompleteRequest(int AssignmentId);
 
 public class UnmarkSubmissionCompleteEndpoint(
     ApplicationDbContext dbContext,
@@ -15,7 +15,7 @@ public class UnmarkSubmissionCompleteEndpoint(
 {
     public override void Configure()
     {
-        Delete("{id}/submissions/{submissionId}/complete");
+        Delete("{assignmentId}/submission/my/complete");
         Group<AssignmentEndpointGroup>();
         Roles("participant");
     }
@@ -24,22 +24,25 @@ public class UnmarkSubmissionCompleteEndpoint(
     {
         var userId = int.Parse(User.FindFirst("sub")!.Value);
 
+        var groupId = await dbContext.GroupMembers
+            .AsNoTracking()
+            .Where(m => m.UserId == userId)
+            .Select(m => m.GroupId)
+            .FirstOrDefaultAsync(ct);
+
+        if (groupId == default)
+        {
+            await Send.ResultAsync(TypedResults.Forbid());
+            return;
+        }
+
         var submission = await dbContext.AssignmentSubmissions
-            .FirstOrDefaultAsync(s => s.Id == req.SubmissionId && s.AssignmentId == req.Id, ct);
+            .FirstOrDefaultAsync(s => s.AssignmentId == req.AssignmentId && s.GroupId == groupId, ct);
 
         if (submission is null)
         {
             await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
-                (Result)CrudDomainError.NotFound("Submission", req.SubmissionId)));
-            return;
-        }
-
-        var isMember = await dbContext.GroupMembers
-            .AnyAsync(m => m.UserId == userId && m.GroupId == submission.GroupId, ct);
-
-        if (!isMember)
-        {
-            await Send.ResultAsync(TypedResults.Forbid());
+                (Result)CrudDomainError.NotFound("Submission", req.AssignmentId)));
             return;
         }
 
