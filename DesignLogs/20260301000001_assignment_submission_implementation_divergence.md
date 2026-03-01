@@ -238,3 +238,51 @@ The following frontend files must be updated to align with the actual backend sh
 | `Frontend/app/pages/assignments/index.vue`      | Fix interfaces — `subscription` is flat on each item, not nested. Use `assignment.isCompleted` and `assignment.fileCount` directly.                                                                                                                                                                |
 | `Frontend/app/pages/assignments/[id].vue`       | Fetch assignment from `GET /assignments/{id}` and submission from `GET /assignments/{assignmentId}/submission/my` separately. Fix all participant submission API routes (remove `submissionId`). Fix `SubmissionFileDetail` interface — use `uploadedByName: string` not `uploadedByUser: object`. |
 | `Frontend/app/pages/admin/assignments/[id].vue` | Fetch submissions from `GET /assignments/{id}/submissions` separately. Fix `SubmissionListItem` interface — no nested `group` or `files` objects; use flat `groupName` and `fileCount`.                                                                                                            |
+
+---
+
+## Revision — 2026-03-01: Admin Submission File Viewing
+
+| Field            | Value                 |
+| ---------------- | --------------------- |
+| **Date**         | 2026-03-01            |
+| **Author**       | Copilot (antigravity) |
+| **Significance** | 🟡 Minor              |
+| **Status**       | ✅ APPROVED           |
+
+### Motivation
+
+The admin submission table previously only showed a file count and a two-state badge (Completed / In Progress). The admin needs to:
+
+1. See a **three-state submission status** at a glance: Completed, In Progress, or Not Yet.
+2. **Open and download the actual files** submitted by each group without leaving the assignment detail page.
+
+### Three-State Status Logic
+
+| Condition | Label | Badge Colour |
+| --------- | ----- | ------------ |
+| `isCompleted === true` | **Completed** | `success` (green) |
+| `isCompleted === false && fileCount > 0` | **In Progress** | `warning` (yellow) |
+| `isCompleted === false && fileCount === 0` | **Not Yet** | `error` (red) |
+
+`submissionId` may be `null` for groups that have never triggered `GET /assignments/my`. These groups always have `fileCount === 0` and `isCompleted === false`, so they fall into "Not Yet".
+
+### File Viewing Flow
+
+1. Admin opens `GET /api/assignments/{id}` page.
+2. The submission table row shows a download-icon **Action** button only when `submissionId` is not null (i.e. the group has an existing submission record, regardless of file count).
+3. Clicking the Action button calls `GET /api/assignments/{id}/submissions/{submissionId}` and opens a **modal** showing the full `SubmissionDetail` with its `files` array.
+4. Each file entry renders:
+   - The `fileName` as label.
+   - An **Open** link (`target="_blank"`) pointing to `fileUri` (MinIO URL) or `externalLink`, whichever is set.
+   - `uploadedByName` and formatted `uploadedAt` as metadata.
+
+### Backend Endpoint Used
+
+`GET /api/assignments/{id}/submissions/{submissionId}` — already implemented, returns `SubmissionDetail` (see Divergence 4 for shape).
+
+### Files Changed
+
+| File | Change |
+| ---- | ------ |
+| `Frontend/app/pages/admin/assignments/[id].vue` | Add three-state status badge; add Action column with per-row file viewer modal; fetch `SubmissionDetail` on demand. |

@@ -1,189 +1,192 @@
 <script setup lang="ts">
-import { $authedFetch, handleResponseError } from "~/apis/api";
+import { $authedFetch, handleResponseError } from '~/apis/api'
 
 definePageMeta({
-  middleware: ["auth", "participant-only"],
-});
+  middleware: ['auth', 'participant-only']
+})
 
 // Assignment metadata from GET /api/assignments/{id}
 interface AssignmentInfo {
-  id: number;
-  title: string;
-  description?: string;
-  dueDate?: string;
-  createTime: string;
-  updateTime?: string;
+  id: number
+  title: string
+  description?: string
+  dueDate?: string
+  createTime: string
+  updateTime?: string
 }
 
 // File shape from GET /api/assignments/{assignmentId}/submission/my
 // uploadedBy is a flat string — NOT a nested object
 interface SubmissionFileDetail {
-  fileId: number;
-  fileName: string;
-  fileUri?: string;
-  externalLink?: string;
-  uploadedByUserId: number;
-  uploadedByName: string;
-  uploadedAt: string;
+  fileId: number
+  fileName: string
+  fileUri?: string
+  externalLink?: string
+  uploadedByUserId: number
+  uploadedByName: string
+  uploadedAt: string
 }
 
 // Submission shape from GET /api/assignments/{assignmentId}/submission/my
 interface SubmissionDetail {
-  submissionId: number;
-  assignmentId: number;
-  groupId: number;
-  groupName: string;
-  isCompleted: boolean;
-  completedAt?: string;
-  createTime: string;
-  files: SubmissionFileDetail[];
+  submissionId: number
+  assignmentId: number
+  groupId: number
+  groupName: string
+  isCompleted: boolean
+  completedAt?: string
+  createTime: string
+  files: SubmissionFileDetail[]
 }
 
-const route = useRoute();
-const assignmentId = computed(() => Number(route.params.id));
+const route = useRoute()
+const assignmentId = computed(() => Number(route.params.id))
 
-const assignment = ref<AssignmentInfo | null>(null);
-const submission = ref<SubmissionDetail | null>(null);
-const loading = ref(false);
-const toast = useToast();
+const assignment = ref<AssignmentInfo | null>(null)
+const submission = ref<SubmissionDetail | null>(null)
+const loading = ref(false)
+const toast = useToast()
 
-const addFileOpen = ref(false);
-const addFileType = ref<"link" | "file">("link");
-const addFileName = ref("");
-const addFileUrl = ref("");
-const addFilePicked = ref<File | null>(null);
-const addFileLoading = ref(false);
+const addFileOpen = ref(false)
+const addFileType = ref<'link' | 'file'>('link')
+const addFileName = ref('')
+const addFileUrl = ref('')
+const addFilePicked = ref<File | null>(null)
+const addFileLoading = ref(false)
 
-const completeLoading = ref(false);
+const completeLoading = ref(false)
 
 async function fetchAssignment() {
-  loading.value = true;
+  loading.value = true
   try {
     const [assignmentRes, submissionRes] = await Promise.all([
       $authedFetch<{ data: AssignmentInfo }>(
-        `/assignments/${assignmentId.value}`,
+        `/assignments/${assignmentId.value}`
       ),
       $authedFetch<{ data: SubmissionDetail | null }>(
-        `/assignments/${assignmentId.value}/submission/my`,
-      ),
-    ]);
-    assignment.value = assignmentRes?.data || null;
-    submission.value = submissionRes?.data || null;
+        `/assignments/${assignmentId.value}/submission/my`
+      )
+    ])
+    assignment.value = assignmentRes?.data || null
+    submission.value = submissionRes?.data || null
   } catch (error) {
-    handleResponseError(error);
+    handleResponseError(error)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
 }
 
 onMounted(() => {
-  fetchAssignment();
-});
+  fetchAssignment()
+})
 
 function openAddFile() {
-  addFileType.value = "link";
-  addFileName.value = "";
-  addFileUrl.value = "";
-  addFilePicked.value = null;
-  addFileOpen.value = true;
+  addFileType.value = 'link'
+  addFileName.value = ''
+  addFileUrl.value = ''
+  addFilePicked.value = null
+  addFileOpen.value = true
 }
 
 function handleFileInput(event: Event) {
-  const target = event.target as HTMLInputElement;
+  const target = event.target as HTMLInputElement
   if (target.files?.[0]) {
-    addFilePicked.value = target.files[0];
+    addFilePicked.value = target.files[0]
     if (!addFileName.value) {
-      addFileName.value = target.files[0].name;
+      addFileName.value = target.files[0].name
     }
   }
 }
 
 async function submitAddFile() {
-  if (!addFileName.value.trim()) return;
+  if (!addFileName.value.trim()) return
 
   try {
-    addFileLoading.value = true;
-    if (addFileType.value === "link") {
+    addFileLoading.value = true
+    if (addFileType.value === 'link') {
       await $authedFetch(
         `/assignments/${assignmentId.value}/submission/my/files`,
         {
-          method: "POST",
+          method: 'POST',
           body: {
             fileName: addFileName.value,
-            externalLink: addFileUrl.value,
-          },
-        },
-      );
+            externalLink: addFileUrl.value
+          }
+        }
+      )
     } else if (addFilePicked.value) {
-      const formData = new FormData();
-      formData.append("file", addFilePicked.value);
-      formData.append("fileName", addFileName.value);
+      const formData = new FormData()
+      formData.append('file', addFilePicked.value)
+      formData.append('fileName', addFileName.value)
       await $authedFetch(
         `/assignments/${assignmentId.value}/submission/my/files`,
         {
-          method: "POST",
-          body: formData,
-        },
-      );
+          method: 'POST',
+          body: formData
+        }
+      )
     }
-    toast.add({ title: "File added successfully", color: "success" });
-    addFileOpen.value = false;
-    fetchAssignment();
+    toast.add({ title: 'File added successfully', color: 'success' })
+    addFileOpen.value = false
+    fetchAssignment()
   } catch (error) {
-    handleResponseError(error);
+    handleResponseError(error)
   } finally {
-    addFileLoading.value = false;
+    addFileLoading.value = false
   }
 }
 
 async function removeFile(fileId: number) {
-  const dialog = useDialog();
+  const dialog = useDialog()
   dialog.confirm({
-    title: "Remove File",
-    message: "Are you sure you want to remove this file?",
-    subTitle: "This action cannot be undone.",
+    title: 'Remove File',
+    message: 'Are you sure you want to remove this file?',
+    subTitle: 'This action cannot be undone.',
     async onOk() {
       try {
         await $authedFetch(
           `/assignments/${assignmentId.value}/submission/my/files/${fileId}`,
           {
-            method: "DELETE",
-          },
-        );
-        toast.add({ title: "File removed successfully", color: "success" });
-        fetchAssignment();
+            method: 'DELETE'
+          }
+        )
+        toast.add({ title: 'File removed successfully', color: 'success' })
+        fetchAssignment()
       } catch (error) {
-        handleResponseError(error);
+        handleResponseError(error)
       }
-    },
-  });
+    }
+  })
 }
 
 async function toggleComplete() {
   try {
-    completeLoading.value = true;
+    completeLoading.value = true
     if (submission.value?.isCompleted) {
       await $authedFetch(
         `/assignments/${assignmentId.value}/submission/my/complete`,
         {
-          method: "DELETE",
-        },
-      );
-      toast.add({ title: "Submission unmarked as complete", color: "neutral" });
+          method: 'DELETE'
+        }
+      )
+      toast.add({ title: 'Submission unmarked as complete', color: 'neutral' })
     } else {
       await $authedFetch(
         `/assignments/${assignmentId.value}/submission/my/complete`,
         {
-          method: "POST",
-        },
-      );
-      toast.add({ title: "Submission marked as complete!", color: "success" });
+          method: 'POST',
+          body: {
+            assignmentId: assignmentId.value
+          }
+        }
+      )
+      toast.add({ title: 'Submission marked as complete!', color: 'success' })
     }
-    fetchAssignment();
+    fetchAssignment()
   } catch (error) {
-    handleResponseError(error);
+    handleResponseError(error)
   } finally {
-    completeLoading.value = false;
+    completeLoading.value = false
   }
 }
 </script>
@@ -203,19 +206,32 @@ async function toggleComplete() {
         </h1>
       </div>
 
-      <div v-if="loading" class="flex justify-center py-12">
-        <UIcon name="i-heroicons-arrow-path" class="animate-spin text-4xl" />
+      <div
+        v-if="loading"
+        class="flex justify-center py-12"
+      >
+        <UIcon
+          name="i-heroicons-arrow-path"
+          class="animate-spin text-4xl"
+        />
       </div>
 
-      <div v-else-if="assignment" class="space-y-6">
+      <div
+        v-else-if="assignment"
+        class="space-y-6"
+      >
         <!-- Assignment Info -->
         <UCard>
           <template #header>
             <div class="flex flex-col sm:flex-row sm:justify-between gap-2">
-              <h2 class="text-lg font-semibold">Assignment Details</h2>
+              <h2 class="text-lg font-semibold">
+                Assignment Details
+              </h2>
 
               <div>
-                <p class="text-sm text-muted">Due Date</p>
+                <p class="text-sm text-muted">
+                  Due Date
+                </p>
                 <p class="font-medium">
                   {{
                     assignment.dueDate
@@ -235,7 +251,7 @@ async function toggleComplete() {
                 :editable="false"
                 class="custom-prose"
                 :ui="{
-                  content: 'p-0 sm:px-0',
+                  content: 'p-0 sm:px-0'
                 }"
               />
             </div>
@@ -246,7 +262,9 @@ async function toggleComplete() {
         <UCard>
           <template #header>
             <div class="flex items-center justify-between">
-              <h2 class="text-lg font-semibold">Your Group's Submission</h2>
+              <h2 class="text-lg font-semibold">
+                Your Group's Submission
+              </h2>
               <UBadge
                 :color="submission?.isCompleted ? 'success' : 'neutral'"
                 variant="subtle"
@@ -260,7 +278,9 @@ async function toggleComplete() {
             <!-- Files section -->
             <div>
               <div class="flex items-center justify-between mb-3">
-                <h3 class="font-medium">Attached Files</h3>
+                <h3 class="font-medium">
+                  Attached Files
+                </h3>
                 <UButton
                   icon="i-lucide-plus"
                   size="sm"
@@ -279,10 +299,13 @@ async function toggleComplete() {
                 No files attached yet
               </div>
 
-              <div v-else class="space-y-2">
+              <div
+                v-else
+                class="space-y-2"
+              >
                 <div
                   v-for="file in submission?.files"
-                  :key="file.id"
+                  :key="file.fileId"
                   class="flex items-center justify-between p-3 rounded-lg border border-default"
                 >
                   <div class="flex items-center gap-2 flex-1 min-w-0">
@@ -338,8 +361,13 @@ async function toggleComplete() {
             <div class="border-t border-default pt-4">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="font-medium">Submission Status</p>
-                  <p v-if="submission?.completedAt" class="text-sm text-muted">
+                  <p class="font-medium">
+                    Submission Status
+                  </p>
+                  <p
+                    v-if="submission?.completedAt"
+                    class="text-sm text-muted"
+                  >
                     Completed at
                     {{ new Date(submission?.completedAt!).toLocaleString() }}
                   </p>
@@ -350,7 +378,7 @@ async function toggleComplete() {
                       ? 'i-lucide-x-circle'
                       : 'i-lucide-check-circle'
                   "
-                  :color="submission?.isCompleted ? 'neutral' : 'success'"
+                  :color="submission?.isCompleted ? 'neutral' : 'primary'"
                   :variant="submission?.isCompleted ? 'subtle' : 'solid'"
                   :loading="completeLoading"
                   :label="
@@ -372,12 +400,15 @@ async function toggleComplete() {
         title="Add File"
         description="Attach a file or external link to your submission"
         :close="{
-          variant: 'subtle',
+          variant: 'subtle'
         }"
       >
         <template #body>
           <div class="space-y-4">
-            <UFormField label="Display Name" required>
+            <UFormField
+              label="Display Name"
+              required
+            >
               <UInput
                 v-model="addFileName"
                 placeholder="Enter a display name for this file"
@@ -404,7 +435,11 @@ async function toggleComplete() {
               />
             </div>
 
-            <UFormField v-if="addFileType === 'link'" label="URL" required>
+            <UFormField
+              v-if="addFileType === 'link'"
+              label="URL"
+              required
+            >
               <UInput
                 v-model="addFileUrl"
                 placeholder="https://..."
@@ -412,12 +447,16 @@ async function toggleComplete() {
               />
             </UFormField>
 
-            <UFormField v-else label="File" required>
+            <UFormField
+              v-else
+              label="File"
+              required
+            >
               <input
                 type="file"
                 class="block w-full text-sm"
                 @change="handleFileInput"
-              />
+              >
             </UFormField>
 
             <div class="flex justify-end gap-2">
@@ -431,8 +470,8 @@ async function toggleComplete() {
               <UButton
                 :loading="addFileLoading"
                 :disabled="
-                  !addFileName.trim() ||
-                  (addFileType === 'link' ? !addFileUrl.trim() : !addFilePicked)
+                  !addFileName.trim()
+                    || (addFileType === 'link' ? !addFileUrl.trim() : !addFilePicked)
                 "
                 @click="submitAddFile"
               >
