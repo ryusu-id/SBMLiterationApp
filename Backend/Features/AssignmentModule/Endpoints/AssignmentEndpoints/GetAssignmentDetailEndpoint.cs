@@ -23,7 +23,6 @@ public class GetAssignmentDetailEndpoint(ApplicationDbContext dbContext)
     {
         Get("{id}");
         Group<AssignmentEndpointGroup>();
-        Roles("admin", "participant");
     }
 
     public override async Task HandleAsync(GetAssignmentDetailRequest req, CancellationToken ct)

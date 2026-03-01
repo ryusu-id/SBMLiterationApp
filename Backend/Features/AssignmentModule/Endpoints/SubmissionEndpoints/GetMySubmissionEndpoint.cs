@@ -15,7 +15,6 @@ public class GetMySubmissionEndpoint(ApplicationDbContext dbContext)
     {
         Get("{assignmentId}/submission/my");
         Group<AssignmentEndpointGroup>();
-        Roles("participant");
     }
 
     public override async Task HandleAsync(GetMySubmissionRequest req, CancellationToken ct)

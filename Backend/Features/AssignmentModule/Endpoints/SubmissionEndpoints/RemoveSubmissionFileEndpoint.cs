@@ -17,7 +17,6 @@ public class RemoveSubmissionFileEndpoint(
     {
         Delete("{assignmentId}/submission/my/files/{fileId}");
         Group<AssignmentEndpointGroup>();
-        Roles("participant");
     }
 
     public override async Task HandleAsync(RemoveSubmissionFileRequest req, CancellationToken ct)

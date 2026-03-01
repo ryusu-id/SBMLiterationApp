@@ -1,105 +1,110 @@
 <script setup lang="ts">
-import { h, resolveComponent } from 'vue'
-import type { TableColumn } from '@nuxt/ui'
-import { $authedFetch, handleResponseError } from '~/apis/api'
-import DashboardNavbar from '~/components/layout/DashboardNavbar.vue'
+import { h, resolveComponent } from "vue";
+import type { TableColumn } from "@nuxt/ui";
+import { $authedFetch, handleResponseError } from "~/apis/api";
+import DashboardNavbar from "~/components/layout/DashboardNavbar.vue";
 
 definePageMeta({
-  layout: 'admin',
-  middleware: ['auth', 'admin-only']
-})
+  layout: "admin",
+  middleware: ["auth", "admin-only"],
+});
 
-const UBadge = resolveComponent('UBadge')
+const UBadge = resolveComponent("UBadge");
 
-interface AssignmentSubmissionFile {
-  id: number
-  fileName: string
-  fileUri?: string
-  externalLink?: string
-  uploadedAt: string
-  uploadedByUser: { id: number, name: string }
-}
-
-interface AssignmentSubmission {
-  id: number
-  groupId: number
-  group: { id: number, name: string }
-  isCompleted: boolean
-  completedAt?: string
-  createTime: string
-  files: AssignmentSubmissionFile[]
-}
-
+// Shape from GET /api/assignments/{id}
 interface AssignmentDetail {
-  id: number
-  title: string
-  description?: string
-  dueDate?: string
-  submissions: AssignmentSubmission[]
+  id: number;
+  title: string;
+  description?: string;
+  dueDate?: string;
+  createTime: string;
+  updateTime?: string;
 }
 
-const route = useRoute()
-const assignmentId = computed(() => Number(route.params.id))
+// Shape from GET /api/assignments/{id}/submissions (PagingResult<SubmissionListItem>.rows)
+interface SubmissionListItem {
+  submissionId?: number;
+  groupId: number;
+  groupName: string;
+  isCompleted: boolean;
+  completedAt?: string;
+  fileCount: number;
+  createTime?: string;
+}
 
-const assignment = ref<AssignmentDetail | null>(null)
-const loading = ref(false)
+const route = useRoute();
+const assignmentId = computed(() => Number(route.params.id));
+
+const assignment = ref<AssignmentDetail | null>(null);
+const submissions = ref<SubmissionListItem[]>([]);
+const loading = ref(false);
 
 async function fetchAssignment() {
-  loading.value = true
+  loading.value = true;
   try {
-    const response = await $authedFetch<{ data: AssignmentDetail }>(`/assignments/${assignmentId.value}`)
-    assignment.value = response?.data || null
+    const [assignmentRes, submissionsRes] = await Promise.all([
+      $authedFetch<{ data: AssignmentDetail }>(
+        `/assignments/${assignmentId.value}`,
+      ),
+      $authedFetch<{ rows: SubmissionListItem[] }>(
+        `/assignments/${assignmentId.value}/submissions`,
+      ),
+    ]);
+    assignment.value = assignmentRes?.data || null;
+    submissions.value = submissionsRes?.rows || [];
   } catch (error) {
-    handleResponseError(error)
+    handleResponseError(error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 onMounted(() => {
-  fetchAssignment()
-})
+  fetchAssignment();
+});
 
-const submissionColumns: TableColumn<AssignmentSubmission>[] = [
+const submissionColumns: TableColumn<SubmissionListItem>[] = [
   {
-    id: 'group',
-    header: 'Group',
-    cell: ({ row }) => row.original.group?.name || h('span', { class: 'text-muted' }, '-')
+    id: "group",
+    header: "Group",
+    cell: ({ row }) =>
+      row.original.groupName || h("span", { class: "text-muted" }, "-"),
   },
   {
-    id: 'status',
-    header: 'Status',
-    meta: { class: { th: 'w-[140px]' } },
+    id: "status",
+    header: "Status",
+    meta: { class: { th: "w-[140px]" } },
     cell: ({ row }) => {
       return h(
         UBadge,
         {
-          color: row.original.isCompleted ? 'success' : 'neutral',
-          variant: 'subtle'
+          color: row.original.isCompleted ? "success" : "neutral",
+          variant: "subtle",
         },
-        () => row.original.isCompleted ? 'Completed' : 'In Progress'
-      )
-    }
+        () => (row.original.isCompleted ? "Completed" : "In Progress"),
+      );
+    },
   },
   {
-    id: 'files',
-    header: 'Files',
-    meta: { class: { th: 'w-[80px]' } },
+    id: "files",
+    header: "Files",
+    meta: { class: { th: "w-[80px]" } },
     cell: ({ row }) => {
-      const count = row.original.files?.length || 0
-      return `${count} file${count !== 1 ? 's' : ''}`
-    }
+      const count = row.original.fileCount || 0;
+      return `${count} file${count !== 1 ? "s" : ""}`;
+    },
   },
   {
-    id: 'completedAt',
-    header: 'Completed At',
-    meta: { class: { th: 'w-[180px]' } },
+    id: "completedAt",
+    header: "Completed At",
+    meta: { class: { th: "w-[180px]" } },
     cell: ({ row }) => {
-      if (!row.original.completedAt) return h('span', { class: 'text-muted' }, '-')
-      return new Date(row.original.completedAt).toLocaleString()
-    }
-  }
-]
+      if (!row.original.completedAt)
+        return h("span", { class: "text-muted" }, "-");
+      return new Date(row.original.completedAt).toLocaleString();
+    },
+  },
+];
 </script>
 
 <template>
@@ -118,53 +123,40 @@ const submissionColumns: TableColumn<AssignmentSubmission>[] = [
             to="/admin/assignments"
           />
           <h1 class="text-2xl font-bold">
-            {{ assignment?.title || 'Loading...' }}
+            {{ assignment?.title || "Loading..." }}
           </h1>
         </div>
 
-        <div
-          v-if="loading"
-          class="flex justify-center py-12"
-        >
-          <UIcon
-            name="i-heroicons-arrow-path"
-            class="animate-spin text-4xl"
-          />
+        <div v-if="loading" class="flex justify-center py-12">
+          <UIcon name="i-heroicons-arrow-path" class="animate-spin text-4xl" />
         </div>
 
-        <div
-          v-else-if="assignment"
-          class="space-y-6"
-        >
+        <div v-else-if="assignment" class="space-y-6">
           <UCard>
             <template #header>
-              <h2 class="text-lg font-semibold">
-                Assignment Info
-              </h2>
+              <h2 class="text-lg font-semibold">Assignment Info</h2>
             </template>
             <div class="space-y-3">
               <div class="flex flex-row flex-wrap justify-between">
                 <div>
-                  <p class="text-2xl mb-2 text-muted">
-                    Title
-                  </p>
+                  <p class="text-2xl mb-2 text-muted">Title</p>
                   <p class="font-medium">
                     {{ assignment.title }}
                   </p>
                 </div>
                 <div>
-                  <p class="text-2xl mb-2 text-muted">
-                    Due Date
-                  </p>
+                  <p class="text-2xl mb-2 text-muted">Due Date</p>
                   <p class="font-medium">
-                    {{ assignment.dueDate ? new Date(assignment.dueDate).toLocaleString() : 'No due date' }}
+                    {{
+                      assignment.dueDate
+                        ? new Date(assignment.dueDate).toLocaleString()
+                        : "No due date"
+                    }}
                   </p>
                 </div>
               </div>
               <div v-if="assignment.description">
-                <p class="text-2xl mb-2 text-muted">
-                  Description
-                </p>
+                <p class="text-2xl mb-2 text-muted">Description</p>
                 <UEditor
                   :model-value="assignment.description"
                   content-type="markdown"
@@ -172,7 +164,7 @@ const submissionColumns: TableColumn<AssignmentSubmission>[] = [
                   :editable="false"
                   class="custom-prose"
                   :ui="{
-                    content: 'p-0 sm:px-0'
+                    content: 'p-0 sm:px-0',
                   }"
                 />
               </div>
@@ -182,11 +174,11 @@ const submissionColumns: TableColumn<AssignmentSubmission>[] = [
           <UCard>
             <template #header>
               <h2 class="text-lg font-semibold">
-                Group Submissions ({{ assignment.submissions?.length || 0 }})
+                Group Submissions ({{ submissions.length }})
               </h2>
             </template>
             <UTable
-              :data="assignment.submissions || []"
+              :data="submissions"
               :columns="submissionColumns"
               class="w-full"
             />
@@ -199,6 +191,6 @@ const submissionColumns: TableColumn<AssignmentSubmission>[] = [
 
 <style scoped>
 .custom-prose :deep(.ProseMirror) {
-    padding: 0
+  padding: 0;
 }
 </style>
