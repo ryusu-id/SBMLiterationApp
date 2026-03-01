@@ -15,6 +15,53 @@ During frontend implementation, four divergences were discovered between the ori
 
 ---
 
+## Route Redesign — 2026-02-27: Participant Submission Endpoints
+
+### Motivation
+
+The original design (`20260223143000_group_and_assignment_module.md`) used `/submissions/{submissionId}/` path segments for participant routes, requiring the client to know the submission ID to attach files or toggle completion. This is unnecessary — participants always operate on *their own group's* submission for a given assignment. The group can be resolved server-side from the JWT `sub` claim via `GroupMember`, making `submissionId` in the path redundant.
+
+A standalone `POST /api/assignments/{id}/submission` endpoint for creating a bare submission record was also dropped — submission creation is handled implicitly on the first file upload.
+
+### Removed
+
+| Method | Route | Reason |
+|--------|-------|--------|
+| `POST` | `/api/assignments/{id}/submission` | Standalone submission creation is unnecessary. `AssignmentSubmission` is auto-created on first file upload. |
+
+### Changed (Participant routes only — Admin routes unchanged)
+
+| Old Route | New Route | Change |
+|-----------|-----------|--------|
+| `POST /api/assignments/{id}/submissions/{submissionId}/complete` | `POST /api/assignments/{assignmentId}/submission/my/complete` | Removed `submissionId`; group resolved via JWT claim. Singular `submission`. |
+| `DELETE /api/assignments/{id}/submissions/{submissionId}/complete` | `DELETE /api/assignments/{assignmentId}/submission/my/complete` | Same as above. |
+| `POST /api/assignments/{id}/submissions/{submissionId}/files` | `POST /api/assignments/{assignmentId}/submission/my/files` | Removed `submissionId`; group resolved via JWT claim. Singular `submission`. |
+| `DELETE /api/assignments/{id}/submissions/{submissionId}/files/{fileId}` | `DELETE /api/assignments/{assignmentId}/submission/my/files/{fileId}` | Removed `submissionId`; group resolved via JWT claim. Singular `submission`. |
+
+### Added
+
+| Method | Route | Role | Purpose |
+|--------|-------|------|---------|
+| `GET` | `/api/assignments/{assignmentId}/submission/my` | participant | Retrieve the calling user's group submission (with files) for a given assignment. Returns `null` data if no submission exists yet. |
+
+### Key Design Rules
+
+- All participant submission routes use `/submission/my/` (singular, no `submissionId` in path).
+- The participant's group is always resolved server-side via `GroupMember` lookup using the JWT `sub` claim. Clients never pass a submission ID or group ID.
+- Admin submission routes retain the plural `submissions` path and are unchanged.
+
+### Backend Files Changed
+
+| File | Change |
+|------|--------|
+| `Backend/Features/AssignmentModule/Endpoints/SubmissionEndpoints/AddSubmissionFileEndpoint.cs` | Route `{id}/submissions/files` → `{assignmentId}/submission/my/files`; request `Id` → `AssignmentId` |
+| `Backend/Features/AssignmentModule/Endpoints/SubmissionEndpoints/RemoveSubmissionFileEndpoint.cs` | Route `{id}/submissions/my/files/{fileId}` → `{assignmentId}/submission/my/files/{fileId}`; request `Id` → `AssignmentId` |
+| `Backend/Features/AssignmentModule/Endpoints/SubmissionEndpoints/MarkSubmissionCompleteEndpoint.cs` | Route `{id}/submissions/my/complete` → `{assignmentId}/submission/my/complete`; request `Id` → `AssignmentId` |
+| `Backend/Features/AssignmentModule/Endpoints/SubmissionEndpoints/UnmarkSubmissionCompleteEndpoint.cs` | Route `{id}/submissions/my/complete` → `{assignmentId}/submission/my/complete`; request `Id` → `AssignmentId` |
+| `Backend/Features/AssignmentModule/Endpoints/SubmissionEndpoints/GetMySubmissionEndpoint.cs` | Route `{id}/submissions/my` → `{assignmentId}/submission/my`; request `Id` → `AssignmentId` |
+
+---
+
 ## Divergence 1 — `GET /api/assignments/my` Returns a Flat Response
 
 ### Design Expected
