@@ -164,8 +164,9 @@ if (app.Environment.IsDevelopment())
 }
 else 
 {
+    var allowedOrigins = app.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
     app.UseCors(policy =>
-        policy.WithOrigins(["https://staging.ryusu.id", "https://sigmasbm.pure-tco.com"])
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod());
 }
