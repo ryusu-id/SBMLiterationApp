@@ -17,6 +17,7 @@ public class UnmarkSubmissionCompleteEndpoint(
     {
         Delete("{assignmentId}/submission/my/complete");
         Group<AssignmentEndpointGroup>();
+        Roles("participant");
     }
 
     public override async Task HandleAsync(UnmarkSubmissionCompleteRequest req, CancellationToken ct)
@@ -36,12 +37,20 @@ public class UnmarkSubmissionCompleteEndpoint(
         }
 
         var submission = await dbContext.AssignmentSubmissions
+            .Include(s => s.Assignment)
             .FirstOrDefaultAsync(s => s.AssignmentId == req.AssignmentId && s.GroupId == groupId, ct);
 
         if (submission is null)
         {
             await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
                 (Result)CrudDomainError.NotFound("Submission", req.AssignmentId)));
+            return;
+        }
+
+        if (!submission.Assignment.IsWithinDeadline())
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
+                (Result)new Error("SubmissionClosed", "This assignment is past its deadline and can no longer be modified.")));
             return;
         }
 

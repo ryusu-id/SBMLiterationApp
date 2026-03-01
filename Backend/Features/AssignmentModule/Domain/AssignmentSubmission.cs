@@ -35,4 +35,9 @@ public class AssignmentSubmission : AuditableEntity
         IsCompleted = false;
         CompletedAt = null;
     }
+
+    public bool CanModifyFiles() => !IsCompleted;
+
+    public bool IsValidToSubmit(Assignment assignment) =>
+        assignment.IsWithinDeadline() && CanModifyFiles();
 }

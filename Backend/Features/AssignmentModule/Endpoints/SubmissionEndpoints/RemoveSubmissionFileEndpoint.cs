@@ -17,6 +17,7 @@ public class RemoveSubmissionFileEndpoint(
     {
         Delete("{assignmentId}/submission/my/files/{fileId}");
         Group<AssignmentEndpointGroup>();
+        Roles("participant");
     }
 
     public override async Task HandleAsync(RemoveSubmissionFileRequest req, CancellationToken ct)
@@ -37,6 +38,7 @@ public class RemoveSubmissionFileEndpoint(
 
         var file = await dbContext.AssignmentSubmissionFiles
             .Include(f => f.Submission)
+                .ThenInclude(s => s.Assignment)
             .FirstOrDefaultAsync(f =>
                 f.Id == req.FileId &&
                 f.Submission.AssignmentId == req.AssignmentId &&
@@ -46,6 +48,15 @@ public class RemoveSubmissionFileEndpoint(
         {
             await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
                 (Result)CrudDomainError.NotFound("SubmissionFile", req.FileId)));
+            return;
+        }
+
+        if (!file.Submission.IsValidToSubmit(file.Submission.Assignment))
+        {
+            var error = !file.Submission.Assignment.IsWithinDeadline()
+                ? new Error("SubmissionClosed", "This assignment is past its deadline and can no longer be modified.")
+                : new Error("SubmissionCompleted", "Unmark the submission as complete before removing files.");
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>((Result)error));
             return;
         }
 

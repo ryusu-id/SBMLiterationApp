@@ -12,6 +12,7 @@ using PureTCOWebApp.Features.FileSystem;
 using PureTCOWebApp.Core.Events;
 using PureTCOWebApp.Core.JsonConverter;
 using PureTCOWebApp.Features.UserXpModule;
+using PureTCOWebApp.Features.EmailModule;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,6 +70,10 @@ if (minioSettings != null)
 
 // Add HttpClient factory for OAuth
 builder.Services.AddHttpClient();
+
+// Configure Email / SMTP
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 
 // Add Google Books Service
 builder.Services.AddHttpClient<PureTCOWebApp.Features.IntegrationModule.GoogleBooks.GoogleBooksService>(client =>

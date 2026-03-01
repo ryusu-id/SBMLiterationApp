@@ -26,4 +26,7 @@ public class Assignment : AuditableEntity
         Description = description;
         DueDate = dueDate;
     }
+
+    public bool IsWithinDeadline() =>
+        DueDate == null || DateTime.UtcNow <= DueDate;
 }
