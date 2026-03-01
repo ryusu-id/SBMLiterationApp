@@ -34,6 +34,7 @@ public class AddSubmissionFileEndpoint(
     {
         Post("{assignmentId}/submission/my/files");
         Group<AssignmentEndpointGroup>();
+        Roles("participant");
         AllowFileUploads();
     }
 
@@ -51,14 +52,21 @@ public class AddSubmissionFileEndpoint(
             return;
         }
 
-        var assignmentExists = await dbContext.Assignments
+        var assignment = await dbContext.Assignments
             .AsNoTracking()
-            .AnyAsync(a => a.Id == req.AssignmentId, ct);
+            .FirstOrDefaultAsync(a => a.Id == req.AssignmentId, ct);
 
-        if (!assignmentExists)
+        if (assignment is null)
         {
             await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
                 (Result)CrudDomainError.NotFound("Assignment", req.AssignmentId)));
+            return;
+        }
+
+        if (!assignment.IsWithinDeadline())
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
+                (Result)new Error("SubmissionClosed", "This assignment is past its deadline and can no longer be modified.")));
             return;
         }
 
@@ -88,6 +96,12 @@ public class AddSubmissionFileEndpoint(
                 await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(createResult));
                 return;
             }
+        }
+        else if (!submission.CanModifyFiles())
+        {
+            await Send.ResultAsync(TypedResults.BadRequest<ApiResponse>(
+                (Result)new Error("SubmissionCompleted", "Unmark the submission as complete before adding files.")));
+            return;
         }
 
         string? fileUri = null;
