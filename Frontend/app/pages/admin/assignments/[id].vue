@@ -3,6 +3,8 @@ import { h, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { $authedFetch, handleResponseError } from '~/apis/api'
 import DashboardNavbar from '~/components/layout/DashboardNavbar.vue'
+import { FileReferenceExtension } from '~/extensions/file-reference'
+import { FileAttachmentExtension } from '~/extensions/file-attachment'
 
 definePageMeta({
   layout: 'admin',
@@ -232,6 +234,7 @@ const submissionColumns: TableColumn<SubmissionListItem>[] = [
                 <UEditor
                   :model-value="assignment.description"
                   content-type="markdown"
+                  :extensions="[FileReferenceExtension, FileAttachmentExtension]"
                   readonly
                   :editable="false"
                   class="custom-prose"

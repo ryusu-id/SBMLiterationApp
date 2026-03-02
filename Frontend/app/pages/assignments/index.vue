@@ -43,6 +43,20 @@ watch(error, (err) => {
   if (err) handleResponseError(err)
 })
 
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, '\'')
+    .replace(/&[a-z]+;/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 const hasAnyAssignment = computed(() => {
   const d = assignments.value?.data
   return (
@@ -131,7 +145,7 @@ const hasAnyAssignment = computed(() => {
                       v-if="assignment.description"
                       class="text-sm text-muted mt-1 line-clamp-2"
                     >
-                      {{ assignment.description }}
+                      {{ stripHtml(assignment.description) }}
                     </p>
                     <div
                       class="flex justify-between items-center gap-3 mt-2 flex-wrap"
@@ -212,7 +226,7 @@ const hasAnyAssignment = computed(() => {
                       v-if="assignment.description"
                       class="text-sm text-muted mt-1 line-clamp-2"
                     >
-                      {{ assignment.description }}
+                      {{ stripHtml(assignment.description) }}
                     </p>
                     <div
                       class="flex justify-between items-center gap-3 mt-2 flex-wrap"
@@ -293,7 +307,7 @@ const hasAnyAssignment = computed(() => {
                       v-if="assignment.description"
                       class="text-sm text-muted mt-1 line-clamp-2"
                     >
-                      {{ assignment.description }}
+                      {{ stripHtml(assignment.description) }}
                     </p>
                     <div
                       class="flex justify-between items-center gap-3 mt-2 flex-wrap"

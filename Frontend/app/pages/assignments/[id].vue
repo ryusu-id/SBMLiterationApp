@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { $authedFetch, handleResponseError } from '~/apis/api'
+import { FileAttachmentExtension } from '~/extensions/file-attachment'
 
 definePageMeta({
   middleware: ['auth', 'participant-only']
@@ -282,6 +283,7 @@ async function toggleComplete() {
                   :model-value="assignment.description"
                   content-type="markdown"
                   readonly
+                  :extensions="[FileAttachmentExtension]"
                   :editable="false"
                   class="custom-prose"
                   :ui="{
