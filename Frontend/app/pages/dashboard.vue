@@ -14,17 +14,26 @@ definePageMeta({
   middleware: ['auth', 'participant-only']
 })
 
-const readingResource = useTemplateRef<typeof ReadingResources>('readingResource')
-const recommendation = useTemplateRef<typeof ReadingRecomendationList>('recommendation')
+const readingResource
+  = useTemplateRef<typeof ReadingResources>('readingResource')
+const recommendation
+  = useTemplateRef<typeof ReadingRecomendationList>('recommendation')
 const auth = useAuth()
 const useAuthedFetch = useNuxtApp().$useAuthedFetch
 
-const { data: readingReports, pending: reportPending, error } = await useAuthedFetch<PagingResult<ReadingReportData>>('/reading-resources/reports/latest-activity', {
-  query: {
-    page: 1,
-    pageSize: 5
+const {
+  data: readingReports,
+  pending: reportPending,
+  error
+} = await useAuthedFetch<PagingResult<ReadingReportData>>(
+  '/reading-resources/reports/latest-activity',
+  {
+    query: {
+      page: 1,
+      pageSize: 5
+    }
   }
-})
+)
 
 interface MyAssignmentItem {
   id: number
@@ -37,7 +46,14 @@ interface MyAssignmentItem {
   fileCount: number
 }
 
-const { data: assignmentsData, error: assignmentsError } = await useAuthedFetch<{ data: MyAssignmentItem[] }>('/assignments/my')
+interface MyAssignmentsResponse {
+  active: MyAssignmentItem[]
+  done: MyAssignmentItem[]
+  missing: MyAssignmentItem[]
+}
+
+const { data: assignmentsData, error: assignmentsError }
+  = await useAuthedFetch<{ data: MyAssignmentsResponse }>('/assignments/my')
 
 watch(error, (err) => {
   if (err) handleResponseError(err)
@@ -48,7 +64,7 @@ watch(assignmentsError, (err) => {
 })
 
 const activeAssignments = computed(() => {
-  return (assignmentsData.value?.data || []).filter(a => !a.isCompleted)
+  return assignmentsData.value?.data?.active || []
 })
 
 function getRemainingTime(dueDate?: string): string {
@@ -65,15 +81,17 @@ function getRemainingTime(dueDate?: string): string {
   return `${minutes}m remaining`
 }
 
-function getRemainingTimeColor(dueDate?: string): 'error' | 'warning' | 'success' | 'neutral' {
+function getRemainingTimeColor(
+  dueDate?: string
+): 'error' | 'warning' | 'success' | 'neutral' {
   if (!dueDate) return 'neutral'
   const now = new Date()
   const due = new Date(dueDate)
   const diff = due.getTime() - now.getTime()
   if (diff <= 0) return 'error'
   const hours = diff / (1000 * 60 * 60)
-  if (hours <= 24) return 'error'
-  if (hours <= 72) return 'warning'
+  if (hours <= 6) return 'error'
+  if (hours <= 12) return 'warning'
   return 'success'
 }
 
@@ -166,12 +184,12 @@ const tab = ref(0)
               :journal="tab === 1"
               @refresh="fetchRecommendation"
             />
-            <DailyReads
-              v-else-if="tab === 2"
-            />
+            <DailyReads v-else-if="tab === 2" />
           </div>
         </div>
-        <div class="hidden md:flex sm:col-span-6 flex-row justify-center items-center">
+        <div
+          class="hidden md:flex sm:col-span-6 flex-row justify-center items-center"
+        >
           <nuxt-img
             src="/book-dash.png"
             class="max-h-[450px]"
@@ -202,7 +220,9 @@ const tab = ref(0)
             :key="assignment.id"
             :to="`/assignments/${assignment.id}`"
           >
-            <UCard class="hover:ring-1 hover:ring-primary transition-shadow cursor-pointer h-full">
+            <UCard
+              class="hover:ring-1 hover:ring-primary transition-shadow cursor-pointer h-full"
+            >
               <div class="flex flex-col gap-2">
                 <h3 class="font-semibold truncate">
                   {{ assignment.title }}
@@ -222,7 +242,9 @@ const tab = ref(0)
                     size="sm"
                     icon="i-lucide-paperclip"
                   >
-                    {{ assignment.fileCount }} file{{ assignment.fileCount !== 1 ? 's' : '' }}
+                    {{ assignment.fileCount }} file{{
+                      assignment.fileCount !== 1 ? "s" : ""
+                    }}
                   </UBadge>
                 </div>
               </div>
