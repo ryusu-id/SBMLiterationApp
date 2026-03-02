@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { h, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
-import { $authedFetch, handleResponseError } from '~/apis/api'
+import { $authedFetch, handleResponseError, useAuth } from '~/apis/api'
 import DashboardNavbar from '~/components/layout/DashboardNavbar.vue'
 import { FileReferenceExtension } from '~/extensions/file-reference'
 import { FileAttachmentExtension } from '~/extensions/file-attachment'
@@ -103,6 +103,33 @@ async function openFilesModal(submissionId: number) {
     filesModalOpen.value = false
   } finally {
     filesLoading.value = false
+  }
+}
+
+const downloadingFileId = ref<number | null>(null)
+
+async function downloadFile(file: SubmissionFileDetail) {
+  if (!file.fileUri) return
+  downloadingFileId.value = file.fileId
+  try {
+    const authStore = useAuth()
+    const response = await fetch(file.fileUri, {
+      headers: { Authorization: `Bearer ${authStore.getToken()}` }
+    })
+    if (!response.ok) throw new Error(`Download failed: ${response.status}`)
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = file.fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    handleResponseError(error)
+  } finally {
+    downloadingFileId.value = null
   }
 }
 
@@ -312,12 +339,24 @@ const submissionColumns: TableColumn<SubmissionListItem>[] = [
                   </div>
                 </div>
                 <UButton
+                  v-if="file.fileUri"
+                  icon="i-lucide-download"
+                  size="xs"
+                  color="primary"
+                  variant="subtle"
+                  label="Download"
+                  :loading="downloadingFileId === file.fileId"
+                  class="shrink-0"
+                  @click="downloadFile(file)"
+                />
+                <UButton
+                  v-else-if="file.externalLink"
                   icon="i-lucide-external-link"
                   size="xs"
                   color="primary"
                   variant="subtle"
                   label="Open"
-                  :to="file.fileUri ?? file.externalLink ?? '#'"
+                  :to="file.externalLink"
                   target="_blank"
                   class="shrink-0"
                 />
