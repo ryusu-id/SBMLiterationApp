@@ -145,7 +145,7 @@ const memberColumns: TableColumn<GroupMember>[] = [
 
 async function downloadTemplate() {
   try {
-    const response = await $authedFetch('/groups/templates/members', {
+    const response = await $authedFetch(`/groups/${groupId.value}/members/template`, {
       responseType: 'blob'
     })
 
