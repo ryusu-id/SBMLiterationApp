@@ -47,34 +47,29 @@ public class GetMyAssignmentsEndpoint(
 
         var groupId = membership.GroupId;
 
-        var assignments = await dbContext.Assignments
-            .AsNoTracking()
+        var now = DateTime.UtcNow;
+
+        var items = await (
+            from a in dbContext.Assignments.AsNoTracking()
+            join sub in dbContext.AssignmentSubmissions.Where(s => s.GroupId == groupId)
+                on a.Id equals sub.AssignmentId into subs
+            from sub in subs.DefaultIfEmpty()
+            select new MyAssignmentItem(
+                a.Id,
+                a.Title,
+                a.Description,
+                a.DueDate,
+                sub == null ? (int?)null : sub.Id,
+                sub != null && sub.IsCompleted,
+                sub == null ? (DateTime?)null : sub.CompletedAt,
+                sub == null ? 0 : sub.Files.Count()))
             .ToListAsync(ct);
 
-        if (assignments.Count == 0)
+        if (items.Count == 0)
         {
             await Send.OkAsync(Result.Success(new MyAssignmentsResponse([], [], [])), cancellation: ct);
             return;
         }
-
-        var assignmentIds = assignments.Select(a => a.Id).ToList();
-
-        var existingSubmissions = await dbContext.AssignmentSubmissions
-            .Include(s => s.Files)
-            .Where(s => s.GroupId == groupId && assignmentIds.Contains(s.AssignmentId))
-            .ToListAsync(ct);
-
-        var submissionByAssignment = existingSubmissions.ToDictionary(s => s.AssignmentId);
-
-        var now = DateTime.UtcNow;
-
-        var items = assignments.Select(a =>
-        {
-            submissionByAssignment.TryGetValue(a.Id, out var sub);
-            return new MyAssignmentItem(
-                a.Id, a.Title, a.Description, a.DueDate,
-                sub?.Id, sub?.IsCompleted ?? false, sub?.CompletedAt, sub?.Files.Count ?? 0);
-        });
 
         // Done: marked as complete (regardless of due date)
         // Missing: past due date AND not marked complete (files attached or not doesn't matter)
