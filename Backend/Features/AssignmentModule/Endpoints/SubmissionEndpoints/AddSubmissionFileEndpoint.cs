@@ -108,10 +108,9 @@ public class AddSubmissionFileEndpoint(
 
         if (hasFile)
         {
-            var ext = Path.GetExtension(req.File!.FileName);
-            var objectName = $"submissions/{submission.Id}/{Guid.NewGuid()}{ext}";
+            var objectName = $"submissions/{submission.Id}/{Guid.NewGuid()}_{req.FileName}";
 
-            using var stream = req.File.OpenReadStream();
+            using var stream = req.File!.OpenReadStream();
             fileUri = await minioService.UploadFileAsync(stream, objectName, req.File.ContentType, ct);
             fileName = string.IsNullOrWhiteSpace(req.FileName) ? req.File.FileName : req.FileName;
         }
