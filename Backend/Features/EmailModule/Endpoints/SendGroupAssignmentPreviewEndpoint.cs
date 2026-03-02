@@ -22,7 +22,7 @@ public class SendGroupAssignmentPreviewEndpoint(
     {
         Post("group-assignment-preview");
         Group<EmailModuleEndpointGroup>();
-        AllowAnonymous();
+        Roles("admin");
         Summary(s =>
         {
             s.Summary = "[PoC] Send a mock group-assignment notification email.";

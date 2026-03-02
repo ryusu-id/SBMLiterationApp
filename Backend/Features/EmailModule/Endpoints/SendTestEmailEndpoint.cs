@@ -33,7 +33,7 @@ public class SendTestEmailEndpoint(IEmailService emailService, IConfiguration co
     {
         Post("send-test");
         Group<EmailModuleEndpointGroup>();
-        AllowAnonymous();
+        Roles("admin");
         Summary(s =>
         {
             s.Summary = "Send a test email to verify SMTP connectivity.";

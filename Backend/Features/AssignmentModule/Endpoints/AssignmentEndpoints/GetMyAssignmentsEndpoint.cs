@@ -3,26 +3,27 @@ using Microsoft.EntityFrameworkCore;
 using PureTCOWebApp.Core;
 using PureTCOWebApp.Core.Models;
 using PureTCOWebApp.Data;
-using PureTCOWebApp.Features.AssignmentModule.Domain;
 
 namespace PureTCOWebApp.Features.AssignmentModule.Endpoints.AssignmentEndpoints;
-
-public class EmptyRequest { }
 
 public record MyAssignmentItem(
     int Id,
     string Title,
     string? Description,
     DateTime? DueDate,
-    int SubmissionId,
+    int? SubmissionId,
     bool IsCompleted,
     DateTime? CompletedAt,
     int FileCount);
 
+public record MyAssignmentsResponse(
+    List<MyAssignmentItem> Active,
+    List<MyAssignmentItem> Done,
+    List<MyAssignmentItem> Missing);
+
 public class GetMyAssignmentsEndpoint(
-    ApplicationDbContext dbContext,
-    UnitOfWork unitOfWork
-) : EndpointWithoutRequest<ApiResponse<List<MyAssignmentItem>>>
+    ApplicationDbContext dbContext
+) : EndpointWithoutRequest<ApiResponse<MyAssignmentsResponse>>
 {
     public override void Configure()
     {
@@ -40,81 +41,54 @@ public class GetMyAssignmentsEndpoint(
 
         if (membership is null)
         {
-            await Send.OkAsync(Result.Success(new List<MyAssignmentItem>()), cancellation: ct);
+            await Send.OkAsync(Result.Success(new MyAssignmentsResponse([], [], [])), cancellation: ct);
             return;
         }
 
         var groupId = membership.GroupId;
 
-        var assignments = await dbContext.Assignments
-            .AsNoTracking()
-            .OrderByDescending(a => a.CreateTime)
+        var now = DateTime.UtcNow;
+
+        var items = await (
+            from a in dbContext.Assignments.AsNoTracking()
+            join sub in dbContext.AssignmentSubmissions.Where(s => s.GroupId == groupId)
+                on a.Id equals sub.AssignmentId into subs
+            from sub in subs.DefaultIfEmpty()
+            select new MyAssignmentItem(
+                a.Id,
+                a.Title,
+                a.Description,
+                a.DueDate,
+                sub == null ? (int?)null : sub.Id,
+                sub != null && sub.IsCompleted,
+                sub == null ? (DateTime?)null : sub.CompletedAt,
+                sub == null ? 0 : sub.Files.Count()))
             .ToListAsync(ct);
 
-        if (assignments.Count == 0)
+        if (items.Count == 0)
         {
-            await Send.OkAsync(Result.Success(new List<MyAssignmentItem>()), cancellation: ct);
+            await Send.OkAsync(Result.Success(new MyAssignmentsResponse([], [], [])), cancellation: ct);
             return;
         }
 
-        var assignmentIds = assignments.Select(a => a.Id).ToList();
-
-        var existingSubmissions = await dbContext.AssignmentSubmissions
-            .Include(s => s.Files)
-            .Where(s => s.GroupId == groupId && assignmentIds.Contains(s.AssignmentId))
-            .ToListAsync(ct);
-
-        var submissionByAssignment = existingSubmissions.ToDictionary(s => s.AssignmentId);
-
-        var missingAssignmentIds = assignmentIds.Except(submissionByAssignment.Keys).ToList();
-        if (missingAssignmentIds.Count > 0)
-        {
-            var newSubmissions = missingAssignmentIds
-                .Select(aId => AssignmentSubmission.Create(aId, groupId))
-                .ToList();
-
-            await dbContext.AssignmentSubmissions.AddRangeAsync(newSubmissions, ct);
-
-            try
-            {
-                var saveResult = await unitOfWork.SaveChangesAsync(ct);
-                if (saveResult.IsSuccess)
-                {
-                    foreach (var s in newSubmissions)
-                        submissionByAssignment[s.AssignmentId] = s;
-                }
-                else
-                {
-                    var refetched = await dbContext.AssignmentSubmissions
-                        .Include(s => s.Files)
-                        .Where(s => s.GroupId == groupId && missingAssignmentIds.Contains(s.AssignmentId))
-                        .ToListAsync(ct);
-                    foreach (var s in refetched)
-                        submissionByAssignment[s.AssignmentId] = s;
-                }
-            }
-            catch
-            {
-                var refetched = await dbContext.AssignmentSubmissions
-                    .Include(s => s.Files)
-                    .Where(s => s.GroupId == groupId && missingAssignmentIds.Contains(s.AssignmentId))
-                    .ToListAsync(ct);
-                foreach (var s in refetched)
-                    submissionByAssignment[s.AssignmentId] = s;
-            }
-        }
-
-        var response = assignments
-            .Select(a =>
-            {
-                if (!submissionByAssignment.TryGetValue(a.Id, out var sub)) return null;
-                return new MyAssignmentItem(
-                    a.Id, a.Title, a.Description, a.DueDate,
-                    sub.Id, sub.IsCompleted, sub.CompletedAt, sub.Files.Count);
-            })
-            .OfType<MyAssignmentItem>()
+        // Done: marked as complete (regardless of due date)
+        // Missing: past due date AND not marked complete (files attached or not doesn't matter)
+        // Active: not past due date AND not marked complete
+        var done = items
+            .Where(a => a.IsCompleted)
+            .OrderByDescending(a => a.DueDate)
             .ToList();
 
-        await Send.OkAsync(Result.Success(response), cancellation: ct);
+        var missing = items
+            .Where(a => !a.IsCompleted && a.DueDate.HasValue && now > a.DueDate.Value)
+            .OrderByDescending(a => a.DueDate)
+            .ToList();
+
+        var active = items
+            .Where(a => !a.IsCompleted && (!a.DueDate.HasValue || now <= a.DueDate.Value))
+            .OrderByDescending(a => a.DueDate)
+            .ToList();
+
+        await Send.OkAsync(Result.Success(new MyAssignmentsResponse(active, done, missing)), cancellation: ct);
     }
 }
