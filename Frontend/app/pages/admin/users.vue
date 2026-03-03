@@ -12,6 +12,10 @@ export interface User {
   id: string
   email: string
   name: string
+  nim?: string
+  programStudy?: string
+  faculty?: string
+  generationYear?: string
   roles?: string[]
   isActive: boolean
   disabled?: boolean
