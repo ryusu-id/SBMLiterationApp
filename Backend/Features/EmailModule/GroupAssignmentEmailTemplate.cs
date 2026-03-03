@@ -8,8 +8,7 @@ namespace PureTCOWebApp.Features.EmailModule;
 public static class GroupAssignmentEmailTemplate
 {
     /// <summary>
-    /// Builds an individual personalised email for a single participant.
-    /// Used in production blast (one email per participant).
+    /// Builds a personalised email for a single participant.
     /// </summary>
     public static MimeMessage Build(
         GroupAssignmentEmailData data,
@@ -19,48 +18,10 @@ public static class GroupAssignmentEmailTemplate
     {
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress(senderName, senderEmail));
-
-        // Production: send to real participant
-        // To send to multiple participants at once (BCC blast), collect all
-        // addresses and add them to message.Bcc instead of message.To.
         message.To.Add(new MailboxAddress(recipient.FullName, recipient.Email));
 
-        message.Subject = $"[SBM Literation] New Assignment: {data.AssignmentTitle}";
+        message.Subject = $"[SIGMA] New Assignment: {data.AssignmentTitle}";
         message.Body = new TextPart("html") { Text = BuildHtml(data, recipient.FullName) };
-
-        return message;
-    }
-
-    /// <summary>
-    /// Builds a single preview/redirect email used in PoC mode.
-    /// The email shows all participant names so the tester can verify the data
-    /// that would normally go to each of them, all in one inbox.
-    /// </summary>
-    public static MimeMessage BuildBlastPreview(
-        GroupAssignmentEmailData data,
-        IList<ParticipantEmailInfo> participants,
-        string testEmail,
-        string testName,
-        string senderEmail,
-        string senderName)
-    {
-        var message = new MimeMessage();
-        message.From.Add(new MailboxAddress(senderName, senderEmail));
-
-        // PoC: all emails go to the test inbox
-        message.To.Add(new MailboxAddress(testName, testEmail));
-
-        // Production recipients are listed as TO (commented out) – un-comment
-        // the block below and remove the test recipient above to go live:
-        //
-        // foreach (var p in participants)
-        //     message.To.Add(new MailboxAddress(p.FullName, p.Email));
-
-        message.Subject = $"[PoC Preview] New Assignment: {data.AssignmentTitle}";
-        message.Body = new TextPart("html")
-        {
-            Text = BuildBlastPreviewHtml(data, participants)
-        };
 
         return message;
     }
@@ -84,9 +45,8 @@ public static class GroupAssignmentEmailTemplate
 
                   <!-- Header -->
                   <tr>
-                    <td style="background:#2b6cb0;padding:24px 32px;">
-                      <h1 style="margin:0;color:#ffffff;font-size:22px;">SBM Literation</h1>
-                      <p style="margin:4px 0 0;color:#bee3f8;font-size:13px;">Learning Platform Notification</p>
+                    <td style="background:#ffffff;border-top:4px solid hsl(38,92%,50%);border-bottom:1px solid hsl(48,70%,85%);padding:16px 32px;">
+                      <img src="https://sigmasbm.pure-tco.com/2.png" alt="SIGMA" height="40" style="display:block;border:0;" />
                     </td>
                   </tr>
 
@@ -101,10 +61,10 @@ public static class GroupAssignmentEmailTemplate
 
                       <!-- Assignment card -->
                       <table width="100%" cellpadding="0" cellspacing="0"
-                             style="background:#ebf8ff;border-left:4px solid #2b6cb0;border-radius:4px;padding:0;">
+                             style="background:#fffbeb;border-left:4px solid hsl(38,92%,50%);border-radius:4px;padding:0;">
                         <tr>
                           <td style="padding:20px 24px;">
-                            <p style="margin:0 0 8px;font-size:18px;font-weight:bold;color:#2b6cb0;">
+                            <p style="margin:0 0 8px;font-size:18px;font-weight:bold;color:#0b4c53;">
                               {data.AssignmentTitle}
                             </p>
                             {(string.IsNullOrWhiteSpace(data.AssignmentDescription)
@@ -113,7 +73,7 @@ public static class GroupAssignmentEmailTemplate
                             <p style="margin:0;font-size:13px;color:#e53e3e;">
                               <strong>Due:</strong>&nbsp;
                               {(data.DueDate.HasValue
-                                  ? data.DueDate.Value.ToString("dddd, MMMM dd yyyy – HH:mm UTC")
+                                  ? data.DueDate.Value.ToString("dddd, MMMM dd yyyy \u2013 HH:mm") + " WIB"
                                   : "No deadline specified")}
                             </p>
                           </td>
@@ -123,6 +83,16 @@ public static class GroupAssignmentEmailTemplate
                       <p style="margin:24px 0 0;font-size:14px;color:#718096;">
                         Log in to the platform to view full details and submit your work.
                       </p>
+                      <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px;">
+                        <tr>
+                          <td align="center">
+                            <a href="https://sigmasbm.pure-tco.com"
+                               style="display:inline-block;background:hsl(38,92%,50%);color:#252432;font-family:Arial,sans-serif;font-size:14px;font-weight:bold;text-decoration:none;padding:13px 32px;border-radius:8px;letter-spacing:0.02em;">
+                              Open SIGMA &rarr;
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
                     </td>
                   </tr>
 
@@ -130,8 +100,11 @@ public static class GroupAssignmentEmailTemplate
                   <tr>
                     <td style="background:#f7fafc;padding:16px 32px;border-top:1px solid #e2e8f0;">
                       <p style="margin:0;font-size:12px;color:#a0aec0;text-align:center;">
-                        You received this email because you are a member of group <em>{data.GroupName}</em> on SBM Literation.
+                        You received this email because you are a member of group <em>{data.GroupName}</em> on SIGMA.
                         Please do not reply to this email.
+                      </p>
+                      <p style="margin:6px 0 0;text-align:center;">
+                        <a href="https://sigmasbm.pure-tco.com" style="font-size:11px;color:hsl(38,72%,42%);text-decoration:none;">sigmasbm.pure-tco.com</a>
                       </p>
                     </td>
                   </tr>
@@ -143,94 +116,5 @@ public static class GroupAssignmentEmailTemplate
         </body>
         </html>
         """;
-
-    private static string BuildBlastPreviewHtml(GroupAssignmentEmailData data, IList<ParticipantEmailInfo> participants)
-    {
-        var participantRows = string.Join("", participants.Select((p, i) =>
-            $"<tr style=\"background:{((i % 2 == 0) ? "#f7fafc" : "#ffffff")}\">" +
-            $"<td style=\"padding:8px 12px;font-size:13px;color:#333;\">{p.FullName}</td>" +
-            $"<td style=\"padding:8px 12px;font-size:13px;color:#555;\">{p.Email}</td>" +
-            $"</tr>"));
-
-        return $"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-              <meta charset="UTF-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            </head>
-            <body style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,sans-serif;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f8;padding:32px 0;">
-                <tr>
-                  <td align="center">
-                    <table width="640" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-
-                      <!-- PoC Banner -->
-                      <tr>
-                        <td style="background:#ed8936;padding:10px 32px;">
-                          <p style="margin:0;color:#fff;font-size:13px;font-weight:bold;">
-                            ⚠ PoC Preview Mode – This email was redirected from {participants.Count} participant(s).
-                            In production each participant receives their own personalised copy.
-                          </p>
-                        </td>
-                      </tr>
-
-                      <!-- Header -->
-                      <tr>
-                        <td style="background:#2b6cb0;padding:24px 32px;">
-                          <h1 style="margin:0;color:#ffffff;font-size:22px;">SBM Literation</h1>
-                          <p style="margin:4px 0 0;color:#bee3f8;font-size:13px;">Group Assignment Notification – Admin Preview</p>
-                        </td>
-                      </tr>
-
-                      <!-- Body -->
-                      <tr>
-                        <td style="padding:32px;">
-                          <h2 style="margin:0 0 4px;font-size:20px;color:#2b6cb0;">{data.AssignmentTitle}</h2>
-                          <p style="margin:0 0 4px;font-size:13px;color:#718096;">Group: <strong>{data.GroupName}</strong></p>
-                          {(string.IsNullOrWhiteSpace(data.AssignmentDescription)
-                              ? ""
-                              : $"<p style=\"margin:8px 0;font-size:14px;color:#4a5568;\">{data.AssignmentDescription}</p>")}
-                          <p style="margin:8px 0 24px;font-size:13px;color:#e53e3e;">
-                            <strong>Due:</strong>&nbsp;
-                            {(data.DueDate.HasValue
-                                ? data.DueDate.Value.ToString("dddd, MMMM dd yyyy – HH:mm UTC")
-                                : "No deadline specified")}
-                          </p>
-
-                          <!-- Participants table -->
-                          <p style="margin:0 0 8px;font-size:14px;font-weight:bold;color:#333;">
-                            Recipients that would receive this email in production ({participants.Count}):
-                          </p>
-                          <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:4px;overflow:hidden;">
-                            <thead>
-                              <tr style="background:#ebf8ff;">
-                                <th style="padding:8px 12px;text-align:left;font-size:12px;color:#2b6cb0;">Name</th>
-                                <th style="padding:8px 12px;text-align:left;font-size:12px;color:#2b6cb0;">Email</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {participantRows}
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-
-                      <!-- Footer -->
-                      <tr>
-                        <td style="background:#f7fafc;padding:16px 32px;border-top:1px solid #e2e8f0;">
-                          <p style="margin:0;font-size:12px;color:#a0aec0;text-align:center;">
-                            SBM Literation – PoC Email Preview | Set <code>Email:TestRecipientEmail</code> to empty in production.
-                          </p>
-                        </td>
-                      </tr>
-
-                    </table>
-                  </td>
-                </tr>
-              </table>
-            </body>
-            </html>
-            """;
-    }
 }
+
