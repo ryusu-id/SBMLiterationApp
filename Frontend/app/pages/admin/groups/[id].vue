@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { h, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
-import { $authedFetch, handleResponseError } from '~/apis/api'
+import { $authedFetch, handleResponseError, useAuth } from '~/apis/api'
 import DashboardNavbar from '~/components/layout/DashboardNavbar.vue'
 
 definePageMeta({
@@ -145,24 +145,43 @@ const memberColumns: TableColumn<GroupMember>[] = [
 
 async function downloadTemplate() {
   try {
-    const response = await $authedFetch(`/groups/${groupId.value}/members/template`, {
-      responseType: 'blob'
+    const { $backendApi } = useNuxtApp()
+    const authStore = useAuth()
+    let filename = 'members-template.xlsx'
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      ($backendApi as typeof $fetch)<Blob>(`/groups/${groupId.value}/members/template`, {
+        responseType: 'blob',
+        headers: { Authorization: `Bearer ${authStore.getToken()}` },
+        onResponse({ response }) {
+          const disposition = response.headers.get('content-disposition')
+          if (disposition) {
+            const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i)
+            if (utf8Match?.[1]) {
+              filename = decodeURIComponent(utf8Match[1].trim())
+            } else {
+              const plainMatch = disposition.match(/filename="?([^";]+)"?/)
+              if (plainMatch?.[1]) filename = plainMatch[1].trim()
+            }
+          }
+          resolve(response._data)
+        },
+        onResponseError({ response }) {
+          reject(response)
+        }
+      })
     })
 
-    // Create download link
-    const url = window.URL.createObjectURL(new Blob([response as Blob]))
+    const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.setAttribute('download', 'members-template.xlsx')
+    link.setAttribute('download', filename)
     document.body.appendChild(link)
     link.click()
     link.remove()
     window.URL.revokeObjectURL(url)
 
-    toast.add({
-      title: 'Template downloaded',
-      color: 'success'
-    })
+    toast.add({ title: 'Template downloaded', color: 'success' })
   } catch (error) {
     handleResponseError(error)
   }
