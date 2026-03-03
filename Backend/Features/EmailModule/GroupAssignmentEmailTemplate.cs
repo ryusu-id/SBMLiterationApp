@@ -2,14 +2,8 @@ using MimeKit;
 
 namespace PureTCOWebApp.Features.EmailModule;
 
-/// <summary>
-/// Builds MimeMessage objects for group-assignment email notifications.
-/// </summary>
 public static class GroupAssignmentEmailTemplate
 {
-    /// <summary>
-    /// Builds a personalised email for a single participant.
-    /// </summary>
     public static MimeMessage Build(
         GroupAssignmentEmailData data,
         ParticipantEmailInfo recipient,
@@ -25,10 +19,6 @@ public static class GroupAssignmentEmailTemplate
 
         return message;
     }
-
-    // -------------------------------------------------------------------------
-    // HTML builders
-    // -------------------------------------------------------------------------
 
     private static string BuildHtml(GroupAssignmentEmailData data, string recipientName) => $"""
         <!DOCTYPE html>
@@ -114,4 +104,3 @@ public static class GroupAssignmentEmailTemplate
         </html>
         """;
 }
-

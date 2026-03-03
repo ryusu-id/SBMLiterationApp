@@ -6,19 +6,12 @@ using PureTCOWebApp.Features.OutboxModule;
 
 namespace PureTCOWebApp.Features.EmailModule.Events;
 
-/// <summary>
-/// Synchronous handler (runs inside UnitOfWork transaction) for AssignmentCreatedEvent.
-/// Resolves all group recipients and writes one GroupAssignmentEmailRequestedEvent
-/// per group into outbox_messages — the actual SMTP call happens later in the background job.
-/// </summary>
 public class AssignmentCreatedEmailEventHandler(
     ApplicationDbContext dbContext,
     IOutboxService outboxService,
     ILogger<AssignmentCreatedEmailEventHandler> logger
 ) : IDomainEventHandler<AssignmentCreatedEvent>
 {
-    // Retained for the actual code path (see commented block in Handle).
-    // Remove this line when switching from mock to production.
     private readonly ApplicationDbContext _dbContext = dbContext;
 
     public async Task Handle(AssignmentCreatedEvent domainEvent, CancellationToken cancellationToken)

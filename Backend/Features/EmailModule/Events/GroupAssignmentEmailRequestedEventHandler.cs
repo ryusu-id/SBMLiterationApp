@@ -2,11 +2,6 @@ using PureTCOWebApp.Core.Events;
 
 namespace PureTCOWebApp.Features.EmailModule.Events;
 
-/// <summary>
-/// Handles GroupAssignmentEmailRequestedEvent dispatched by OutboxProcessorHostedService.
-/// This is the SMTP handler — it runs in the background job, fully decoupled from the HTTP request.
-/// On failure, the Outbox processor will retry up to MaxResilienceCount times.
-/// </summary>
 public class GroupAssignmentEmailRequestedEventHandler(
     IEmailService emailService,
     ILogger<GroupAssignmentEmailRequestedEventHandler> logger
