@@ -64,12 +64,9 @@ public static class GroupAssignmentEmailTemplate
                              style="background:#fffbeb;border-left:4px solid hsl(38,92%,50%);border-radius:4px;padding:0;">
                         <tr>
                           <td style="padding:20px 24px;">
-                            <p style="margin:0 0 8px;font-size:18px;font-weight:bold;color:#0b4c53;">
+                            <p style="margin:0 0 8px;font-size:18px;font-weight:bold;color:#3d3c39;">
                               {data.AssignmentTitle}
                             </p>
-                            {(string.IsNullOrWhiteSpace(data.AssignmentDescription)
-                                ? ""
-                                : $"<p style=\"margin:0 0 12px;font-size:14px;color:#4a5568;\">{data.AssignmentDescription}</p>")}
                             <p style="margin:0;font-size:13px;color:#e53e3e;">
                               <strong>Due:</strong>&nbsp;
                               {(data.DueDate.HasValue
