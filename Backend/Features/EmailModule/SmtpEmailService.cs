@@ -25,7 +25,11 @@ public class SmtpEmailService(
 
         try
         {
+            logger.LogInformation(
+                "Connecting to SMTP server {Host}:{Port} with user {User}",
+                _settings.SmtpHost, _settings.SmtpPort, _settings.SenderEmail);
             await smtp.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, SecureSocketOptions.StartTls, ct);
+            logger.LogInformation("Connected to SMTP server. Authenticating...");
             await smtp.AuthenticateAsync(_settings.SenderEmail, _settings.AppPassword, ct);
 
             foreach (var participant in participants)
