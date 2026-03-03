@@ -14,6 +14,7 @@ using PureTCOWebApp.Features.UserXpModule.Domain;
 using PureTCOWebApp.Core.Events;
 using PureTCOWebApp.Features.GroupModule.Domain;
 using PureTCOWebApp.Features.AssignmentModule.Domain;
+using PureTCOWebApp.Features.OutboxModule.Domain;
 
 namespace PureTCOWebApp.Data;
 public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
@@ -51,6 +52,10 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     public DbSet<Assignment> Assignments { get; set; }
     public DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; }
     public DbSet<AssignmentSubmissionFile> AssignmentSubmissionFiles { get; set; }
+
+    // Outbox module
+    public DbSet<OutboxMessage> OutboxMessages { get; set; }
+    public DbSet<OutboxProcessedMessage> OutboxProcessedMessages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
