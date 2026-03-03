@@ -13,6 +13,7 @@ using PureTCOWebApp.Core.Events;
 using PureTCOWebApp.Core.JsonConverter;
 using PureTCOWebApp.Features.UserXpModule;
 using PureTCOWebApp.Features.EmailModule;
+using PureTCOWebApp.Features.OutboxModule;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +43,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 // Add UnitOfWork
 builder.Services.AddScoped<UnitOfWork>();
+
+// Configure Outbox
+builder.Services.Configure<OutboxSettings>(builder.Configuration.GetSection(OutboxSettings.SectionName));
+builder.Services.AddScoped<IOutboxService, OutboxService>();
+builder.Services.AddHostedService<OutboxProcessorHostedService>();
 
 // Add JWT Token Service
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
