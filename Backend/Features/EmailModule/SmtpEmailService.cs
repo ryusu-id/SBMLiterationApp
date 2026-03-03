@@ -90,9 +90,16 @@ public class SmtpEmailService(
 
         try
         {
+            logger.LogInformation(
+                "Connecting to SMTP server {Host}:{Port} with user {User}",
+                _settings.SmtpHost, _settings.SmtpPort, _settings.SenderEmail);
             await smtp.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, SecureSocketOptions.StartTls, ct);
+            logger.LogInformation("Connected to SMTP server. Authenticating...");
             await smtp.AuthenticateAsync(_settings.SenderEmail, _settings.AppPassword, ct);
+            logger.LogInformation("Authenticated successfully. Sending email...");
             await smtp.SendAsync(message, ct);
+            logger.LogInformation("Email sent successfully to {Recipients}",
+                string.Join(", ", message.To.Select(m => m.ToString())));
         }
         finally
         {
