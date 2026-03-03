@@ -122,6 +122,26 @@ const columns: TableColumn<User>[] = [
     header: 'Name'
   },
   {
+    id: 'nim',
+    accessorKey: 'nim',
+    header: 'NIM'
+  },
+  {
+    id: 'programStudy',
+    accessorKey: 'programStudy',
+    header: 'Study Program'
+  },
+  {
+    id: 'faculty',
+    accessorKey: 'faculty',
+    header: 'Campus'
+  },
+  {
+    id: 'generationYear',
+    accessorKey: 'generationYear',
+    header: 'Class'
+  },
+  {
     id: 'roles',
     accessorKey: 'roles',
     header: 'Roles',
