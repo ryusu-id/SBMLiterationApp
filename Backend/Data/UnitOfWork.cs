@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using PureTCOWebApp.Core.Events;
 using PureTCOWebApp.Core.Models;
-using PureTCOWebApp.Features.OutboxModule;
 
 namespace PureTCOWebApp.Data;
 
@@ -10,12 +9,12 @@ public class UnitOfWork
 {
     private readonly ApplicationDbContext _dbContext;
     private int _transactionCount;
-    private readonly IOutboxService _outboxService;
+    private readonly DomainEventsDispatcher domainEventsDispatcher;
 
-    public UnitOfWork(ApplicationDbContext dbContext, IOutboxService outboxService)
+    public UnitOfWork(ApplicationDbContext dbContext, DomainEventsDispatcher domainEventsDispatcher)
     {
         _dbContext = dbContext;
-        _outboxService = outboxService;
+        this.domainEventsDispatcher = domainEventsDispatcher;
         _transactionCount = 0;
     }
 
@@ -60,8 +59,23 @@ public class UnitOfWork
         {
             await BeginTransactionAsync(cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
-            await StoreOutboxMessagesAsync(cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await PublishDomainEventsAsync();
+            
+            // Save changes made by event handlers
+            var hasChanges = _dbContext.ChangeTracker.Entries()
+                .Any(e => e.State == EntityState.Added || 
+                         e.State == EntityState.Modified || 
+                         e.State == EntityState.Deleted);
+            
+            if (hasChanges)
+            {
+                var result = await SaveChangesAsync(cancellationToken);
+                if (result.IsFailure)
+                {
+                    return result;
+                }
+            }
+            
             await CommitTransactionAsync(cancellationToken);
             return Result.Success();
         }
@@ -85,23 +99,21 @@ public class UnitOfWork
                 .Failure(new Error("DbSaveException", e.InnerException?.Message ?? e.Message));
         }
     }
-
-    private async Task StoreOutboxMessagesAsync(CancellationToken cancellationToken)
+    private async Task PublishDomainEventsAsync()
     {
         var domainEvents = _dbContext.ChangeTracker
             .Entries<AuditableEntity>()
             .Select(entry => entry.Entity)
             .SelectMany(entity =>
             {
-                List<IDomainEvent> events = entity.DomainEvents;
+                List<IDomainEvent> domainEvents = entity.DomainEvents;
+
                 entity.ClearDomainEvents();
-                return events;
+
+                return domainEvents;
             })
             .ToList();
 
-        if (domainEvents.Count > 0)
-        {
-            await _outboxService.StoreManyAsync(domainEvents, cancellationToken);
-        }
+        await domainEventsDispatcher.DispatchAsync(domainEvents);
     }
 }
