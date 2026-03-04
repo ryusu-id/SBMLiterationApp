@@ -64,8 +64,8 @@ function stripHtml(html: string): string {
     <UCard :class="cardClass">
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1 min-w-0">
-          <div class="flex justify-between">
-            <h3 class="text-lg font-semibold truncate">
+          <div class="flex items-start justify-between gap-2 min-w-0 overflow-hidden">
+            <h3 class="text-lg font-semibold min-w-0 flex-1 mr-2">
               {{ assignment.title }}
             </h3>
             <UBadge
