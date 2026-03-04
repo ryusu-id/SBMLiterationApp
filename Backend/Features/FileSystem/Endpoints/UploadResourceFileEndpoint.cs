@@ -84,7 +84,7 @@ public class UploadResourceFileEndpoint : Endpoint<UploadResourceFileRequest, Ap
         {
             // Upload file to MinIO
             using var stream = req.File.OpenReadStream();
-            var url = await _minioService.UploadFileAsync(stream, Guid.NewGuid().ToString() + "_" + req.File.FileName, contentType, ct);
+            var url = await _minioService.UploadFileAsync(stream, "", contentType, ct);
 
             var response = new UploadResourceFileResponse
             {
