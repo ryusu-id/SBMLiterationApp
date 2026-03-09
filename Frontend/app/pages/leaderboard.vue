@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useIntersectionObserver } from '@vueuse/core'
 import { $authedFetch, handleResponseError } from '~/apis/api'
 import type { PagingResult } from '~/apis/paging'
 import Leaderboard from '~/components/home/leaderboard/Leaderboard.vue'
@@ -14,21 +15,31 @@ export interface LeaderboardEntry {
   pictureUrl: string
 }
 
-const pending = ref(false)
-const leaderboardData = ref<LeaderboardEntry[]>([])
+const PAGE_SIZE = 20
 
-onMounted(async () => {
+const pending = ref(false)
+const initialLoading = ref(false)
+const leaderboardData = ref<LeaderboardEntry[]>([])
+const currentPage = ref(1)
+const totalPages = ref(1)
+const sentinel = ref<HTMLElement | null>(null)
+
+const hasMore = computed(() => currentPage.value < totalPages.value)
+
+async function fetchPage(page: number) {
+  if (pending.value) return
   try {
     pending.value = true
+    if (page === 1) initialLoading.value = true
+
     const response = await $authedFetch<PagingResult<LeaderboardEntry>>('/leaderboard', {
-      query: {
-        page: 1,
-        pageSize: 100
-      }
+      query: { page, pageSize: PAGE_SIZE }
     })
 
     if (response.rows) {
-      leaderboardData.value = response.rows
+      leaderboardData.value = page === 1 ? response.rows : [...leaderboardData.value, ...response.rows]
+      totalPages.value = response.totalPages
+      currentPage.value = page
     } else {
       handleResponseError(response)
     }
@@ -36,6 +47,15 @@ onMounted(async () => {
     handleResponseError(err)
   } finally {
     pending.value = false
+    initialLoading.value = false
+  }
+}
+
+onMounted(() => fetchPage(1))
+
+useIntersectionObserver(sentinel, ([entry]) => {
+  if (entry?.isIntersecting && hasMore.value && !pending.value) {
+    fetchPage(currentPage.value + 1)
   }
 })
 </script>
@@ -50,7 +70,7 @@ onMounted(async () => {
 
       <UCard>
         <div
-          v-if="pending"
+          v-if="initialLoading"
           class="flex items-center justify-center py-12"
         >
           <UIcon
@@ -73,10 +93,21 @@ onMounted(async () => {
           </p>
         </div>
 
-        <Leaderboard
-          v-else
-          :data="leaderboardData"
-        />
+        <template v-else>
+          <Leaderboard :data="leaderboardData" />
+
+          <!-- sentinel for infinite scroll -->
+          <div
+            ref="sentinel"
+            class="py-2 flex justify-center"
+          >
+            <UIcon
+              v-if="pending"
+              name="i-heroicons-arrow-path"
+              class="animate-spin text-xl text-muted"
+            />
+          </div>
+        </template>
       </UCard>
     </div>
   </UContainer>
