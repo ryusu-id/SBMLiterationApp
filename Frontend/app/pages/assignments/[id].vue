@@ -245,10 +245,10 @@ async function toggleComplete() {
 
       <div
         v-else-if="assignment"
-        class="flex flex-col lg:flex-row gap-6 items-start w-full"
+        class="grid grid-cols-12 gap-5"
       >
         <!-- Left: Assignment Details -->
-        <div class="flex-1 w-full">
+        <div class="col-span-12 lg:col-span-8">
           <UCard>
             <template #header>
               <div class="flex flex-col sm:flex-row sm:justify-between gap-2">
@@ -296,7 +296,7 @@ async function toggleComplete() {
         </div>
 
         <!-- Right: Assignment Actions -->
-        <div class="w-full lg:w-80 shrink-0">
+        <div class="col-span-12 lg:col-span-4">
           <UCard>
             <template #header>
               <div class="flex items-center justify-between">
