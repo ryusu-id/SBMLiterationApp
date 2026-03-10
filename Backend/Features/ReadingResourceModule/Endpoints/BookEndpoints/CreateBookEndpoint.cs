@@ -21,8 +21,8 @@ public class CreateBookRequestValidator : AbstractValidator<CreateBookRequest>
             .MaximumLength(50).WithMessage("ISBN must not exceed 50 characters.");
 
         RuleFor(x => x.ReadingCategory)
-            .NotEmpty().WithMessage("Reading Category is required.")
-            .MaximumLength(100).WithMessage("Reading Category must not exceed 100 characters.");
+            .MaximumLength(100).WithMessage("Reading Category must not exceed 100 characters.")
+            .When(x => !string.IsNullOrEmpty(x.ReadingCategory));
 
         RuleFor(x => x.CssClass)
             .NotEmpty().WithMessage("CSS Class is required.")
@@ -52,7 +52,7 @@ public class CreateBookRequestValidator : AbstractValidator<CreateBookRequest>
 public record CreateBookRequest(
     string Title,
     string ISBN,
-    string ReadingCategory,
+    string? ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,
@@ -66,7 +66,7 @@ public record CreateBookResponse(
     int UserId,
     string Title,
     string ISBN,
-    string ReadingCategory,
+    string? ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,

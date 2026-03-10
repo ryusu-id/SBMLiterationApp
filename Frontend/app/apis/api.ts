@@ -187,6 +187,26 @@ export const useAuth = defineStore('auth', () => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function handleResponseError(error: any) {
   const toast = useToast()
+  const status = error?.status ?? error?.response?.status ?? error?._data?.status
+
+  if (status === 401) {
+    toast.add({
+      title: 'Oops!',
+      description: 'Something went wrong, try refreshing the page.',
+      color: 'error',
+      icon: 'i-lucide-triangle-alert',
+      actions: [
+        {
+          label: 'Refresh',
+          color: 'error',
+          variant: 'outline',
+          onClick: () => window.location.reload()
+        }
+      ]
+    })
+    return
+  }
+
   const description
     = error?._data?.errorDescription
       || error?.response?._data?.errorDescription

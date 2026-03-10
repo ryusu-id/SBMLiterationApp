@@ -170,6 +170,193 @@ namespace PureTCOWebApp.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("PureTCOWebApp.Features.AssignmentModule.Domain.Assignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("due_date");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_assignments");
+
+                    b.ToTable("assignments", (string)null);
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.AssignmentModule.Domain.AssignmentSubmission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssignmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("assignment_id");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("integer")
+                        .HasColumnName("group_id");
+
+                    b.Property<bool>("IsCompleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_completed");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_assignment_submissions");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("AssignmentId", "GroupId")
+                        .IsUnique()
+                        .HasDatabaseName("uq_assignment_submissions_assignment_group");
+
+                    b.ToTable("assignment_submissions", (string)null);
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.AssignmentModule.Domain.AssignmentSubmissionFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssignmentSubmissionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("assignment_submission_id");
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("ExternalLink")
+                        .HasMaxLength(500)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("external_link");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("file_name");
+
+                    b.Property<string>("FileUri")
+                        .HasMaxLength(500)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("file_uri");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<int>("UploadedByUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("uploaded_by_user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_assignment_submission_files");
+
+                    b.HasIndex("AssignmentSubmissionId");
+
+                    b.HasIndex("UploadedByUserId");
+
+                    b.ToTable("assignment_submission_files", (string)null);
+                });
+
             modelBuilder.Entity("PureTCOWebApp.Features.Auth.Domain.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
@@ -560,6 +747,192 @@ namespace PureTCOWebApp.Migrations
                     b.ToTable("mt_quiz_question", (string)null);
                 });
 
+            modelBuilder.Entity("PureTCOWebApp.Features.GroupModule.Domain.Group", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .IsUnicode(false)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.HasKey("Id")
+                        .HasName("pk_groups");
+
+                    b.ToTable("groups", (string)null);
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.GroupModule.Domain.GroupMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<long>("CreateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("integer")
+                        .HasColumnName("group_id");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
+                    b.Property<long?>("UpdateBy")
+                        .HasColumnType("bigint")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_group_members");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("uq_group_members_user_id");
+
+                    b.ToTable("group_members", (string)null);
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.OutboxModule.Domain.OutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("event_type");
+
+                    b.Property<DateTime?>("LastAttemptedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_attempted_at");
+
+                    b.Property<string>("LastError")
+                        .HasColumnType("text")
+                        .HasColumnName("last_error");
+
+                    b.Property<int>("MaxResilienceCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_resilience_count");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("payload");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("retry_count");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("ix_outbox_messages_created_at");
+
+                    b.HasIndex("RetryCount")
+                        .HasDatabaseName("ix_outbox_messages_retry_count");
+
+                    b.ToTable("outbox_messages", (string)null);
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.OutboxModule.Domain.OutboxProcessedMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("event_type");
+
+                    b.Property<string>("Payload")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("payload");
+
+                    b.Property<DateTime>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("processed_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProcessedAt")
+                        .HasDatabaseName("ix_outbox_processed_messages_processed_at");
+
+                    b.ToTable("outbox_processed_messages", (string)null);
+                });
+
             modelBuilder.Entity("PureTCOWebApp.Features.ReadingCategoryModule.Domain.ReadingCategory", b =>
                 {
                     b.Property<int>("Id")
@@ -832,7 +1205,6 @@ namespace PureTCOWebApp.Migrations
                         .HasColumnName("publish_year");
 
                     b.Property<string>("ReadingCategory")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .IsUnicode(false)
                         .HasColumnType("character varying(100)")
@@ -1190,6 +1562,44 @@ namespace PureTCOWebApp.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PureTCOWebApp.Features.AssignmentModule.Domain.AssignmentSubmission", b =>
+                {
+                    b.HasOne("PureTCOWebApp.Features.AssignmentModule.Domain.Assignment", "Assignment")
+                        .WithMany("Submissions")
+                        .HasForeignKey("AssignmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PureTCOWebApp.Features.GroupModule.Domain.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Assignment");
+
+                    b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.AssignmentModule.Domain.AssignmentSubmissionFile", b =>
+                {
+                    b.HasOne("PureTCOWebApp.Features.AssignmentModule.Domain.AssignmentSubmission", "Submission")
+                        .WithMany("Files")
+                        .HasForeignKey("AssignmentSubmissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PureTCOWebApp.Features.Auth.Domain.User", "UploadedBy")
+                        .WithMany()
+                        .HasForeignKey("UploadedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Submission");
+
+                    b.Navigation("UploadedBy");
+                });
+
             modelBuilder.Entity("PureTCOWebApp.Features.Auth.Domain.RefreshToken", b =>
                 {
                     b.HasOne("PureTCOWebApp.Features.Auth.Domain.User", "User")
@@ -1221,6 +1631,25 @@ namespace PureTCOWebApp.Migrations
                     b.Navigation("DailyRead");
                 });
 
+            modelBuilder.Entity("PureTCOWebApp.Features.GroupModule.Domain.GroupMember", b =>
+                {
+                    b.HasOne("PureTCOWebApp.Features.GroupModule.Domain.Group", "Group")
+                        .WithMany("Members")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PureTCOWebApp.Features.Auth.Domain.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("PureTCOWebApp.Features.ReadingResourceModule.Domain.Entities.ReadingReport", b =>
                 {
                     b.HasOne("PureTCOWebApp.Features.ReadingResourceModule.Domain.ReadingResourceBase", "ReadingResource")
@@ -1232,9 +1661,24 @@ namespace PureTCOWebApp.Migrations
                     b.Navigation("ReadingResource");
                 });
 
+            modelBuilder.Entity("PureTCOWebApp.Features.AssignmentModule.Domain.Assignment", b =>
+                {
+                    b.Navigation("Submissions");
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.AssignmentModule.Domain.AssignmentSubmission", b =>
+                {
+                    b.Navigation("Files");
+                });
+
             modelBuilder.Entity("PureTCOWebApp.Features.DailyReadsModule.Domain.Entities.QuizQuestion", b =>
                 {
                     b.Navigation("Choices");
+                });
+
+            modelBuilder.Entity("PureTCOWebApp.Features.GroupModule.Domain.Group", b =>
+                {
+                    b.Navigation("Members");
                 });
 
             modelBuilder.Entity("PureTCOWebApp.Features.ReadingResourceModule.Domain.ReadingResourceBase", b =>

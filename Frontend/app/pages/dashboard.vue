@@ -14,21 +14,86 @@ definePageMeta({
   middleware: ['auth', 'participant-only']
 })
 
-const readingResource = useTemplateRef<typeof ReadingResources>('readingResource')
-const recommendation = useTemplateRef<typeof ReadingRecomendationList>('recommendation')
+const readingResource
+  = useTemplateRef<typeof ReadingResources>('readingResource')
+const recommendation
+  = useTemplateRef<typeof ReadingRecomendationList>('recommendation')
 const auth = useAuth()
 const useAuthedFetch = useNuxtApp().$useAuthedFetch
 
-const { data: readingReports, pending: reportPending, error } = await useAuthedFetch<PagingResult<ReadingReportData>>('/reading-resources/reports/latest-activity', {
-  query: {
-    page: 1,
-    pageSize: 5
+const {
+  data: readingReports,
+  pending: reportPending,
+  error
+} = await useAuthedFetch<PagingResult<ReadingReportData>>(
+  '/reading-resources/reports/latest-activity',
+  {
+    query: {
+      page: 1,
+      pageSize: 5
+    }
   }
-})
+)
+
+interface MyAssignmentItem {
+  id: number
+  title: string
+  description?: string
+  dueDate?: string
+  submissionId: number
+  isCompleted: boolean
+  completedAt?: string
+  fileCount: number
+}
+
+interface MyAssignmentsResponse {
+  active: MyAssignmentItem[]
+  done: MyAssignmentItem[]
+  missing: MyAssignmentItem[]
+}
+
+const { data: assignmentsData, error: assignmentsError }
+  = await useAuthedFetch<{ data: MyAssignmentsResponse }>('/assignments/my')
 
 watch(error, (err) => {
   if (err) handleResponseError(err)
 })
+
+watch(assignmentsError, (err) => {
+  if (err) handleResponseError(err)
+})
+
+const activeAssignments = computed(() => {
+  return assignmentsData.value?.data?.active || []
+})
+
+function getRemainingTime(dueDate?: string): string {
+  if (!dueDate) return 'No due date'
+  const now = new Date()
+  const due = new Date(dueDate)
+  const diff = due.getTime() - now.getTime()
+  if (diff <= 0) return 'Overdue'
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  if (days > 0) return `${days}d ${hours}h remaining`
+  if (hours > 0) return `${hours}h ${minutes}m remaining`
+  return `${minutes}m remaining`
+}
+
+function getRemainingTimeColor(
+  dueDate?: string
+): 'error' | 'warning' | 'success' | 'neutral' {
+  if (!dueDate) return 'neutral'
+  const now = new Date()
+  const due = new Date(dueDate)
+  const diff = due.getTime() - now.getTime()
+  if (diff <= 0) return 'error'
+  const hours = diff / (1000 * 60 * 60)
+  if (hours <= 6) return 'error'
+  if (hours <= 12) return 'warning'
+  return 'success'
+}
 
 function fetchReadingResources() {
   if (!readingResource.value?.fetch) return
@@ -114,21 +179,77 @@ const tab = ref(0)
           />
           <div class="min-h-[495px] flex items-start justify-center">
             <ReadingResources
-              v-if="tab !== 2"
+              v-if="tab !== 2 && tab !== 3"
               ref="readingResource"
               :journal="tab === 1"
               @refresh="fetchRecommendation"
             />
-            <DailyReads
-              v-else
-            />
+            <DailyReads v-else-if="tab === 2" />
           </div>
         </div>
-        <div class="hidden md:flex sm:col-span-6 flex-row justify-center items-center">
+        <div
+          class="hidden md:flex sm:col-span-6 flex-row justify-center items-center"
+        >
           <nuxt-img
             src="/book-dash.png"
             class="max-h-[450px]"
           />
+        </div>
+      </div>
+
+      <div
+        v-if="activeAssignments.length > 0"
+        class="space-y-3"
+      >
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold tracking-tight">
+            Active Assignments
+          </h2>
+          <UButton
+            icon="i-lucide-arrow-right"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            label="View all"
+            to="/assignments"
+          />
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <NuxtLink
+            v-for="assignment in activeAssignments"
+            :key="assignment.id"
+            :to="`/assignments/${assignment.id}`"
+          >
+            <UCard
+              class="hover:ring-1 hover:ring-primary transition-shadow cursor-pointer h-full"
+            >
+              <div class="flex flex-col gap-2">
+                <h3 class="font-semibold truncate">
+                  {{ assignment.title }}
+                </h3>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <UBadge
+                    :color="getRemainingTimeColor(assignment.dueDate)"
+                    variant="subtle"
+                    size="sm"
+                    icon="i-lucide-clock"
+                  >
+                    {{ getRemainingTime(assignment.dueDate) }}
+                  </UBadge>
+                  <UBadge
+                    color="neutral"
+                    variant="subtle"
+                    size="sm"
+                    icon="i-lucide-paperclip"
+                  >
+                    {{ assignment.fileCount }} file{{
+                      assignment.fileCount !== 1 ? "s" : ""
+                    }}
+                  </UBadge>
+                </div>
+              </div>
+            </UCard>
+          </NuxtLink>
         </div>
       </div>
 

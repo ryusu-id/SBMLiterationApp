@@ -15,7 +15,8 @@ public class UpdateReadingResourceRequestValidator : AbstractValidator<UpdateRea
             .MaximumLength(200).WithMessage("Title must not exceed 200 characters.");
 
         RuleFor(x => x.ReadingCategory)
-            .MaximumLength(100).WithMessage("Reading Category must not exceed 100 characters.");
+            .MaximumLength(100).WithMessage("Reading Category must not exceed 100 characters.")
+            .When(x => !string.IsNullOrEmpty(x.ReadingCategory));
 
         RuleFor(x => x.CssClass)
             .NotEmpty().WithMessage("CSS Class is required.")
@@ -41,7 +42,7 @@ public class UpdateReadingResourceRequestValidator : AbstractValidator<UpdateRea
 public record UpdateReadingResourceRequest(
     int Id,
     string Title,
-    string ReadingCategory,
+    string? ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,
@@ -53,7 +54,7 @@ public record UpdateReadingResourceResponse(
     int Id,
     int UserId,
     string Title,
-    string ReadingCategory,
+    string? ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,
@@ -87,13 +88,6 @@ public class UpdateReadingResourceEndpoint(
                 return;
             }
 
-            var valCtx = FastEndpoints.ValidationContext<UpdateReadingResourceRequest>.Instance;
-            if (string.IsNullOrEmpty(req.ReadingCategory))
-            {
-                valCtx.AddError(e => e.ReadingCategory, "Reading Category is required for Book.");
-            }
-            valCtx.ThrowIfAnyErrors();
-            
             book.Update(req.Title, req.ReadingCategory, req.Authors, req.PublishYear, req.Page, req.CssClass, req.CoverImageUri);
             
             var result = await unitOfWork.SaveChangesAsync(ct);

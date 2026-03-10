@@ -21,7 +21,8 @@ public class CreateJournalPaperRequestValidator : AbstractValidator<CreateJourna
             .MaximumLength(50).WithMessage("ISBN must not exceed 50 characters.");
 
         RuleFor(x => x.ReadingCategory)
-            .MaximumLength(100).WithMessage("Reading Category must not exceed 100 characters.");
+            .MaximumLength(100).WithMessage("Reading Category must not exceed 100 characters.")
+            .When(x => !string.IsNullOrEmpty(x.ReadingCategory));
 
         RuleFor(x => x.CssClass)
             .NotEmpty().WithMessage("CSS Class is required.")
@@ -51,7 +52,7 @@ public class CreateJournalPaperRequestValidator : AbstractValidator<CreateJourna
 public record CreateJournalPaperRequest(
     string Title,
     string ISBN,
-    string ReadingCategory,
+    string? ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,
@@ -65,7 +66,7 @@ public record CreateJournalPaperResponse(
     int UserId,
     string Title,
     string ISBN,
-    string ReadingCategory,
+    string? ReadingCategory,
     string Authors,
     string PublishYear,
     int Page,

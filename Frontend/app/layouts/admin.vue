@@ -34,6 +34,14 @@ const items: NavigationMenuItem[] = [{
   icon: 'i-lucide-calendar-clock',
   to: '/admin/daily-reads'
 }, {
+  label: 'Groups',
+  icon: 'i-lucide-users-round',
+  to: '/admin/groups'
+}, {
+  label: 'Assignments',
+  icon: 'i-lucide-clipboard-list',
+  to: '/admin/assignments'
+}, {
   label: 'Users',
   icon: 'i-lucide-users',
   to: '/admin/users'

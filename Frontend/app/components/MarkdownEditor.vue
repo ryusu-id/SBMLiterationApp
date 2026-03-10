@@ -2,6 +2,16 @@
 import { $authedFetch, handleResponseError } from '~/apis/api'
 import type { EditorToolbarItem } from '@nuxt/ui'
 import type { EditorView } from '@tiptap/pm/view'
+import type { Editor as TiptapEditor } from '@tiptap/core'
+import type { ShallowRef } from 'vue'
+import { FileAttachmentExtension } from '~/extensions/file-attachment'
+
+interface UploadResult {
+  url: string
+  fileName: string
+  fileSize: number
+  contentType: string
+}
 
 const props = defineProps<{
   modelValue: string
@@ -9,11 +19,7 @@ const props = defineProps<{
   renderKey?: number
 }>()
 
-const localRenderKey = ref(0)
-
-const computedRenderKey = computed(() => {
-  return props.renderKey !== undefined ? props.renderKey + localRenderKey.value : localRenderKey.value
-})
+const computedRenderKey = computed(() => props.renderKey ?? 0)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
@@ -25,16 +31,25 @@ const content = computed({
 })
 
 const contentImageUploading = ref(false)
+const contentFileUploading = ref(false)
 const toast = useToast()
 const fileInput = ref<HTMLInputElement>()
 const editorView = ref<EditorView>()
 
-async function uploadImage(file: File) {
+// Template ref to access the underlying TipTap editor instance
+interface UEditorInstance {
+  editor: ShallowRef<TiptapEditor | undefined>
+}
+const uEditorRef = useTemplateRef<UEditorInstance>('uEditorRef')
+
+async function uploadFile(file: File, isImage = false): Promise<UploadResult | null> {
   const formData = new FormData()
   formData.append('file', file)
 
   try {
-    contentImageUploading.value = true
+    if (isImage) contentImageUploading.value = true
+    else contentFileUploading.value = true
+
     const response = await $authedFetch<{
       message: string
       data: {
@@ -46,20 +61,26 @@ async function uploadImage(file: File) {
       errorCode?: string
       errorDescription?: string
       errors?: string[]
-    }>('/files/upload', {
+    }>(isImage ? '/files/upload' : '/files/assignment/upload', {
       method: 'POST',
       body: formData
     })
 
     if (response.data?.url) {
-      return response.data.url
+      return {
+        url: response.data.url,
+        fileName: response.data.fileName || file.name,
+        fileSize: response.data.fileSize || file.size,
+        contentType: response.data.contentType || file.type
+      }
     }
     return null
   } catch (error) {
     handleResponseError(error)
     return null
   } finally {
-    contentImageUploading.value = false
+    if (isImage) contentImageUploading.value = false
+    else contentFileUploading.value = false
   }
 }
 
@@ -69,13 +90,13 @@ async function handleFileInputChange(event: Event) {
   if (!files || files.length === 0) return
 
   const file = files[0]
-  if (!file)
-    return
-  const imageUrl = await uploadImage(file)
+  if (!file) return
 
-  if (imageUrl && editorView.value) {
+  const result = await uploadFile(file, true)
+
+  if (result && editorView.value) {
     const { schema } = editorView.value.state
-    const imageNode = schema.nodes.image?.create({ src: imageUrl })
+    const imageNode = schema.nodes.image?.create({ src: result.url })
 
     if (imageNode) {
       const transaction = editorView.value.state.tr.replaceSelectionWith(imageNode)
@@ -93,6 +114,7 @@ async function handleFileInputChange(event: Event) {
 }
 
 function handleContentImagePaste(view: EditorView, event: ClipboardEvent) {
+  editorView.value = view
   const items = event.clipboardData?.items
   if (!items) return false
 
@@ -105,11 +127,11 @@ function handleContentImagePaste(view: EditorView, event: ClipboardEvent) {
       if (!file) continue
 
       ;(async () => {
-        const imageUrl = await uploadImage(file)
+        const result = await uploadFile(file, true)
 
-        if (imageUrl) {
+        if (result) {
           const { schema } = view.state
-          const imageNode = schema.nodes.image?.create({ src: imageUrl })
+          const imageNode = schema.nodes.image?.create({ src: result.url })
 
           if (imageNode) {
             const transaction = view.state.tr.replaceSelectionWith(imageNode)
@@ -127,34 +149,30 @@ function handleContentImagePaste(view: EditorView, event: ClipboardEvent) {
     }
   }
 
-  // Check for text/markdown content
-  const textData = event.clipboardData?.getData('text/plain')
-  if (textData) {
-    // Increment render key to re-render the editor after paste
-    nextTick(() => {
-      localRenderKey.value++
-    })
-  }
-
+  // Text/markdown paste is handled natively by TipTap's markdown extension.
   return false
 }
 
 function handleDrop(view: EditorView, event: DragEvent) {
+  editorView.value = view
   const files = event.dataTransfer?.files
   if (!files || files.length === 0) return false
 
   const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'))
-  if (imageFiles.length === 0) return false
+  const attachmentFiles = Array.from(files).filter(file => !file.type.startsWith('image/'))
+
+  if (imageFiles.length === 0 && attachmentFiles.length === 0) return false
 
   event.preventDefault()
 
+  // Handle image files
   imageFiles.forEach((file) => {
     ;(async () => {
-      const imageUrl = await uploadImage(file)
+      const result = await uploadFile(file, true)
 
-      if (imageUrl) {
+      if (result) {
         const { schema } = view.state
-        const imageNode = schema.nodes.image?.create({ src: imageUrl })
+        const imageNode = schema.nodes.image?.create({ src: result.url })
 
         if (imageNode) {
           const transaction = view.state.tr.replaceSelectionWith(imageNode)
@@ -164,6 +182,30 @@ function handleDrop(view: EditorView, event: DragEvent) {
             title: 'Image uploaded and inserted',
             color: 'success'
           })
+        }
+      }
+    })()
+  })
+
+  // Handle non-image file attachments
+  attachmentFiles.forEach((file) => {
+    ;(async () => {
+      const result = await uploadFile(file, false)
+
+      if (result) {
+        const { schema } = view.state
+        const nodeType = schema.nodes.fileAttachment
+        console.log(schema.nodes)
+        if (nodeType) {
+          const node = nodeType.create({
+            src: result.url,
+            fileName: result.fileName,
+            fileSize: result.fileSize,
+            contentType: result.contentType
+          })
+          const transaction = view.state.tr.replaceSelectionWith(node)
+          view.dispatch(transaction)
+          toast.add({ title: `"${result.fileName}" attached`, color: 'success' })
         }
       }
     })()
@@ -277,6 +319,7 @@ const toolbarItems: EditorToolbarItem[][] = [
     >
 
     <UEditor
+      ref="uEditorRef"
       :key="computedRenderKey"
       v-slot="{ editor }"
       v-model="content"
@@ -284,6 +327,7 @@ const toolbarItems: EditorToolbarItem[][] = [
       :config="{
         extensions: ['starter-kit', 'image']
       }"
+      :extensions="[FileAttachmentExtension]"
       class="w-full min-h-64 border border-gray-300 dark:border-gray-700 rounded-md"
       :ui="{
         content: 'py-4'
@@ -304,7 +348,7 @@ const toolbarItems: EditorToolbarItem[][] = [
       <UEditorDragHandle :editor="editor" />
     </UEditor>
     <div
-      v-if="contentImageUploading"
+      v-if="contentImageUploading || contentFileUploading"
       class="absolute inset-0 flex items-center justify-center bg-black/10 rounded-md pointer-events-none"
     >
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 pointer-events-auto">
@@ -313,7 +357,9 @@ const toolbarItems: EditorToolbarItem[][] = [
             name="i-lucide-loader-circle"
             class="animate-spin text-2xl text-primary"
           />
-          <span class="text-sm text-gray-600 dark:text-gray-400">Uploading image...</span>
+          <span class="text-sm text-gray-600 dark:text-gray-400">
+            {{ contentImageUploading ? 'Uploading image...' : 'Uploading attachment...' }}
+          </span>
         </div>
       </div>
     </div>

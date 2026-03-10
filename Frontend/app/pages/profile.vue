@@ -2,6 +2,7 @@
 import type { ButtonProps } from '@nuxt/ui'
 import { $authedFetch, handleResponseError, useAuth, type ApiResponse } from '~/apis/api'
 import ProfileForm from '~/components/profile/ProfileForm.vue'
+import GroupInfo from '~/components/profile/GroupInfo.vue'
 import type { ProfileFormSchema } from '~/components/profile/ProfileForm.vue'
 import type { PersistedQuizState } from '~/composables/quiz'
 import type { PersistedReadingReportState } from '~/composables/reading-report'
@@ -206,8 +207,8 @@ function toggleStarryMode() {
                 variant="soft"
                 color="neutral"
                 :icon="color.value === 'dark' ? 'i-heroicons-moon' : 'i-heroicons-sun'"
+                class="cursor-pointer"
                 @click="toggleColorMode"
-              class="cursor-pointer"
               />
               <UButton
                 variant="soft"
@@ -263,7 +264,7 @@ function toggleStarryMode() {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-2">
-              <p class="text-sm font-medium">
+              <p class="text-sm text-muted font-medium">
                 Full Name
               </p>
               <p class="font-semibold">
@@ -272,7 +273,7 @@ function toggleStarryMode() {
             </div>
 
             <div class="space-y-2">
-              <p class="text-sm font-medium">
+              <p class="text-sm text-muted font-medium">
                 NIM (Student ID)
               </p>
               <p class="font-semibold">
@@ -281,7 +282,7 @@ function toggleStarryMode() {
             </div>
 
             <div class="space-y-2">
-              <p class="text-sm font-medium">
+              <p class="text-sm text-muted font-medium">
                 Study Program
               </p>
               <p class="font-semibold">
@@ -290,7 +291,7 @@ function toggleStarryMode() {
             </div>
 
             <div class="space-y-2">
-              <p class="text-sm font-medium">
+              <p class="text-sm text-muted font-medium">
                 Campus
               </p>
               <p class="font-semibold">
@@ -299,7 +300,7 @@ function toggleStarryMode() {
             </div>
 
             <div class="space-y-2">
-              <p class="text-sm font-medium">
+              <p class="text-sm text-muted font-medium">
                 Class
               </p>
               <p class="font-semibold">
@@ -308,6 +309,9 @@ function toggleStarryMode() {
             </div>
           </div>
         </UCard>
+
+        <!-- Group Information Section -->
+        <GroupInfo />
 
         <!-- Unfinished Reading Reports Section -->
         <UCard
@@ -353,8 +357,8 @@ function toggleStarryMode() {
                     <UButton
                       color="primary"
                       variant="soft"
-                      @click="continueReport(report.slug)"
                       class="cursor-pointer"
+                      @click="continueReport(report.slug)"
                     >
                       Continue
                       <template #trailing>

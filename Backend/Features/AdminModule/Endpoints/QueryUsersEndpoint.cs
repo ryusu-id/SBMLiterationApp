@@ -19,6 +19,8 @@ public record QueryUsersResponse(
     string? Email,
     string? Nim,
     string? ProgramStudy,
+    string? Faculty,
+    string? GenerationYear,
     List<string> Roles,
     bool Disabled
 );
@@ -68,6 +70,8 @@ public class QueryUsersEndpoint(UserManager<User> userManager)
                 user.Email,
                 user.Nim,
                 user.ProgramStudy,
+                user.Faculty,
+                user.GenerationYear,
                 [.. roles],
                 user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow
             );

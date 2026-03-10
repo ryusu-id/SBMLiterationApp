@@ -12,6 +12,8 @@ using PureTCOWebApp.Features.FileSystem;
 using PureTCOWebApp.Core.Events;
 using PureTCOWebApp.Core.JsonConverter;
 using PureTCOWebApp.Features.UserXpModule;
+using PureTCOWebApp.Features.EmailModule;
+using PureTCOWebApp.Features.OutboxModule;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,6 +44,11 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Add UnitOfWork
 builder.Services.AddScoped<UnitOfWork>();
 
+// Configure Outbox
+builder.Services.Configure<OutboxSettings>(builder.Configuration.GetSection(OutboxSettings.SectionName));
+builder.Services.AddScoped<IOutboxService, OutboxService>();
+builder.Services.AddHostedService<OutboxProcessorHostedService>();
+
 // Add JWT Token Service
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
@@ -69,6 +76,10 @@ if (minioSettings != null)
 
 // Add HttpClient factory for OAuth
 builder.Services.AddHttpClient();
+
+// Configure Email / SMTP
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 
 // Add Google Books Service
 builder.Services.AddHttpClient<PureTCOWebApp.Features.IntegrationModule.GoogleBooks.GoogleBooksService>(client =>
@@ -131,7 +142,8 @@ builder.Services.AddCors(options =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .WithExposedHeaders("Content-Disposition");
     });
 });
 
@@ -159,11 +171,12 @@ if (app.Environment.IsDevelopment())
 }
 else 
 {
+    var allowedOrigins = app.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
     app.UseCors(policy =>
-        policy.WithOrigins(["https://staging.ryusu.id", "http://localhost:3000", "https://sigmasbm.pure-tco.com"])
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
-              .AllowAnyMethod());
-
+              .AllowAnyMethod()
+              .WithExposedHeaders("Content-Disposition"));
 }
 
 app.UseAuthentication();

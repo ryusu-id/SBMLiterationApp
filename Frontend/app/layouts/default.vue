@@ -19,7 +19,7 @@ onMounted(() => {
       <StarryBackground v-if="starry.enabled" />
     </ClientOnly>
     <UMain
-      class="min-h-[calc(100vh-147px)] pb-[113px] overflow-x-hidden participant"
+      class="min-h-[calc(100vh-147px)] pb-[113px] overflow-x-clip participant"
     >
       <slot />
 
@@ -83,6 +83,7 @@ onMounted(() => {
             class="text-[34px] mb-0"
           />
         </UButton>
+        <!--
         <UTooltip text="Coming Soon">
           <div class="relative">
             <UButton
@@ -103,28 +104,19 @@ onMounted(() => {
               label="Soon"
             />
           </div>
-        </UTooltip>
-        <UTooltip text="Coming Soon">
-          <div class="relative">
-            <UButton
-              :class="navButtonClass"
-              :variant="route.name === 'assignments' ? 'solid' : 'soft'"
-              disabled
-            >
-              <nuxt-icon
-                name="assignments"
-                class="text-[34px] mb-0"
-              />
-            </UButton>
-            <UBadge
-              color="primary"
-              variant="solid"
-              size="xs"
-              class="absolute -top-1 -right-1 pointer-events-none"
-              label="Soon"
+        </UTooltip> -->
+        <div class="relative">
+          <UButton
+            :class="navButtonClass"
+            :variant="route.name === 'assignments' ? 'solid' : 'soft'"
+            to="/assignments"
+          >
+            <nuxt-icon
+              name="assignments"
+              class="text-[34px] mb-0"
             />
-          </div>
-        </UTooltip>
+          </UButton>
+        </div>
         <UButton
           :class="navButtonClass"
           :variant="route.name === 'profile' ? 'solid' : 'soft'"
