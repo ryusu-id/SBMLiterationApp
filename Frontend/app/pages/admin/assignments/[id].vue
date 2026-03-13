@@ -2,6 +2,7 @@
 import { h, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { $authedFetch, handleResponseError, useAuth } from '~/apis/api'
+import { usePaging } from '~/apis/paging'
 import DashboardNavbar from '~/components/layout/DashboardNavbar.vue'
 import { FileReferenceExtension } from '~/extensions/file-reference'
 import { FileAttachmentExtension } from '~/extensions/file-attachment'
@@ -61,8 +62,8 @@ const route = useRoute()
 const assignmentId = computed(() => Number(route.params.id))
 
 const assignment = ref<AssignmentDetail | null>(null)
-const submissions = ref<SubmissionListItem[]>([])
 const loading = ref(false)
+const submissionsPaging = usePaging<SubmissionListItem>(`/assignments/${route.params.id}/submissions`)
 
 // File viewer modal state
 const filesModalOpen = ref(false)
@@ -72,16 +73,10 @@ const filesLoading = ref(false)
 async function fetchAssignment() {
   loading.value = true
   try {
-    const [assignmentRes, submissionsRes] = await Promise.all([
-      $authedFetch<{ data: AssignmentDetail }>(
-        `/assignments/${assignmentId.value}`
-      ),
-      $authedFetch<{ rows: SubmissionListItem[] }>(
-        `/assignments/${assignmentId.value}/submissions`
-      )
-    ])
+    const assignmentRes = await $authedFetch<{ data: AssignmentDetail }>(
+      `/assignments/${assignmentId.value}`
+    )
     assignment.value = assignmentRes?.data || null
-    submissions.value = submissionsRes?.rows || []
   } catch (error) {
     handleResponseError(error)
   } finally {
@@ -135,6 +130,7 @@ async function downloadFile(file: SubmissionFileDetail) {
 
 onMounted(() => {
   fetchAssignment()
+  submissionsPaging.fetch()
 })
 
 type SubmissionStatus = 'Completed' | 'In Progress' | 'Not Yet'
@@ -276,14 +272,24 @@ const submissionColumns: TableColumn<SubmissionListItem>[] = [
           <UCard>
             <template #header>
               <h2 class="text-lg font-semibold">
-                Group Submissions ({{ submissions.length }})
+                Group Submissions ({{ submissionsPaging.totalRows.value }})
               </h2>
             </template>
-            <UTable
-              :data="submissions"
-              :columns="submissionColumns"
-              class="w-full"
-            />
+            <div class="flex flex-col items-end gap-y-2">
+              <UTable
+                :data="submissionsPaging.rows.value"
+                :columns="submissionColumns"
+                :loading="submissionsPaging.loading.value"
+                class="w-full"
+              />
+              <UPagination
+                :page="submissionsPaging.page.value"
+                :total="submissionsPaging.totalRows.value"
+                :items-per-page="submissionsPaging.rowsPerPage.value"
+                :show-controls="false"
+                @update:page="submissionsPaging.goTo($event)"
+              />
+            </div>
           </UCard>
         </div>
       </div>

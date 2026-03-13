@@ -35,6 +35,7 @@ public class QueryAssignmentSubmissionsEndpoint(ApplicationDbContext dbContext)
                         .Where(s => s.AssignmentId == req.Id)
                     on g.Id equals s.GroupId into submissions
                     from sub in submissions.DefaultIfEmpty()
+                    orderby sub, g.Id
                     select new { Group = g, Submission = sub };
 
         var result = await PagingService.PaginateQueryAsync(
