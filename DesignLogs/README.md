@@ -21,3 +21,4 @@ See [`../SBMLiterationApp_LLM_Context.md`](../SBMLiterationApp_LLM_Context.md) S
 | 2026-03-01 | [20260301000001_assignment_submission_implementation_divergence.md](./20260301000001_assignment_submission_implementation_divergence.md) | Assignment Submission Implementation Divergence | 🟡 Moderate | ✅ Approved |
 | 2026-03-02 | [20260302000001_assignment_grouping_mechanism.md](./20260302000001_assignment_grouping_mechanism.md) | Assignment Grouping Mechanism | 🟡 Moderate | ✅ Approved |
 | 2026-03-03 | [20260303034446_outbox_pattern.md](./20260303034446_outbox_pattern.md) | Outbox Pattern | 🔴 Major | ✅ Approved |
+| 2026-03-13 | [20260313000001_push_notification_broadcast.md](./20260313000001_push_notification_broadcast.md) | Web Push Notification Broadcast | 🔴 Major | ✅ Approved |

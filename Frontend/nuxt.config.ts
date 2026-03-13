@@ -15,10 +15,12 @@ export default defineNuxtConfig({
   plugins: ['~/plugins/fetch', '~/plugins/audio.client'],
   $development: {
     runtimeConfig: {
-      backendApiUri: 'http://10.8.0.3:8000/api',
+      backendApiUri: 'http://localhost:8080/api',
+      // backendApiUri: 'http://10.8.0.3:8000/api',
       // backendApiUri: 'https://api.staging.ryusu.id/api',
       public: {
-        backendApiUri: 'http://10.8.0.3:8000/api'
+        backendApiUri: 'http://localhost:8080/api'
+        // backendApiUri: 'http://10.8.0.3:8000/api'
         // backendApiUri: 'https://api.staging.ryusu.id/api'
       }
     }
@@ -60,6 +62,9 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-15',
 
   vite: {
+    server: {
+      allowedHosts: true
+    },
     optimizeDeps: {
       include: [
         '@nuxt/ui > prosemirror-state',
@@ -135,10 +140,10 @@ export default defineNuxtConfig({
     client: {
       installPrompt: true,
       periodicSyncForUpdates: 15 * 60 * 1000 // Check for every 15 minutes
+    },
+    devOptions: {
+      enabled: true,
+      type: 'module'
     }
-    // devOptions: {
-    //   enabled: true,
-    //   type: 'module'
-    // }
   }
 })

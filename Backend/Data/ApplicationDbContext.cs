@@ -15,6 +15,7 @@ using PureTCOWebApp.Core.Events;
 using PureTCOWebApp.Features.GroupModule.Domain;
 using PureTCOWebApp.Features.AssignmentModule.Domain;
 using PureTCOWebApp.Features.OutboxModule.Domain;
+using PureTCOWebApp.Features.PushNotificationModule.Domain;
 
 namespace PureTCOWebApp.Data;
 public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
@@ -56,6 +57,9 @@ public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, i
     // Outbox module
     public DbSet<OutboxMessage> OutboxMessages { get; set; }
     public DbSet<OutboxProcessedMessage> OutboxProcessedMessages { get; set; }
+
+    // Push notification module
+    public DbSet<PushSubscription> PushSubscriptions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
