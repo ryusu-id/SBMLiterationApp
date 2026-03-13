@@ -14,6 +14,8 @@ using PureTCOWebApp.Core.JsonConverter;
 using PureTCOWebApp.Features.UserXpModule;
 using PureTCOWebApp.Features.EmailModule;
 using PureTCOWebApp.Features.OutboxModule;
+using PureTCOWebApp.Features.TestModule;
+using PureTCOWebApp.Features.PushNotificationModule;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +82,10 @@ builder.Services.AddHttpClient();
 // Configure Email / SMTP
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+
+// Configure VAPID (Web Push)
+builder.Services.Configure<VapidSettings>(builder.Configuration.GetSection(VapidSettings.SectionName));
+builder.Services.AddScoped<IPushNotificationService, PushNotificationService>();
 
 // Add Google Books Service
 builder.Services.AddHttpClient<PureTCOWebApp.Features.IntegrationModule.GoogleBooks.GoogleBooksService>(client =>

@@ -45,6 +45,10 @@ const items: NavigationMenuItem[] = [{
   label: 'Users',
   icon: 'i-lucide-users',
   to: '/admin/users'
+}, {
+  label: 'Push Test',
+  icon: 'i-lucide-bell-ring',
+  to: '/admin/push-test'
 }]
 </script>
 
