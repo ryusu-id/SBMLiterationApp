@@ -38,17 +38,18 @@ public class QueryUsersEndpoint(UserManager<User> userManager)
     {
         var query = userManager.Users.AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(req.Email))
-            query = query.Where(u => u.Email!.Contains(req.Email));
-
-        if (!string.IsNullOrWhiteSpace(req.UserName))
-            query = query.Where(u => u.UserName!.Contains(req.UserName));
-
-        if (!string.IsNullOrWhiteSpace(req.Nim))
-            query = query.Where(u => u.Nim.Contains(req.Nim));
-
-        if (!string.IsNullOrWhiteSpace(req.ProgramStudy))
-            query = query.Where(u => u.ProgramStudy.Contains(req.ProgramStudy));
+        if (!string.IsNullOrEmpty(req.Search))
+        {
+            var searchLower = req.Search.ToLower();
+            query = query.Where(u =>
+                u.UserName!.ToLower().Contains(searchLower) ||
+                u.Email!.ToLower().Contains(searchLower) ||
+                u.Nim.ToLower().Contains(searchLower) ||
+                u.ProgramStudy.ToLower().Contains(searchLower) ||
+                u.Faculty.ToLower().Contains(searchLower) ||
+                u.GenerationYear.ToLower().Contains(searchLower)
+            );
+        }
 
         if (req.Roles != null && req.Roles.Count > 0)
         {
