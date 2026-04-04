@@ -63,9 +63,9 @@ function stripHtml(html: string): string {
   <NuxtLink :to="`/assignments/${assignment.id}`">
     <UCard :class="cardClass">
       <div class="flex items-start justify-between gap-4">
-        <div class="flex-1 min-w-0">
-          <div class="flex items-start justify-between gap-2 min-w-0 overflow-hidden">
-            <h3 class="text-lg font-semibold min-w-0 flex-1 mr-2">
+        <div class="flex-1 min-w-0 overflow-hidden">
+          <div class="flex items-start justify-between gap-2">
+            <h3 class="text-lg font-semibold min-w-0 flex-1 mr-2 text-wrap">
               {{ assignment.title }}
             </h3>
             <UBadge
@@ -78,7 +78,7 @@ function stripHtml(html: string): string {
           </div>
           <UEditor
             v-if="assignment.description"
-            class="text-sm text-muted mt-1 line-clamp-2 custom-prose"
+            class="text-sm text-muted mt-1 custom-prose w-full"
             :editable="false"
             content-type="markdown"
             :config="{ extensions: ['starter-kit', 'image'] }"
@@ -141,8 +141,19 @@ function stripHtml(html: string): string {
 </template>
 
 <style scoped>
+.custom-prose {
+  max-width: 100%;
+  overflow: hidden;
+}
+
 .custom-prose :deep(.ProseMirror) {
   padding: 0;
+  overflow: hidden;
+  max-width: 100%;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .custom-prose :deep(.ProseMirror h1),

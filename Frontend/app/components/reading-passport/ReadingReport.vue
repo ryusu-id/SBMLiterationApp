@@ -13,7 +13,6 @@ defineProps<{
   }
   withImage?: boolean
 }>()
-
 </script>
 
 <template>
@@ -72,30 +71,35 @@ defineProps<{
           >
             {{ report.insight }}
           </p>
-          
-          <UModal
-          :title="report.resourceTitle"
-          :close="{
-            color: 'primary',
-            variant: 'outline',
-            class: 'rounded-full'
-          }"
-          :ui="{
-            title: 'line-clamp-1 max-w-[91%] sm:max-w-none',
-             body: 'p-0'
-          }"
-        >
-        
-  <UButton icon="i-heroicons-chevron-right" color="primary" class="mt-[8px] rounded-full cursor-pointer" variant="subtle" :ui="{
-    base: '!rounded-full'
-  }" />
 
-          <template #body>
-            <div class="!p-4 sm:!p-0 text-sm text-justify shrink-0">
-              {{ report.insight }}
-            </div>
-          </template>
-        </UModal>
+          <UModal
+            :title="report.resourceTitle"
+            :close="{
+              color: 'primary',
+              variant: 'outline',
+              class: 'rounded-full'
+            }"
+            :ui="{
+              title: 'line-clamp-1 max-w-[91%] sm:max-w-none',
+              body: 'p-0'
+            }"
+          >
+            <UButton
+              icon="i-heroicons-chevron-right"
+              color="primary"
+              class="mt-[8px] rounded-full cursor-pointer"
+              variant="subtle"
+              :ui="{
+                base: '!rounded-full'
+              }"
+            />
+
+            <template #body>
+              <div class="!p-4 sm:!p-0 text-sm text-justify shrink-0">
+                {{ report.insight }}
+              </div>
+            </template>
+          </UModal>
         </div>
 
         <USeparator
